@@ -2,38 +2,55 @@
     box-sizing: border-box;
 }
 
+:root {
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #f5f5f5;
+    background: #08080b;
+}
+
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
-    background: #111;
-    color: white;
-
     min-height: 100vh;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    place-items: center;
+    background:
+        radial-gradient(circle at top, rgba(255, 45, 45, 0.14), transparent 40%),
+        #08080b;
 }
 
 .container {
-    width: 90%;
-    max-width: 600px;
-
+    width: min(92%, 720px);
+    padding: 48px;
     text-align: center;
+    background: rgba(20, 20, 25, 0.92);
+    border: 1px solid #2b2b33;
+    border-radius: 24px;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+}
 
-    background: #1c1c1c;
-    padding: 40px;
-
-    border-radius: 16px;
+.brand {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    color: #ff4545;
+    margin-bottom: 18px;
 }
 
 h1 {
-    margin-bottom: 10px;
+    margin: 0;
+    font-size: clamp(36px, 7vw, 64px);
+    line-height: 1;
+}
+
+h1 span {
+    color: #ff4545;
 }
 
 .subtitle {
-    color: #aaa;
-    margin-bottom: 30px;
+    color: #aaaab3;
+    font-size: 16px;
+    margin: 20px auto 30px;
+    max-width: 520px;
 }
 
 form {
@@ -42,33 +59,76 @@ form {
 }
 
 input {
+    min-width: 0;
     flex: 1;
+    padding: 16px 18px;
+    border: 1px solid #35353e;
+    border-radius: 12px;
+    background: #101014;
+    color: #fff;
+    outline: none;
+    font-size: 15px;
+}
 
-    padding: 14px;
-
-    border: none;
-    border-radius: 8px;
-
-    font-size: 16px;
+input:focus {
+    border-color: #ff4545;
+    box-shadow: 0 0 0 3px rgba(255, 69, 69, 0.12);
 }
 
 button {
-    padding: 14px 20px;
-
-    border: none;
-    border-radius: 8px;
-
-    background: #ff3333;
+    padding: 16px 22px;
+    border: 0;
+    border-radius: 12px;
+    background: #ff3d3d;
     color: white;
-
-    font-size: 16px;
+    font-weight: 800;
     cursor: pointer;
+    white-space: nowrap;
 }
 
 button:hover {
-    opacity: 0.85;
+    background: #ff5555;
 }
 
-#status {
-    margin-top: 20px;
+button:disabled {
+    cursor: wait;
+    opacity: 0.6;
+}
+
+.status {
+    min-height: 24px;
+    margin: 20px 0 0;
+    color: #d7d7df;
+}
+
+.notice {
+    margin: 28px 0 0;
+    color: #777780;
+    font-size: 12px;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+@media (max-width: 620px) {
+    .container {
+        padding: 32px 20px;
+    }
+
+    form {
+        flex-direction: column;
+    }
+
+    button {
+        width: 100%;
+    }
 }
