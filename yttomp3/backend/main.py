@@ -3,14 +3,16 @@ import re
 import tempfile
 from pathlib import Path
 
+import deno
 import imageio_ffmpeg
 import yt_dlp
 from fastapi import FastAPI, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
-# imageio-ffmpeg provides a portable FFmpeg binary on Render's Python runtime.
+# Portable binaries supplied by PyPI packages on Render's Python runtime.
 FFMPEG_PATH = imageio_ffmpeg.get_ffmpeg_exe()
+DENO_PATH = deno.find_deno_bin()
 
 app = FastAPI(title="VoidForge YT to MP3")
 
@@ -70,6 +72,8 @@ def download(url: str = Form(...)):
         "quiet": True,
         "no_warnings": True,
         "ffmpeg_location": FFMPEG_PATH,
+        "js_runtimes": {"deno": {"path": DENO_PATH}},
+        "remote_components": ["ejs:github"],
         "postprocessors": [
             {
                 "key": "FFmpegExtractAudio",
