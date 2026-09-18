@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>YouTube to MP3</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>YouTube to MP3</h1>
+
+        <p class="subtitle">
+            Convert permitted YouTube content to MP3.
+        </p>
+
+        <form id="downloadForm">
+
+            <input
+                id="url"
+                name="url"
+                type="url"
+                placeholder="Paste YouTube URL..."
+                required
+            >
+
+            <button type="submit">
+                Download MP3
+            </button>
+
+        </form>
+
+        <p id="status"></p>
+
+    </div>
+
+    <script src="/static/script.js"></script>
+
+</body>
+</html>
