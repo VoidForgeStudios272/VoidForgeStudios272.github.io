@@ -4,45 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>YouTube to MP3</title>
+    <meta name="description" content="VoidForge Studios YouTube to MP3 converter">
+    <meta name="theme-color" content="#0b0b0f">
 
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
+    <title>YT to MP3 | VoidForge Studios</title>
+
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+    <main class="container">
+        <div class="brand">VOIDFORGE STUDIOS</div>
 
-    <div class="container">
-
-        <h1>YouTube to MP3</h1>
+        <h1>YouTube <span>→</span> MP3</h1>
 
         <p class="subtitle">
-            Convert permitted YouTube content to MP3.
+            Paste a YouTube link and convert permitted content to MP3.
         </p>
 
         <form id="downloadForm">
+            <label for="url" class="sr-only">YouTube URL</label>
 
             <input
                 id="url"
                 name="url"
                 type="url"
-                placeholder="Paste YouTube URL..."
+                placeholder="https://www.youtube.com/watch?v=..."
+                autocomplete="url"
                 required
             >
 
-            <button type="submit">
-                Download MP3
+            <button id="downloadButton" type="submit">
+                <span>Download MP3</span>
             </button>
-
         </form>
 
-        <p id="status"></p>
+        <p id="status" class="status" role="status" aria-live="polite"></p>
 
-    </div>
+        <p class="notice">
+            Only download content you have permission to download.
+        </p>
+    </main>
 
     <script src="static/script.js"></script>
-
 </body>
 </html>
