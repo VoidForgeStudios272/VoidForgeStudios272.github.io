@@ -3,4 +3,3 @@ uvicorn[standard]
 python-multipart
 yt-dlp[default]
 imageio-ffmpeg
-deno
