@@ -1,22 +1,17 @@
-import os
 import re
 import tempfile
 from pathlib import Path
 
-import deno
 import imageio_ffmpeg
 import yt_dlp
 from fastapi import FastAPI, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
-# Portable binaries supplied by PyPI packages on Render's Python runtime.
 FFMPEG_PATH = imageio_ffmpeg.get_ffmpeg_exe()
-DENO_PATH = deno.find_deno_bin()
 
 app = FastAPI(title="VoidForge YT to MP3")
 
-# The frontend is hosted by GitHub Pages, so CORS is required.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -42,9 +37,7 @@ def is_youtube_url(url: str) -> bool:
     match = re.match(r"^https?://([^/]+)(?:/|$)", url, re.IGNORECASE)
     if not match:
         return False
-
-    host = match.group(1).lower().split(":")[0]
-    return host in YOUTUBE_HOSTS
+    return match.group(1).lower().split(":")[0] in YOUTUBE_HOSTS
 
 
 @app.get("/")
@@ -55,12 +48,8 @@ def health():
 @app.post("/download")
 def download(url: str = Form(...)):
     url = url.strip()
-
     if not is_youtube_url(url):
-        raise HTTPException(
-            status_code=400,
-            detail="Please enter a valid YouTube URL.",
-        )
+        raise HTTPException(status_code=400, detail="Please enter a valid YouTube URL.")
 
     temp_dir = tempfile.mkdtemp(prefix="yttomp3-")
     output = Path(temp_dir) / "audio.%(ext)s"
@@ -72,7 +61,6 @@ def download(url: str = Form(...)):
         "quiet": True,
         "no_warnings": True,
         "ffmpeg_location": FFMPEG_PATH,
-        "js_runtimes": {"deno": {"path": DENO_PATH}},
         "remote_components": ["ejs:github"],
         "postprocessors": [
             {
@@ -88,24 +76,15 @@ def download(url: str = Form(...)):
             ydl.download([url])
 
         mp3_path = Path(temp_dir) / "audio.mp3"
-
         if not mp3_path.exists():
-            raise HTTPException(
-                status_code=500,
-                detail="MP3 conversion failed.",
-            )
+            raise HTTPException(status_code=500, detail="MP3 conversion failed.")
 
         return FileResponse(
             path=mp3_path,
             media_type="audio/mpeg",
             filename="audio.mp3",
-            background=None,
         )
-
     except HTTPException:
         raise
     except Exception as exc:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Conversion failed: {exc}",
-        )
+        raise HTTPException(status_code=500, detail=f"Conversion failed: {exc}")
