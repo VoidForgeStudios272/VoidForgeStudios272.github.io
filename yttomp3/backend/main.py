@@ -61,7 +61,9 @@ def download(url: str = Form(...)):
         "quiet": True,
         "no_warnings": True,
         "ffmpeg_location": FFMPEG_PATH,
-        "remote_components": ["ejs:github"],
+        "js_runtimes": {
+            "node": {},
+        },
         "postprocessors": [
             {
                 "key": "FFmpegExtractAudio",
