@@ -23,8 +23,31 @@
     content="dark"
   >
 
-   <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
-  <link rel="icon" type="image/png" sizes="32x32" href="./assets/voidforge-mark-192.png">
+   <link id="voidforgeFavicon" rel="icon" type="image/svg+xml" href="./assets/favicon.svg?v=8">
+
+  <script>
+    (() => {
+      const refreshFavicon = () => {
+        const href = new URL("./assets/favicon.svg", document.baseURI);
+        href.searchParams.set("start", String(Date.now()));
+
+        document
+          .querySelectorAll('link[rel~="icon"]')
+          .forEach(link => link.remove());
+
+        const link = document.createElement("link");
+        link.id = "voidforgeFavicon";
+        link.rel = "icon";
+        link.type = "image/svg+xml";
+        link.href = href.href;
+        document.head.appendChild(link);
+      };
+
+      if (navigator.onLine) {
+        refreshFavicon();
+      }
+    })();
+  </script>
 
   
   <link
