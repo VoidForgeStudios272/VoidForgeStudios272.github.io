@@ -1,4 +1,4 @@
-const CACHE_NAME = "voidforge-shell-v2";
+const CACHE_NAME = "voidforge-shell-v3";
 const OFFLINE_URL = "./index.html";
 
 const SHELL = [
@@ -37,6 +37,7 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
   const request = event.request;
 
+  // Only handle GET requests from this origin
   if (
     request.method !== "GET" ||
     new URL(request.url).origin !== location.origin
@@ -48,11 +49,13 @@ self.addEventListener("fetch", event => {
 
   // -----------------------------------------
   // Updated logo
-  // Always fetch the newest version first
+  // Always fetch newest version from network
   // -----------------------------------------
   if (url.pathname.endsWith("/assets/voidforge-mark.svg")) {
     event.respondWith(
-      fetch(request, { cache: "no-store" })
+      fetch(request, {
+        cache: "reload"
+      })
         .then(response => {
           if (response.ok) {
             const copy = response.clone();
@@ -64,7 +67,9 @@ self.addEventListener("fetch", event => {
 
           return response;
         })
-        .catch(() => caches.match(request))
+        .catch(() => {
+          return caches.match(request);
+        })
     );
 
     return;
@@ -76,7 +81,9 @@ self.addEventListener("fetch", event => {
   // -----------------------------------------
   if (url.pathname.endsWith("/games.json")) {
     event.respondWith(
-      fetch(request, { cache: "no-store" })
+      fetch(request, {
+        cache: "no-store"
+      })
         .then(response => {
           if (response.ok) {
             const copy = response.clone();
@@ -88,7 +95,9 @@ self.addEventListener("fetch", event => {
 
           return response;
         })
-        .catch(() => caches.match(request))
+        .catch(() => {
+          return caches.match(request);
+        })
     );
 
     return;
@@ -103,7 +112,9 @@ self.addEventListener("fetch", event => {
     url.pathname.endsWith(".js")
   ) {
     event.respondWith(
-      fetch(request, { cache: "no-store" })
+      fetch(request, {
+        cache: "no-store"
+      })
         .then(response => {
           if (response.ok) {
             const copy = response.clone();
@@ -115,7 +126,9 @@ self.addEventListener("fetch", event => {
 
           return response;
         })
-        .catch(() => caches.match(request))
+        .catch(() => {
+          return caches.match(request);
+        })
     );
 
     return;
@@ -130,7 +143,9 @@ self.addEventListener("fetch", event => {
     url.pathname.endsWith(".html")
   ) {
     event.respondWith(
-      fetch(request, { cache: "no-store" })
+      fetch(request, {
+        cache: "no-store"
+      })
         .then(response => {
           if (response.ok) {
             const copy = response.clone();
@@ -142,10 +157,12 @@ self.addEventListener("fetch", event => {
 
           return response;
         })
-        .catch(() =>
-          caches.match(request)
-            .then(cached => cached || caches.match(OFFLINE_URL))
-        )
+        .catch(() => {
+          return caches.match(request)
+            .then(cached => {
+              return cached || caches.match(OFFLINE_URL);
+            });
+        })
     );
 
     return;
