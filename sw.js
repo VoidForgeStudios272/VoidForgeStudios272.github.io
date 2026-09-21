@@ -1,4 +1,4 @@
-const CACHE_NAME = "voidforge-shell-v7";
+const CACHE_NAME = "voidforge-shell-v8";
 const CACHE_PREFIX = "voidforge-shell-";
 const OFFLINE_URL = new URL("./index.html", self.registration.scope).href;
 
