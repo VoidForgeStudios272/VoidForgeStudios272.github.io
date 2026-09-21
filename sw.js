@@ -1,16 +1,17 @@
-const CACHE_NAME = "voidforge-shell-v5";
-const OFFLINE_URL = "./index.html";
-const NETWORK_TIMEOUT = 3000;
+const CACHE_NAME = "voidforge-shell-v6";
+const CACHE_PREFIX = "voidforge-shell-";
+const OFFLINE_URL = new URL("./index.html", self.registration.scope).href;
 
 const SHELL = [
-  "./",
-  "./index.html",
-  "./assets/voidforge-mark.svg",
-  "./games.json",
-  "./manifest.webmanifest"
+  new URL("./", self.registration.scope).href,
+  new URL("./index.html", self.registration.scope).href,
+  new URL("./assets/voidforge-mark.svg", self.registration.scope).href,
+  new URL("./games.json", self.registration.scope).href,
+  new URL("./manifest.webmanifest", self.registration.scope).href
 ];
 
-// Install
+const SHELL_URLS = new Set(SHELL);
+
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -19,14 +20,13 @@ self.addEventListener("install", event => {
   );
 });
 
-// Activate and remove old caches
 self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys()
       .then(keys =>
         Promise.all(
           keys
-            .filter(key => key !== CACHE_NAME)
+            .filter(key => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME)
             .map(key => caches.delete(key))
         )
       )
@@ -34,63 +34,71 @@ self.addEventListener("activate", event => {
   );
 });
 
-// Fetch
+function isSameOriginRequest(request) {
+  try {
+    return new URL(request.url).origin === self.location.origin;
+  } catch {
+    return false;
+  }
+}
+
+function isNavigationRequest(request) {
+  const url = new URL(request.url);
+  return request.mode === "navigate" || url.pathname.endsWith(".html") || url.pathname === "/";
+}
+
+function isShellRequest(request) {
+  return SHELL_URLS.has(new URL(request.url).href);
+}
+
+async function updateShellCache(request) {
+  const response = await fetch(request, { cache: "no-store" });
+
+  if (response.ok && isShellRequest(request)) {
+    const cache = await caches.open(CACHE_NAME);
+    await cache.put(request, response.clone());
+  }
+
+  return response;
+}
+
 self.addEventListener("fetch", event => {
   const request = event.request;
 
-  // Only handle GET requests from this origin.
-  if (
-    request.method !== "GET" ||
-    new URL(request.url).origin !== location.origin
-  ) {
+  if (request.method !== "GET" || !isSameOriginRequest(request)) {
     return;
   }
 
-  const url = new URL(request.url);
-  const isNavigation =
-    request.mode === "navigate" ||
-    url.pathname.endsWith(".html");
+  if (isNavigationRequest(request)) {
+    event.respondWith(
+      updateShellCache(request).catch(async () => {
+        const cached = await caches.match(request);
+        if (cached) return cached;
 
-  // Always start a network request. A successful response replaces the cached
-  // response, so the cache stays as current as the network allows.
-  const networkRequest = fetch(request, {
-    cache: "no-store"
-  }).then(async response => {
-    if (response.ok) {
-      const cache = await caches.open(CACHE_NAME);
-      await cache.put(request, response.clone());
-    }
+        const offline = await caches.match(OFFLINE_URL);
+        if (offline) return offline;
 
-    return response;
-  });
+        return new Response("Offline", {
+          status: 503,
+          headers: { "Content-Type": "text/plain" }
+        });
+      })
+    );
+    return;
+  }
 
-  // Do not make users wait indefinitely on a slow or unreliable connection.
-  // The network request continues in the background and can still update the
-  // cache after the timeout has fired.
-  const timeout = new Promise((_, reject) => {
-    setTimeout(() => reject(new Error("Network request timed out")), NETWORK_TIMEOUT);
-  });
+  // Do not cache arbitrary same-origin requests. Only shell assets use the
+  // cache-first strategy; their network refresh runs in the background.
+  if (!isShellRequest(request)) {
+    return;
+  }
 
-  const response = Promise.race([networkRequest, timeout])
-    .catch(() => caches.match(request))
-    .then(cached => {
-      if (cached) {
-        return cached;
-      }
+  event.respondWith(
+    caches.match(request).then(cached => {
+      const refresh = updateShellCache(request).catch(() => undefined);
+      event.waitUntil(refresh);
 
-      // If there is no cached copy yet, wait for the network request rather
-      // than returning an empty response.
-      return networkRequest.catch(() => {
-        if (isNavigation) {
-          return caches.match(OFFLINE_URL);
-        }
-
-        throw new Error("Network unavailable and no cached response exists");
-      });
-    });
-
-  // Keep the service worker alive long enough for a slow network response to
-  // update the cache, even when a cached response was returned to the page.
-  event.waitUntil(networkRequest.catch(() => undefined));
-  event.respondWith(response);
+      return cached || refresh.then(() => caches.match(request));
+    })
+  );
 });
