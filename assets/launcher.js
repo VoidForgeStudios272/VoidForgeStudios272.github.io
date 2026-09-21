@@ -1766,15 +1766,20 @@
       return;
     }
 
-    const favicon = $('link[rel="icon"][type="image/svg+xml"]');
-
-    if (!favicon) {
-      return;
-    }
-
     try {
       const url = new URL("./assets/favicon.svg", document.baseURI);
-      url.searchParams.set("vf", String(Date.now()));
+      url.searchParams.set("start", String(Date.now()));
+
+      document
+        .querySelectorAll('link[rel~="icon"]')
+        .forEach(link => link.remove());
+
+      const favicon = document.createElement("link");
+      favicon.rel = "icon";
+      favicon.type = "image/svg+xml";
+      favicon.href = url.href;
+
+      document.head.appendChild(favicon);
 
       const response = await fetch(url.href, {
         method: "GET",
@@ -1783,12 +1788,9 @@
       });
 
       if (!response.ok) {
-        return;
+        throw new Error(`Favicon request failed: ${response.status}`);
       }
-
-      favicon.href = url.href;
     } catch (error) {
-      // Network unavailable: keep the existing favicon untouched.
       console.debug("[VoidForge] Favicon refresh skipped:", error);
     }
   }
