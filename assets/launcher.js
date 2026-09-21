@@ -35,6 +35,17 @@
     return parent;
   }
 
+  function setupPanic() {
+    if (panicButton) panicButton.addEventListener("click", triggerPanic);
+    document.addEventListener("keydown", (event) => {
+      if (!currentGame) return;
+      const key = getPanicKey();
+      if (!key || event.repeat || event.ctrlKey || event.altKey || event.metaKey) return;
+      const pressed = event.key.toLowerCase();
+      if (pressed === key || event.code.toLowerCase() === key) { event.preventDefault(); triggerPanic(); }
+    });
+  }
+
   /* =========================================================
      GAME VIEW
   ========================================================= */
@@ -50,11 +61,39 @@
 
   const reloadButton = $("#reloadGame");
   const fullscreenButton = $("#gameFullscreen");
+  const gameBookmarkButton = $("#gameBookmark");
+  const panicButton = $("#panicButton");
 
   const closeButton =
     $("#gameClose") ||
     $("#gameCloseButton") ||
     $('[data-action="close-game"]');
+
+  const PANIC_URL_KEY = "voidforgePanicUrl";
+  const PANIC_KEY_KEY = "voidforgePanicKey";
+
+  function getPanicUrl() {
+    return localStorage.getItem(PANIC_URL_KEY) || "";
+  }
+
+  function getPanicKey() {
+    return (localStorage.getItem(PANIC_KEY_KEY) || "").trim().toLowerCase();
+  }
+
+  function triggerPanic() {
+    const url = getPanicUrl();
+    if (!url) {
+      showToast("Set a Panic URL in Settings first.");
+      return;
+    }
+    try {
+      const parsed = new URL(url, window.location.href);
+      if (!["http:", "https:"].includes(parsed.protocol)) throw new Error("Invalid protocol");
+      window.location.replace(parsed.href);
+    } catch {
+      showToast("Your Panic URL is invalid.");
+    }
+  }
 
   /* =========================================================
      STATE
@@ -1510,13 +1549,28 @@
         "settings-content"
       );
 
-    content.appendChild(
-      createElement(
-        "p",
-        "",
-        "Launcher settings will appear here."
-      )
-    );
+    const intro = createElement("p","", "Configure an emergency Panic URL and keyboard shortcut. Settings are stored only in this browser.");
+    content.appendChild(intro);
+
+    const form = createElement("div","panic-settings");
+    const urlLabel = createElement("label","panic-field");
+    urlLabel.appendChild(createElement("span","", "Panic URL"));
+    const urlInput = createElement("input");
+    urlInput.type = "url"; urlInput.placeholder = "https://example.com"; urlInput.value = getPanicUrl(); urlInput.autocomplete = "off";
+    urlLabel.appendChild(urlInput);
+    form.appendChild(urlLabel);
+
+    const keyLabel = createElement("label","panic-field");
+    keyLabel.appendChild(createElement("span","", "Panic key"));
+    const keyInput = createElement("input");
+    keyInput.type = "text"; keyInput.placeholder = "F1"; keyInput.maxLength = 20; keyInput.value = localStorage.getItem(PANIC_KEY_KEY) || ""; keyInput.autocomplete = "off";
+    keyLabel.appendChild(keyInput); form.appendChild(keyLabel);
+
+    const save = createElement("button","primary-button","Save Panic settings");
+    save.type = "button"; save.addEventListener("click", () => { localStorage.setItem(PANIC_URL_KEY,urlInput.value.trim()); localStorage.setItem(PANIC_KEY_KEY,keyInput.value.trim()); showToast("Panic settings saved."); });
+    form.appendChild(save);
+    const note = createElement("p","hint","When a game is open, the Panic button is in the game toolbar. Pressing the configured key immediately opens the saved URL."); form.appendChild(note);
+    content.appendChild(form);
 
     section.appendChild(
       content
@@ -1845,6 +1899,7 @@
 
   async function init() {
     setupGameEvents();
+    setupPanic();
     setupKeyboardEvents();
     setupNavigation();
     setupSearch();
