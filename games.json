@@ -183,5 +183,20 @@
       "2D"
     ],
     "description": "Defend the forge from descending invaders."
+  },
+  {
+    "id": "wbwwb",
+    "name": "WBWWB — VoidForge Edition",
+    "subtitle": "Media Simulation",
+    "entry": "wbwwb",
+    "version": "1.0.0",
+    "platform": "Browser",
+    "status": "Available",
+    "tags": [
+      "Simulation",
+      "2D",
+      "Story"
+    ],
+    "description": "An original camera-driven social simulation about attention, stories, and consequences."
   }
 ]
