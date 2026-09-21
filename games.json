@@ -113,5 +113,75 @@
       "2D"
     ],
     "description": "Combine matching tiles and reach 2048."
+  },
+  {
+    "id": "tetris",
+    "name": "VoidForge Tetris",
+    "subtitle": "Falling Blocks",
+    "entry": "tetris",
+    "version": "1.0.0",
+    "platform": "Browser",
+    "status": "Available",
+    "tags": [
+      "Arcade",
+      "2D"
+    ],
+    "description": "Stack blocks and clear lines."
+  },
+  {
+    "id": "tictactoe",
+    "name": "VoidForge Tic-Tac-Toe",
+    "subtitle": "3x3 Duel",
+    "entry": "tictactoe",
+    "version": "1.0.0",
+    "platform": "Browser",
+    "status": "Available",
+    "tags": [
+      "Puzzle",
+      "2D"
+    ],
+    "description": "Challenge the browser in a classic 3x3 duel."
+  },
+  {
+    "id": "memory",
+    "name": "VoidForge Memory",
+    "subtitle": "Card Match",
+    "entry": "memory",
+    "version": "1.0.0",
+    "platform": "Browser",
+    "status": "Available",
+    "tags": [
+      "Puzzle",
+      "2D"
+    ],
+    "description": "Flip cards and match every pair."
+  },
+  {
+    "id": "asteroids",
+    "name": "VoidForge Asteroids",
+    "subtitle": "Space Shooter",
+    "entry": "asteroids",
+    "version": "1.0.0",
+    "platform": "Browser",
+    "status": "Available",
+    "tags": [
+      "Arcade",
+      "2D"
+    ],
+    "description": "Blast asteroids and survive the wave."
+  },
+  {
+    "id": "invaders",
+    "name": "VoidForge Invaders",
+    "subtitle": "Alien Attack",
+    "entry": "invaders",
+    "version": "1.0.0",
+    "platform": "Browser",
+    "status": "Available",
+    "tags": [
+      "Arcade",
+      "2D"
+    ],
+    "description": "Defend the forge from descending invaders."
   }
 ]
