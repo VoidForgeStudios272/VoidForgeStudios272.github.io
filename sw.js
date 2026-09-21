@@ -1,4 +1,4 @@
-const CACHE_NAME = "voidforge-shell";
+const CACHE_NAME = "voidforge-shell-v2";
 const OFFLINE_URL = "./index.html";
 
 const SHELL = [
@@ -45,6 +45,30 @@ self.addEventListener("fetch", event => {
   }
 
   const url = new URL(request.url);
+
+  // -----------------------------------------
+  // Updated logo
+  // Always fetch the newest version first
+  // -----------------------------------------
+  if (url.pathname.endsWith("/assets/voidforge-mark.svg")) {
+    event.respondWith(
+      fetch(request, { cache: "no-store" })
+        .then(response => {
+          if (response.ok) {
+            const copy = response.clone();
+
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(request, copy);
+            });
+          }
+
+          return response;
+        })
+        .catch(() => caches.match(request))
+    );
+
+    return;
+  }
 
   // -----------------------------------------
   // games.json
