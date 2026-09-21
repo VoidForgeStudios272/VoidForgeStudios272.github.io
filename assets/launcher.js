@@ -1042,6 +1042,21 @@
       );
     }
 
+    const bookmarkButton = $("#gameBookmark");
+
+    if (bookmarkButton) {
+      bookmarkButton.addEventListener("click", () => {
+        if (!currentGame) {
+          return;
+        }
+
+        const url = new URL(window.location.href);
+        url.hash = "game=" + encodeURIComponent(String(currentGame.id));
+        history.replaceState(null, "", url.href);
+        showToast("Bookmark ready — press Ctrl+D (Windows/Linux) or ⌘D (Mac) to save it.");
+      });
+    }
+
     if (fullscreenButton) {
       fullscreenButton.addEventListener(
         "click",
@@ -1849,6 +1864,14 @@
     renderView("library");
 
     await loadGames();
+
+    const hashMatch = window.location.hash.match(/^#game=([^&]+)/);
+    if (hashMatch) {
+      const bookmarkedGame = decodeURIComponent(hashMatch[1]);
+      if (games.some(game => String(game.id) === bookmarkedGame)) {
+        launchGame(bookmarkedGame);
+      }
+    }
 
     await registerServiceWorker();
   }
