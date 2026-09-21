@@ -7,7 +7,11 @@
     "version": "1.0.0",
     "platform": "Browser",
     "status": "Available",
-    "tags": ["Voxel", "3D", "Sandbox"],
+    "tags": [
+      "Voxel",
+      "3D",
+      "Sandbox"
+    ],
     "description": "A browser-based Minecraft-style game."
   },
   {
@@ -18,7 +22,11 @@
     "version": "1.0.0",
     "platform": "Browser",
     "status": "Available",
-    "tags": ["Snake", "2D", "Sandbox"],
+    "tags": [
+      "Snake",
+      "2D",
+      "Sandbox"
+    ],
     "description": "A browser-based Snake-style game."
   },
   {
@@ -29,7 +37,81 @@
     "version": "1.0.0",
     "platform": "Browser",
     "status": "Available",
-    "tags": ["AI", "JARVIS", "CHATBOT"],
+    "tags": [
+      "AI",
+      "JARVIS",
+      "CHATBOT"
+    ],
     "description": "A browser-based JARVIS AI."
+  },
+  {
+    "id": "pong",
+    "name": "VoidForge Pong",
+    "subtitle": "Classic Arcade",
+    "entry": "pong",
+    "version": "1.0.0",
+    "platform": "Browser",
+    "status": "Available",
+    "tags": [
+      "Arcade",
+      "2D"
+    ],
+    "description": "A fast two-player paddle battle."
+  },
+  {
+    "id": "breakout",
+    "name": "VoidForge Breakout",
+    "subtitle": "Brick Breaker",
+    "entry": "breakout",
+    "version": "1.0.0",
+    "platform": "Browser",
+    "status": "Available",
+    "tags": [
+      "Arcade",
+      "2D"
+    ],
+    "description": "Smash every brick and keep the ball alive."
+  },
+  {
+    "id": "flappy",
+    "name": "VoidForge Flappy",
+    "subtitle": "Endless Flyer",
+    "entry": "flappy",
+    "version": "1.0.0",
+    "platform": "Browser",
+    "status": "Available",
+    "tags": [
+      "Arcade",
+      "2D"
+    ],
+    "description": "Guide the flyer through the gaps."
+  },
+  {
+    "id": "minesweeper",
+    "name": "VoidForge Mines",
+    "subtitle": "Minesweeper",
+    "entry": "minesweeper",
+    "version": "1.0.0",
+    "platform": "Browser",
+    "status": "Available",
+    "tags": [
+      "Puzzle",
+      "2D"
+    ],
+    "description": "Clear the grid without hitting a mine."
+  },
+  {
+    "id": "2048",
+    "name": "VoidForge 2048",
+    "subtitle": "Number Puzzle",
+    "entry": "2048",
+    "version": "1.0.0",
+    "platform": "Browser",
+    "status": "Available",
+    "tags": [
+      "Puzzle",
+      "2D"
+    ],
+    "description": "Combine matching tiles and reach 2048."
   }
 ]
