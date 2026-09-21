@@ -10,11 +10,35 @@
     <title>YT to MP3 | VoidForge Studios</title>
 
     <link rel="stylesheet" href="style.css">
+
+    <style>
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .brand-logo {
+            width: 2.25rem;
+            height: 2.75rem;
+            object-fit: contain;
+            filter: drop-shadow(0 0 0.8rem rgba(126, 92, 255, 0.45));
+        }
+    </style>
 </head>
 
 <body>
     <main class="container">
-        <div class="brand">VOIDFORGE STUDIOS</div>
+        <div class="brand" aria-label="VoidForge Studios">
+            <img
+                class="brand-logo"
+                src="../assets/voidforge-mark.svg"
+                alt="VoidForge Studios logo"
+                width="99"
+                height="120"
+            >
+            <span>VOIDFORGE STUDIOS</span>
+        </div>
 
         <h1>YouTube <span>→</span> MP3</h1>
 
