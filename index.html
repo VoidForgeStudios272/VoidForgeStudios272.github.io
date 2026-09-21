@@ -27,25 +27,44 @@
 
   <script>
     (() => {
-      const refreshFavicon = () => {
-        const href = new URL("./assets/favicon.svg", document.baseURI);
-        href.searchParams.set("start", String(Date.now()));
+      const refreshFavicon = async () => {
+        if (!navigator.onLine) {
+          return;
+        }
 
-        document
-          .querySelectorAll('link[rel~="icon"]')
-          .forEach(link => link.remove());
+        try {
+          const href = new URL("./assets/favicon.svg", document.baseURI);
+          href.searchParams.set("start", String(Date.now()));
 
-        const link = document.createElement("link");
-        link.id = "voidforgeFavicon";
-        link.rel = "icon";
-        link.type = "image/svg+xml";
-        link.href = href.href;
-        document.head.appendChild(link);
+          const response = await fetch(href.href, {
+            method: "GET",
+            cache: "no-store",
+            credentials: "same-origin"
+          });
+
+          if (!response.ok) {
+            return;
+          }
+
+          const blob = await response.blob();
+          const blobUrl = URL.createObjectURL(blob);
+
+          document
+            .querySelectorAll('link[rel~="icon"]')
+            .forEach(link => link.remove());
+
+          const link = document.createElement("link");
+          link.id = "voidforgeFavicon";
+          link.rel = "icon";
+          link.type = "image/svg+xml";
+          link.href = blobUrl;
+          document.head.appendChild(link);
+        } catch (error) {
+          console.debug("[VoidForge] Favicon refresh skipped:", error);
+        }
       };
 
-      if (navigator.onLine) {
-        refreshFavicon();
-      }
+      refreshFavicon();
     })();
   </script>
 
