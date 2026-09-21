@@ -1,0 +1,28 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>WBWWB — VoidForge</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#070712;color:#eee;font:16px system-ui, sans-serif;text-align:center}h1{margin:18px 0 4px}.sub{color:#aaa;margin:0 12px 14px}#wrap{max-width:920px;margin:auto;padding:0 12px}canvas{width:100%;max-width:900px;border:1px solid #39394f;background:#151521;cursor:crosshair;touch-action:none}.bar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:10px}.pill{padding:7px 11px;border:1px solid #3b3b52;border-radius:999px;color:#bbb}button{padding:10px 16px;border:0;border-radius:8px;cursor:pointer}#status{min-height:24px;color:#ccc}.hint{color:#888;font-size:13px}
+</style></head><body><div id="wrap"><h1>WBWWB — VoidForge Edition</h1><p class="sub">A camera-driven social simulation. What you capture changes what the crowd notices.</p>
+<div class="bar"><span class="pill">Stories: <b id="stories">0</b></span><span class="pill">Tension: <b id="tension">0</b></span><span class="pill">Attention: <b id="attention">0</b></span></div>
+<canvas id="game" width="900" height="560"></canvas><p id="status">Move the camera box and click a moment worth publishing.</p><button id="restart" type="button">Restart</button><p class="hint">Drag/tap the camera target. Capture highlighted events. Press R to restart.</p></div>
+<script>
+const c=document.getElementById('game'),x=c.getContext('2d'),W=c.width,H=c.height;
+let camera={x:450,y:280},stories=0,tension=0,attention=0,round=0,over=false,events=[],people=[],last=0;
+const names=['Mara','Theo','June','Ren','Sol','Kai','Nia','Beck'];
+function reset(){camera={x:450,y:280};stories=0;tension=0;attention=0;round=0;over=false;events=[];people=[];for(let i=0;i<8;i++)people.push({x:80+Math.random()*740,y:120+Math.random()*330,vx:(Math.random()-.5)*1.5,vy:(Math.random()-.5)*1.2,name:names[i],mood:'calm'});for(let i=0;i<3;i)addEvent();status('Move the camera box and click a moment worth publishing.');}
+function addEvent(){let types=[['kind','A stranger helps someone up'],['argument','Two people start arguing'],['celebration','A small celebration begins'],['rumor','Someone points and whispers'],['accident','A messy accident draws a crowd']];let t=types[Math.floor(Math.random()*types.length)];events.push({x:100+Math.random()*700,y:130+Math.random()*350,type:t[0],text:t[1],life:9000,hot:true});}
+function status(s){document.getElementById('status').textContent=s}
+function near(e){return Math.hypot(camera.x-e.x,camera.y-e.y)<125}
+function capture(){if(over)return;let e=events.find(e=>e.hot&&near(e));if(!e){status('Nothing compelling is inside the frame.');return}stories++;round++;e.hot=false;attention+=e.type==='argument'||e.type==='rumor'||e.type==='accident'?3:1;tension+=e.type==='argument'?3:e.type==='rumor'?2:e.type==='accident'?1:-1;people.forEach(p=>{if(Math.hypot(p.x-e.x,p.y-e.y)<180)p.mood=e.type==='kind'?'warm':e.type==='celebration'?'excited':'alarmed'});status('Published: '+e.text+' — the crowd reacts.');if(tension>=12){over=true;status('The feed is now dominated by outrage. Restart to try a different editorial path.')}else if(stories>=10){over=true;status(tension<4?'The crowd chose connection over outrage. You shaped a calmer feed.':'Your feed became a mirror of the loudest moments.');}else setTimeout(addEvent,700)}
+function draw(){x.clearRect(0,0,W,H);x.fillStyle='#1a1a29';x.fillRect(0,0,W,H);
+x.fillStyle='#252538';for(let i=0;i<12;i++)x.fillRect(i*80,80+(i%2)*30,60,2);
+events.forEach(e=>{if(!e.hot)return;x.beginPath();x.arc(e.x,e.y,28,0,7);x.fillStyle=e.type==='kind'?'#4d7':'#c56';x.fill();x.fillStyle='#fff';x.font='12px system-ui';x.textAlign='center';x.fillText(e.text,e.x,e.y-38)});
+people.forEach(p=>{p.x=(p.x+p.vx+W)%W;p.y=(p.y+p.vy-0+H)%H;if(p.y<90)p.y=90;if(p.y>500)p.y=500;x.fillStyle=p.mood==='warm'?'#7c9':p.mood==='excited'?'#db8':p.mood==='alarmed'?'#c77':'#888';x.beginPath();x.arc(p.x,p.y,13,0,7);x.fill();x.fillStyle='#aaa';x.font='11px system-ui';x.fillText(p.name,p.x,p.y+28)});
+x.strokeStyle='#fff';x.lineWidth=2;x.strokeRect(camera.x-90,camera.y-60,180,120);x.fillStyle='#fff';x.font='13px system-ui';x.fillText('CAMERA',camera.x,camera.y-68);
+document.getElementById('stories').textContent=stories;document.getElementById('tension').textContent=tension;document.getElementById('attention').textContent=attention;
+requestAnimationFrame(draw)}
+c.addEventListener('pointermove',e=>{if(e.buttons){let r=c.getBoundingClientRect();camera.x=(e.clientX-r.left)*W/r.width;camera.y=(e.clientY-r.top)*H/r.height}});
+c.addEventListener('pointerdown',e=>{let r=c.getBoundingClientRect();camera.x=(e.clientX-r.left)*W/r.width;camera.y=(e.clientY-r.top)*H/r.height;capture()});
+document.getElementById('restart').onclick=reset;document.addEventListener('keydown',e=>{if(e.key.toLowerCase()==='r')reset()});
+reset();draw();
+</script></body></html>
