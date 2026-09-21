@@ -1,7 +1,7 @@
 {
-  "name": "Microsoft Teams",
-  "short_name": "ms-teams",
-  "description": "a cloud-based communication and collaboration platform that combines chat, video meetings, file sharing, and app integration into a single centralized workspace",
+  "name": "VoidForge Web Launcher",
+  "short_name": "VoidForge",
+  "description": "VoidForge Studio gives you many options",
   "id": "./",
   "start_url": "./",
   "scope": "./",
@@ -22,7 +22,7 @@
       "purpose": "any maskable"
     },
     {
-      "src": "./assets/voidforge-mark.svg",
+      "src": "./assets/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
