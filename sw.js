@@ -1,4 +1,4 @@
-const CACHE_NAME = "voidforge-shell-v6";
+const CACHE_NAME = "voidforge-shell-v7";
 const CACHE_PREFIX = "voidforge-shell-";
 const OFFLINE_URL = new URL("./index.html", self.registration.scope).href;
 
@@ -6,8 +6,9 @@ const SHELL = [
   new URL("./", self.registration.scope).href,
   new URL("./index.html", self.registration.scope).href,
   new URL("./assets/voidforge-mark.svg", self.registration.scope).href,
+  new URL("./assets/favicon.svg", self.registration.scope).href,
   new URL("./games.json", self.registration.scope).href,
-  new URL("./manifest.webmanifest", self.registration.scope).href
+  new URL("./manifest.json", self.registration.scope).href
 ];
 
 const SHELL_URLS = new Set(SHELL);
