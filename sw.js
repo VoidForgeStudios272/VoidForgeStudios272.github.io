@@ -1,4 +1,4 @@
-const CACHE_NAME = "voidforge-shell-v8";
+const CACHE_NAME = "voidforge-shell-v9";
 const CACHE_PREFIX = "voidforge-shell-";
 const OFFLINE_URL = new URL("./index.html", self.registration.scope).href;
 
@@ -88,8 +88,25 @@ self.addEventListener("fetch", event => {
     return;
   }
 
-  // Do not cache arbitrary same-origin requests. Only shell assets use the
-  // cache-first strategy; their network refresh runs in the background.
+  // games.json must use network-first so newly added games appear without
+  // requiring users to clear caches or hard-refresh the launcher.
+  const requestUrl = new URL(request.url);
+  const isGamesData =
+    requestUrl.pathname === new URL("./games.json", self.registration.scope).pathname;
+
+  if (isGamesData) {
+    event.respondWith(
+      updateShellCache(request).catch(async () => {
+        const cached = await caches.match(request);
+        return cached || new Response("[]", {
+          status: 200,
+          headers: { "Content-Type": "application/json" }
+        });
+      })
+    );
+    return;
+  }
+
   if (!isShellRequest(request)) {
     return;
   }
