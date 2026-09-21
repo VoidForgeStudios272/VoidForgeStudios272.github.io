@@ -1,5 +1,6 @@
-const CACHE_NAME = "voidforge-shell-v4";
+const CACHE_NAME = "voidforge-shell-v5";
 const OFFLINE_URL = "./index.html";
+const NETWORK_TIMEOUT = 3000;
 
 const SHELL = [
   "./",
@@ -37,7 +38,7 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
   const request = event.request;
 
-  // Only handle GET requests from this origin
+  // Only handle GET requests from this origin.
   if (
     request.method !== "GET" ||
     new URL(request.url).origin !== location.origin
@@ -46,151 +47,50 @@ self.addEventListener("fetch", event => {
   }
 
   const url = new URL(request.url);
-
-  // -----------------------------------------
-  // Updated logo
-  // Always fetch newest version from network
-  // -----------------------------------------
-  if (url.pathname.endsWith("/assets/voidforge-mark.svg")) {
-    event.respondWith(
-      fetch(request, {
-        cache: "reload"
-      })
-        .then(response => {
-          if (response.ok) {
-            const copy = response.clone();
-
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(request, copy);
-            });
-          }
-
-          return response;
-        })
-        .catch(() => {
-          return caches.match(request);
-        })
-    );
-
-    return;
-  }
-
-  // -----------------------------------------
-  // games.json
-  // Network first, cache fallback
-  // -----------------------------------------
-  if (url.pathname.endsWith("/games.json")) {
-    event.respondWith(
-      fetch(request, {
-        cache: "no-store"
-      })
-        .then(response => {
-          if (response.ok) {
-            const copy = response.clone();
-
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(request, copy);
-            });
-          }
-
-          return response;
-        })
-        .catch(() => {
-          return caches.match(request);
-        })
-    );
-
-    return;
-  }
-
-  // -----------------------------------------
-  // CSS / JS
-  // Always try the newest version
-  // -----------------------------------------
-  if (
-    url.pathname.endsWith(".css") ||
-    url.pathname.endsWith(".js")
-  ) {
-    event.respondWith(
-      fetch(request, {
-        cache: "no-store"
-      })
-        .then(response => {
-          if (response.ok) {
-            const copy = response.clone();
-
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(request, copy);
-            });
-          }
-
-          return response;
-        })
-        .catch(() => {
-          return caches.match(request);
-        })
-    );
-
-    return;
-  }
-
-  // -----------------------------------------
-  // HTML
-  // Network first, offline fallback
-  // -----------------------------------------
-  if (
+  const isNavigation =
     request.mode === "navigate" ||
-    url.pathname.endsWith(".html")
-  ) {
-    event.respondWith(
-      fetch(request, {
-        cache: "no-store"
-      })
-        .then(response => {
-          if (response.ok) {
-            const copy = response.clone();
+    url.pathname.endsWith(".html");
 
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(request, copy);
-            });
-          }
+  // Always start a network request. A successful response replaces the cached
+  // response, so the cache stays as current as the network allows.
+  const networkRequest = fetch(request, {
+    cache: "no-store"
+  }).then(async response => {
+    if (response.ok) {
+      const cache = await caches.open(CACHE_NAME);
+      await cache.put(request, response.clone());
+    }
 
-          return response;
-        })
-        .catch(() => {
-          return caches.match(request)
-            .then(cached => {
-              return cached || caches.match(OFFLINE_URL);
-            });
-        })
-    );
+    return response;
+  });
 
-    return;
-  }
+  // Do not make users wait indefinitely on a slow or unreliable connection.
+  // The network request continues in the background and can still update the
+  // cache after the timeout has fired.
+  const timeout = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error("Network request timed out")), NETWORK_TIMEOUT);
+  });
 
-  // -----------------------------------------
-  // Images, icons, manifest, etc.
-  // Cache first, network fallback
-  // -----------------------------------------
-  event.respondWith(
-    caches.match(request)
-      .then(cached => {
-        if (cached) {
-          return cached;
+  const response = Promise.race([networkRequest, timeout])
+    .catch(() => caches.match(request))
+    .then(cached => {
+      if (cached) {
+        return cached;
+      }
+
+      // If there is no cached copy yet, wait for the network request rather
+      // than returning an empty response.
+      return networkRequest.catch(() => {
+        if (isNavigation) {
+          return caches.match(OFFLINE_URL);
         }
 
-        return fetch(request)
-          .then(response => {
-            if (response.ok) {
-              const copy = response.clone();
+        throw new Error("Network unavailable and no cached response exists");
+      });
+    });
 
-              caches.open(CACHE_NAME).then(cache => {
-                cache.put(request, copy);
-              });
-            }
-
-            return response;
-          });
-      })
-  );
+  // Keep the service worker alive long enough for a slow network response to
+  // update the cache, even when a cached response was returned to the page.
+  event.waitUntil(networkRequest.catch(() => undefined));
+  event.respondWith(response);
 });
