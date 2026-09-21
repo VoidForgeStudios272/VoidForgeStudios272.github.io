@@ -1,4 +1,4 @@
-const CACHE_NAME = "voidforge-shell-v3";
+const CACHE_NAME = "voidforge-shell-v4";
 const OFFLINE_URL = "./index.html";
 
 const SHELL = [
