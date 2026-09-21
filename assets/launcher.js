@@ -1758,6 +1758,42 @@
   }
 
   /* =========================================================
+     FAVICON HARD RESET
+  ========================================================= */
+
+  async function refreshFaviconOnStart() {
+    if (!navigator.onLine) {
+      return;
+    }
+
+    const favicon = $('link[rel="icon"][type="image/svg+xml"]');
+
+    if (!favicon) {
+      return;
+    }
+
+    try {
+      const url = new URL("./assets/favicon.svg", document.baseURI);
+      url.searchParams.set("vf", String(Date.now()));
+
+      const response = await fetch(url.href, {
+        method: "GET",
+        cache: "no-store",
+        credentials: "same-origin"
+      });
+
+      if (!response.ok) {
+        return;
+      }
+
+      favicon.href = url.href;
+    } catch (error) {
+      // Network unavailable: keep the existing favicon untouched.
+      console.debug("[VoidForge] Favicon refresh skipped:", error);
+    }
+  }
+
+  /* =========================================================
      GLOBAL API
   ========================================================= */
 
@@ -1795,6 +1831,7 @@
     setupLauncherFullscreen();
     setupMobileMenu();
     setupConnectionStatus();
+    await refreshFaviconOnStart();
 
     /*
      * FIX: renderView() was previously only ever triggered by a
