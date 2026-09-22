@@ -1626,8 +1626,52 @@
   }
 
   /* =========================================================
+     HARD REFRESH
+  ========================================================= */
+
+  async function hardRefreshLauncher() {
+    const button = $("#hardRefreshLauncher");
+
+    if (button) {
+      button.disabled = true;
+      button.setAttribute("aria-busy", "true");
+      button.title = "Refreshing…";
+    }
+
+    showToast("Refreshing VoidForge…", 1500);
+
+    try {
+      // Remove cached launcher files and release the current service worker.
+      if ("caches" in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map((name) => caches.delete(name)));
+      }
+
+      if ("serviceWorker" in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map((registration) => registration.unregister()));
+      }
+    } catch (error) {
+      console.warn("[VoidForge] Hard refresh cleanup skipped:", error);
+    } finally {
+      // Cache-bust the document request without touching saved settings.
+      const url = new URL(window.location.href);
+      url.searchParams.set("vf_refresh", String(Date.now()));
+      window.location.replace(url.href);
+    }
+  }
+
+  /* =========================================================
      LAUNCHER FULLSCREEN
   ========================================================= */
+
+  function setupHardRefresh() {
+    const button = $("#hardRefreshLauncher");
+
+    if (button) {
+      button.addEventListener("click", hardRefreshLauncher);
+    }
+  }
 
   function setupLauncherFullscreen() {
     const buttons = $$(
@@ -1890,7 +1934,8 @@
     renderGames,
     launchGame,
     closeGame,
-    reloadGame
+    reloadGame,
+    hardRefreshLauncher
   };
 
   /* =========================================================
@@ -1903,6 +1948,7 @@
     setupKeyboardEvents();
     setupNavigation();
     setupSearch();
+    setupHardRefresh();
     setupLauncherFullscreen();
     setupMobileMenu();
     setupConnectionStatus();
