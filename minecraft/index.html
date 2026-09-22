@@ -651,7 +651,32 @@ function updateSurvivalHud(){const hp=THREE.MathUtils.clamp(survival.health/surv
 function damagePlayer(amount){if(survival.dead||survival.damageCooldown>0||amount<=0)return;survival.damageCooldown=.35;survival.health=Math.max(0,survival.health-amount);updateSurvivalHud();if(survival.health<=0){survival.dead=true;survival.respawnTimer=1.5;resetInputs();deathOverlay.classList.add("visible");try{document.exitPointerLock()}catch(_){}}}
 function healPlayer(a){survival.health=Math.min(survival.maxHealth,survival.health+a);updateSurvivalHud()}function updateSurvival(dt){if(!gameActive)return;if(survival.dead){survival.respawnTimer-=dt;if(survival.respawnTimer<=0){survival.dead=false;survival.health=20;survival.hunger=20;survival.hungerTimer=survival.regenTimer=survival.starvationTimer=0;findSpawn();deathOverlay.classList.remove("visible");updateSurvivalHud()}return}survival.damageCooldown=Math.max(0,survival.damageCooldown-dt);const moving=player.velocity.x*player.velocity.x+player.velocity.z*player.velocity.z>.35,sprinting=(player.keys.has("ShiftLeft")||player.keys.has("ShiftRight")||mobile.sprint)&&survival.hunger>0;let rate=(moving?.010:.005)+(sprinting?.018:0);survival.hungerTimer+=rate*dt;if(survival.hungerTimer>=1){const n=Math.floor(survival.hungerTimer);survival.hunger=Math.max(0,survival.hunger-n);survival.hungerTimer-=n}if(survival.hunger>=16&&survival.health<20){survival.regenTimer+=dt;if(survival.regenTimer>=4){survival.regenTimer=0;healPlayer(1)}}else survival.regenTimer=0;if(survival.hunger<=0){survival.starvationTimer+=dt;if(survival.starvationTimer>=2){survival.starvationTimer=0;damagePlayer(1)}}else survival.starvationTimer=0;updateSurvivalHud()}
 function resetInputs(){player.keys.clear();mobile.x=0;mobile.y=0;mobile.jump=false;mobile.sprint=false;joystickPointer=null;lookPointer=null;if(joystickKnob)joystickKnob.style.transform="translate(-50%,-50%)"}
-function drawHotbar(){hotbarElement.innerHTML=hotbar.map((type,i)=>`<div class="slot ${i===selectedBlock?"selected":""}" data-index="${i}"><div class="swatch" style="background:#${blocks[type].color.toString(16).padStart(6,"0")}"></div><span>${i+1} ${blocks[type].name}</span></div>`).join("");hotbarElement.querySelectorAll(".slot").forEach(s=>s.addEventListener("pointerdown",e=>{e.stopPropagation();e.preventDefault();selectedBlock=Number(s.dataset.index);drawHotbar()}))}drawHotbar();
+function drawHotbar(){
+  if(!hotbarElement)return;
+  const colorToCss=value=>{
+    if(typeof value==="number"&&Number.isFinite(value))return `#${Math.max(0,value).toString(16).padStart(6,"0").slice(-6)}`;
+    if(typeof value==="string"){
+      const color=value.trim();
+      if(/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(color))return color;
+      if(/^0x[0-9a-f]+$/i.test(color)){const n=Number(color);if(Number.isFinite(n))return `#${n.toString(16).padStart(6,"0").slice(-6)}`}
+      if(/^[0-9a-f]{6}$/i.test(color))return `#${color}`;
+      return color||"#808080";
+    }
+    return "#808080";
+  };
+  hotbarElement.innerHTML=hotbar.map((type,i)=>{
+    const block=blocks[type]||{};
+    const name=String(block.name||type);
+    const color=colorToCss(block.color);
+    return `<div class="slot ${i===selectedBlock?"selected":""}" data-index="${i}" title="${name}"><div class="swatch" style="background-color:${color}"></div><span>${i+1} ${name}</span></div>`;
+  }).join("");
+  hotbarElement.querySelectorAll(".slot").forEach(slot=>slot.addEventListener("pointerdown",e=>{
+    e.preventDefault();e.stopPropagation();
+    const index=Number(slot.dataset.index);
+    if(!Number.isInteger(index)||index<0||index>=hotbar.length)return;
+    if(selectedBlock!==index){selectedBlock=index;drawHotbar()}
+  }));
+}drawHotbar();
 const raycaster=new THREE.Raycaster();raycaster.far=7;function rebuildChunksAt(x,z){const cx=worldToChunkCoord(x),cz=worldToChunkCoord(z),lx=x-cx*CHUNK_SIZE,lz=z-cz*CHUNK_SIZE,set=new Set([chunkKeyFor(cx,cz)]);if(lx===0)set.add(chunkKeyFor(cx-1,cz));if(lx===CHUNK_SIZE-1)set.add(chunkKeyFor(cx+1,cz));if(lz===0)set.add(chunkKeyFor(cx,cz-1));if(lz===CHUNK_SIZE-1)set.add(chunkKeyFor(cx,cz+1));for(const k of set)if(generatedChunks.has(k)){const[a,b]=k.split(",").map(Number);buildChunkMesh(a,b)}}
 function interact(button){if(!gameActive||generationInProgress||survival.dead)return;raycaster.setFromCamera({x:0,y:0},camera);const hits=raycaster.intersectObjects(getBlockMeshes(),false);if(!hits.length)return;const hit=hits[0];if(!hit.face)return;if(button===0){const p=hit.point.clone().addScaledVector(hit.face.normal,-.01),x=Math.floor(p.x),y=Math.floor(p.y),z=Math.floor(p.z);const t=getBlock(x,y,z);if(t&&y>0){setBlock(x,y,z,null);rebuildChunksAt(x,z)}return}if(button===2){const p=hit.point.clone().addScaledVector(hit.face.normal,.51),x=Math.floor(p.x),y=Math.floor(p.y),z=Math.floor(p.z);if(y<0||y>=worldHeight||getBlock(x,y,z))return;setBlock(x,y,z,hotbar[selectedBlock]);if(collides(player.position))setBlock(x,y,z,null);rebuildChunksAt(x,z)}}
 window.addEventListener("keydown",e=>{if(!gameActive)return;player.keys.add(e.code);if(["KeyW","KeyA","KeyS","KeyD","Space","ShiftLeft","ShiftRight"].includes(e.code))e.preventDefault();const n=Number(e.key);if(n>=1&&n<=hotbar.length){selectedBlock=n-1;drawHotbar()}});window.addEventListener("keyup",e=>player.keys.delete(e.code));
