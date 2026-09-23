@@ -18,3 +18,8 @@ for every registered game rather than applying special handling to Minecraft.
   "status": "Available"
 }
 ```
+
+BADGES
+[![Deploy VoidForge to GitHub Pages](https://github.com/VoidForgeStudios272/VoidForgeStudios272.github.io/actions/workflows/pages.yml/badge.svg)](https://github.com/VoidForgeStudios272/VoidForgeStudios272.github.io/actions/workflows/pages.yml)
+[![CodeQL](https://github.com/VoidForgeStudios272/VoidForgeStudios272.github.io/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/VoidForgeStudios272/VoidForgeStudios272.github.io/actions/workflows/github-code-scanning/codeql)
+[![pages-build-deployment](https://github.com/VoidForgeStudios272/VoidForgeStudios272.github.io/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/VoidForgeStudios272/VoidForgeStudios272.github.io/actions/workflows/pages/pages-build-deployment)
