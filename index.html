@@ -105,6 +105,22 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 @keyframes vfGlow{0%,100%{transform:scale(.85);opacity:.5}50%{transform:scale(1.15);opacity:1}}@keyframes vfFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}@keyframes vfSpin{to{transform:rotate(360deg)}}@keyframes vfSpinReverse{to{transform:rotate(-360deg)}}
 @media(max-width:600px){.vf-logo{width:92px;height:92px;border-radius:27px}.vf-logo span{font-size:34px}.vf-loader-footer{left:16px;right:16px;bottom:18px}}@media(prefers-reduced-motion:reduce){#voidforge-launcher-loader *{animation:none!important;transition:none!important}}
 </style>
+<script id="voidforge-about-blank-escape">
+(() => {
+  const openAboutBlank = () => {
+    try {
+      window.location.replace("about:blank");
+    } catch {
+      document.open();
+      document.write("");
+      document.close();
+    }
+  };
+
+  window.openAboutBlank = openAboutBlank;
+  window.escapeToAboutBlank = openAboutBlank;
+})();
+</script>
 </head>
 
 <body>
