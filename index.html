@@ -80,7 +80,7 @@
     href="assets/launcher.css"
   >
 
-  <title>Microsoft Teams</title>
+  <title>VoidForge Studios</title>
   <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -88,9 +88,27 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-PFG7V223');</script>
 <!-- End Google Tag Manager -->
+<style id="voidforge-launcher-loader-style">
+#voidforge-launcher-loader{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(circle at 50% 45%,rgba(255,0,85,.16),transparent 32%),radial-gradient(circle at 50% 50%,rgba(115,224,178,.05),transparent 45%),#050507;color:#fff;transition:opacity .9s cubic-bezier(.77,0,.18,1),transform .9s cubic-bezier(.77,0,.18,1),visibility .9s}
+#voidforge-launcher-loader.vf-exit{opacity:0;transform:scale(1.035);visibility:hidden;pointer-events:none}
+#voidforge-launcher-loader:before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;background:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0,rgba(255,255,255,.018) 1px,transparent 1px,transparent 4px)}
+.vf-loader-glow{position:absolute;width:420px;height:420px;border-radius:50%;background:rgba(255,0,85,.09);filter:blur(90px);animation:vfGlow 4s ease-in-out infinite}
+.vf-loader-box{position:relative;z-index:2;width:min(90vw,620px);text-align:center}
+.vf-logo{position:relative;width:112px;height:112px;margin:0 auto 30px;display:grid;place-items:center;border-radius:32px;background:linear-gradient(135deg,rgba(255,255,255,.14),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.14);box-shadow:0 0 80px rgba(255,0,85,.18),inset 0 1px rgba(255,255,255,.18);backdrop-filter:blur(24px);animation:vfFloat 3s ease-in-out infinite}
+.vf-logo:before{content:"";position:absolute;inset:-2px;border-radius:inherit;border:1px solid transparent;border-top-color:#ff0055;border-right-color:rgba(255,0,85,.2);animation:vfSpin 2.8s linear infinite}
+.vf-logo:after{content:"";position:absolute;inset:9px;border-radius:25px;border:1px solid rgba(255,255,255,.05);animation:vfSpinReverse 5s linear infinite}
+.vf-logo span{position:relative;z-index:2;font-size:40px;font-weight:950;letter-spacing:-5px;text-shadow:0 0 25px rgba(255,0,85,.5)}
+.vf-title{font-size:clamp(36px,8vw,58px);font-weight:950;letter-spacing:-3px;line-height:1}.vf-title b{color:#ff0055;text-shadow:0 0 25px rgba(255,0,85,.4)}
+.vf-subtitle{margin-top:12px;color:#77777f;font-size:11px;font-weight:700;letter-spacing:5px;text-transform:uppercase}
+.vf-status{height:18px;margin-top:46px;color:#9999a2;font-size:11px;letter-spacing:2px;text-transform:uppercase;transition:opacity .2s}
+.vf-progress-wrap{width:min(460px,80vw);margin:15px auto 0}.vf-progress-top{display:flex;justify-content:space-between;margin-bottom:8px;color:#55555d;font-size:9px;letter-spacing:1.5px}.vf-progress-track{width:100%;height:3px;overflow:hidden;border-radius:999px;background:rgba(255,255,255,.07)}.vf-progress-fill{width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#ff0055,#ff3d7c,#fff);box-shadow:0 0 15px rgba(255,0,85,.8);transition:width .15s linear}.vf-percent{margin-top:16px;color:#bdbdc4;font-size:12px;font-weight:700;letter-spacing:2px}.vf-loader-footer{position:absolute;left:28px;right:28px;bottom:25px;display:flex;justify-content:space-between;color:#3e3e45;font-size:9px;letter-spacing:1.5px;text-transform:uppercase}.vf-loader-footer b{color:#ff0055}
+@keyframes vfGlow{0%,100%{transform:scale(.85);opacity:.5}50%{transform:scale(1.15);opacity:1}}@keyframes vfFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}@keyframes vfSpin{to{transform:rotate(360deg)}}@keyframes vfSpinReverse{to{transform:rotate(-360deg)}}
+@media(max-width:600px){.vf-logo{width:92px;height:92px;border-radius:27px}.vf-logo span{font-size:34px}.vf-loader-footer{left:16px;right:16px;bottom:18px}}@media(prefers-reduced-motion:reduce){#voidforge-launcher-loader *{animation:none!important;transition:none!important}}
+</style>
 </head>
 
 <body>
+<div id="voidforge-launcher-loader" aria-hidden="true"><div class="vf-loader-glow"></div><div class="vf-loader-box"><div class="vf-logo"><span>VF</span></div><div class="vf-title">Void<b>Forge</b></div><div class="vf-subtitle">Studios</div><div class="vf-status" id="vfLoaderStatus">Initializing VoidForge systems</div><div class="vf-progress-wrap"><div class="vf-progress-top"><span>SYSTEM STATUS</span><span id="vfLoaderState">INITIALIZING</span></div><div class="vf-progress-track"><div class="vf-progress-fill" id="vfLoaderProgress"></div></div></div><div class="vf-percent" id="vfLoaderPercent">0%</div></div><div class="vf-loader-footer"><span>VOIDFORGE STUDIOS</span><b>ONLINE</b></div></div>
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFG7V223"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -1146,5 +1164,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     src="assets/launcher.js"
   ></script>
 
+<script id="voidforge-launcher-loader-script">(()=>{const loader=document.getElementById("voidforge-launcher-loader"),bar=document.getElementById("vfLoaderProgress"),percent=document.getElementById("vfLoaderPercent"),status=document.getElementById("vfLoaderStatus"),state=document.getElementById("vfLoaderState");if(!loader||!bar||!percent||!status||!state)return;const messages=["Initializing VoidForge systems","Connecting to launcher services","Loading studio environment","Preparing digital assets","Initializing game systems","Synchronizing services","Loading VoidForge experience","Finalizing launch sequence","System ready"];let progress=0,messageIndex=0,finished=false;const render=()=>{const value=Math.floor(progress);bar.style.width=value+"%";percent.textContent=value+"%";state.textContent=value<25?"INITIALIZING":value<50?"LOADING":value<75?"PROCESSING":value<95?"FINALIZING":"READY"};const rotateStatus=setInterval(()=>{if(finished)return;status.style.opacity="0";setTimeout(()=>{if(finished)return;messageIndex=(messageIndex+1)%(messages.length-1);status.textContent=messages[messageIndex];status.style.opacity="1"},180)},1200);const progressTimer=setInterval(()=>{if(finished)return;const step=progress<30?Math.random()*7+3:progress<70?Math.random()*5+2:progress<90?Math.random()*2.5+1:Math.random()*.7;progress=Math.min(99,progress+step);render()},120);const finish=()=>{if(finished)return;finished=true;clearInterval(progressTimer);clearInterval(rotateStatus);progress=100;render();status.textContent=messages[messages.length-1];state.textContent="ONLINE";setTimeout(()=>{loader.classList.add("vf-exit");setTimeout(()=>loader.remove(),1000)},650)};if(document.readyState==="complete")setTimeout(finish,250);else window.addEventListener("load",()=>setTimeout(finish,250),{once:true})})();</script>
 </body>
 </html>
