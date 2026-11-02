@@ -183,5 +183,21 @@
       "2D"
     ],
     "description": "Defend the forge from descending invaders."
+  },
+  {
+    "id": "imposter",
+    "name": "VoidForge Imposter",
+    "subtitle": "Social Deduction Party Game",
+    "entry": "imposter",
+    "version": "1.0.0",
+    "platform": "Browser · Local Multiplayer",
+    "status": "Available",
+    "tags": [
+      "Party",
+      "Social Deduction",
+      "Multiplayer",
+      "Word Game"
+    ],
+    "description": "Find the player who does not know the secret word. Pass one device, give clues, vote and reveal the imposter."
   }
 ]
