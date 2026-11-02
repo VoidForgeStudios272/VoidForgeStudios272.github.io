@@ -1540,3 +1540,291 @@ h2{letter-spacing:-.035em}
   .launcher-view>*{animation:none!important}
   .game-card,.game-card-image img,.nav-item,.primary-button,.play-game{transition:none!important}
 }
+
+
+/* =========================================================
+   RESPONSIVE SCALE — phone, tablet, laptop and large displays
+   Fluid sizing avoids fixed desktop dimensions on small screens.
+   ========================================================= */
+:root {
+  --sidebar-width: clamp(216px, 19vw, 260px);
+  --topbar-height: clamp(62px, 6vw, 76px);
+  --page-gutter: clamp(14px, 3.2vw, 48px);
+  --content-gap: clamp(12px, 1.6vw, 20px);
+  --card-radius: clamp(13px, 1.4vw, 18px);
+}
+
+html {
+  min-width: 320px;
+  overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body,
+.app-shell,
+.main-content {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.app-shell {
+  width: 100%;
+  overflow-x: clip;
+}
+
+.main-content {
+  width: 0;
+}
+
+.topbar {
+  min-width: 0;
+  padding-inline: var(--page-gutter);
+  gap: clamp(8px, 1.5vw, 20px);
+}
+
+.topbar > * {
+  min-width: 0;
+}
+
+.search-box {
+  width: min(420px, 52%);
+  min-width: 0;
+}
+
+.launcher-view {
+  width: 100%;
+  max-width: 1440px;
+  padding: clamp(24px, 4.4vw, 64px) var(--page-gutter);
+}
+
+.view-heading {
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: clamp(20px, 3vw, 36px);
+}
+
+.view-heading > * {
+  min-width: 0;
+}
+
+.games-grid,
+.game-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  gap: var(--content-gap);
+  min-width: 0;
+}
+
+.game-card {
+  min-width: 0;
+  border-radius: var(--card-radius);
+}
+
+.game-card-image {
+  min-height: clamp(128px, 16vw, 190px);
+  aspect-ratio: 16 / 9;
+}
+
+.game-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.game-card-content {
+  min-width: 0;
+  padding: clamp(14px, 1.8vw, 20px);
+}
+
+.game-card-title,
+.game-card-description,
+.game-card-content {
+  overflow-wrap: anywhere;
+}
+
+button,
+a,
+input {
+  touch-action: manipulation;
+}
+
+button,
+.primary-button,
+.secondary-button,
+.play-game,
+.filter-button,
+.toolbar-button,
+.icon-button {
+  min-height: 42px;
+}
+
+@media (min-width: 1500px) {
+  .launcher-view {
+    max-width: 1560px;
+  }
+
+  .games-grid,
+  .game-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 22px;
+  }
+}
+
+@media (max-width: 1024px) {
+  :root {
+    --sidebar-width: 220px;
+  }
+
+  .topbar {
+    padding-inline: clamp(16px, 2.5vw, 26px);
+  }
+
+  .launcher-view {
+    padding-inline: clamp(16px, 2.5vw, 26px);
+  }
+
+  .games-grid,
+  .game-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .app-shell {
+    min-height: 100dvh;
+  }
+
+  .main-content {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .topbar {
+    height: auto;
+    min-height: var(--topbar-height);
+    padding-top: max(8px, env(safe-area-inset-top));
+    padding-bottom: 8px;
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    flex: 1 1 180px;
+    width: auto;
+    max-width: 100%;
+  }
+
+  .launcher-view {
+    padding: clamp(20px, 5vw, 32px) clamp(14px, 4vw, 22px) calc(104px + env(safe-area-inset-bottom));
+  }
+
+  .view-heading {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .view-heading > :last-child {
+    max-width: 100%;
+  }
+
+  .games-grid,
+  .game-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    gap: 14px;
+  }
+
+  .game-card-image {
+    min-height: 0;
+  }
+
+  .mobile-nav {
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 520px) {
+  :root {
+    --topbar-height: 60px;
+    --page-gutter: 14px;
+  }
+
+  .topbar {
+    gap: 8px;
+  }
+
+  .topbar .search-box {
+    flex-basis: 100%;
+    order: 3;
+  }
+
+  .launcher-view {
+    padding-top: 22px;
+  }
+
+  .games-grid,
+  .game-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .game-card-content {
+    padding: 15px;
+  }
+
+  .game-card-title {
+    font-size: clamp(17px, 5vw, 20px);
+  }
+
+  .game-card-description {
+    font-size: 13px;
+  }
+
+  .primary-button,
+  .secondary-button,
+  .play-game,
+  .filter-button {
+    max-width: 100%;
+    white-space: normal;
+  }
+}
+
+@media (max-width: 360px) {
+  .launcher-view {
+    padding-inline: 11px;
+  }
+
+  .topbar {
+    padding-inline: 10px;
+  }
+
+  .mobile-nav .nav-item {
+    min-width: 0;
+    padding-inline: 5px;
+    font-size: 10px;
+  }
+
+  .mobile-nav .nav-item span:first-child {
+    width: auto;
+  }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .mobile-nav {
+    display: none;
+  }
+
+  .launcher-view {
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+  }
+
+  .sidebar {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .launcher-view > * {
+    animation: none !important;
+  }
+}
