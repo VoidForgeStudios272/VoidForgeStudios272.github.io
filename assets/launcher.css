@@ -1392,3 +1392,151 @@ body {
     padding-right: max(6px, env(safe-area-inset-right));
   }
 }
+
+
+/* =========================================================
+   VOIDFORGE 2.0 — POLISHED LAUNCHER DESIGN SYSTEM
+   Additive layer: preserves the existing launcher behaviour.
+   ========================================================= */
+:root{
+  --bg:#070910;
+  --panel:#0e1420;
+  --panel-light:#151e2d;
+  --panel-hover:#1b2939;
+  --line:rgba(173,195,220,.12);
+  --line-strong:rgba(173,195,220,.24);
+  --text:#f5f8fc;
+  --muted:#98a8bc;
+  --accent:#7ce8bd;
+  --accent-strong:#b4f6d9;
+  --danger:#ff8195;
+  --sidebar-width:260px;
+  --topbar-height:76px;
+  --radius:16px;
+  --transition:.24s cubic-bezier(.2,.75,.25,1);
+  color-scheme:dark;
+}
+body{
+  background:
+    radial-gradient(ellipse at 82% -12%,rgba(66,112,137,.2),transparent 38%),
+    radial-gradient(ellipse at 18% 35%,rgba(55,112,95,.09),transparent 42%),
+    var(--bg);
+  letter-spacing:.005em;
+}
+::selection{color:#06130e;background:var(--accent)}
+button{font-weight:650}
+button:disabled{cursor:not-allowed;opacity:.48}
+a{transition:color var(--transition)}
+.sidebar{
+  position:sticky;top:0;height:100dvh;min-height:100vh;
+  padding:26px 16px 18px;
+  border-right:1px solid rgba(173,195,220,.13);
+  background:linear-gradient(180deg,rgba(12,18,29,.96),rgba(7,11,18,.94));
+  box-shadow:18px 0 60px rgba(0,0,0,.14);
+  backdrop-filter:blur(22px);
+}
+.brand{padding:8px 12px 38px;gap:13px}
+.brand-mark{display:grid;place-items:center;width:42px;height:42px;border:1px solid rgba(124,232,189,.25);border-radius:14px;background:linear-gradient(145deg,rgba(124,232,189,.16),rgba(124,232,189,.035));box-shadow:0 8px 28px rgba(40,160,120,.1)}
+.brand img{width:27px;height:27px}
+.brand strong{font-size:19px;letter-spacing:-.04em}
+.brand small{font-size:9px;letter-spacing:.2em}
+.nav-section{margin-bottom:26px}
+.nav-heading{padding:0 12px;color:#64758b;font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase}
+.nav-list{gap:6px}
+.nav-item{position:relative;display:flex;align-items:center;gap:9px;min-height:46px;padding:0 13px;border:1px solid transparent;border-radius:12px;font-size:13px}
+.nav-item span:first-child{width:25px;font-size:17px;text-align:center}
+.nav-item:hover{border-color:var(--line);background:rgba(255,255,255,.045);transform:translateX(2px)}
+.nav-item.is-active,.nav-item.active{border-color:rgba(124,232,189,.14);background:linear-gradient(90deg,rgba(124,232,189,.13),rgba(124,232,189,.035));box-shadow:inset 3px 0 var(--accent);color:#eafff5}
+.connection-card{padding:13px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.025)}
+.connection-status{display:flex;align-items:center;gap:10px}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 13px rgba(124,232,189,.6)}
+.connection-card strong,.connection-card small{display:block}
+.connection-card strong{font-size:12px}
+.connection-card small{margin-top:3px;color:var(--muted);font-size:10px}
+.sidebar-footer{padding-top:16px}
+.support-link{border-radius:10px}
+.support-link:hover{background:rgba(255,255,255,.04)}
+.topbar{
+  position:sticky;top:0;z-index:15;
+  height:var(--topbar-height);
+  padding:0 clamp(18px,4vw,48px);
+  border-bottom:1px solid var(--line);
+  background:rgba(7,10,17,.78);
+  backdrop-filter:blur(22px) saturate(140%);
+}
+.search-box{min-height:44px;border-radius:13px;background:rgba(255,255,255,.035)}
+.search-box:focus-within{box-shadow:0 0 0 4px rgba(124,232,189,.08);border-color:rgba(124,232,189,.55)}
+.search-box kbd{border-radius:6px;background:rgba(255,255,255,.04)}
+.icon-button,.profile-button{border-radius:12px}
+.icon-button{width:42px;height:42px}
+.profile-button{border-radius:13px;background:rgba(255,255,255,.035)}
+.profile-button span{border-radius:10px}
+.launcher-view{max-width:1280px;padding:clamp(34px,5vw,64px) clamp(18px,4vw,48px)}
+.launcher-view>*{animation:vfRiseIn .48s both}
+.launcher-view>*:nth-child(2){animation-delay:.04s}
+.launcher-view>*:nth-child(3){animation-delay:.08s}
+.launcher-view>*:nth-child(4){animation-delay:.12s}
+@keyframes vfRiseIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+h1{letter-spacing:-.055em}
+h2{letter-spacing:-.035em}
+.view-subtitle{line-height:1.65}
+.primary-button,.play-game,.secondary-button,.filter-button,.text-button,.toolbar-button{
+  border-radius:11px;transition:transform var(--transition),background var(--transition),border-color var(--transition),box-shadow var(--transition)
+}
+.primary-button,.play-game{box-shadow:0 8px 24px rgba(70,190,145,.12)}
+.primary-button:hover,.play-game:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(70,190,145,.18)}
+.primary-button:active,.play-game:active{transform:scale(.98)}
+.secondary-button{border:1px solid var(--line-strong);background:rgba(255,255,255,.035);color:var(--text)}
+.secondary-button:hover{border-color:rgba(124,232,189,.4);background:rgba(124,232,189,.07)}
+.games-grid,.game-grid{gap:18px}
+.game-card{
+  position:relative;border:1px solid var(--line);border-radius:18px;
+  background:linear-gradient(155deg,rgba(20,29,43,.96),rgba(12,17,27,.98));
+  box-shadow:0 12px 35px rgba(0,0,0,.12);
+  transition:transform .28s cubic-bezier(.2,.8,.2,1),border-color .25s,box-shadow .25s;
+}
+.game-card:hover{transform:translateY(-5px);border-color:rgba(124,232,189,.34);box-shadow:0 22px 46px rgba(0,0,0,.26),0 0 0 1px rgba(124,232,189,.05)}
+.game-card-image{min-height:180px;background:radial-gradient(circle at 50% 35%,rgba(124,232,189,.16),transparent 45%),linear-gradient(135deg,#1b3540,#172238 58%,#29233f)}
+.game-card-image img{transition:transform .55s cubic-bezier(.2,.8,.2,1),filter .3s}
+.game-card:hover .game-card-image img{transform:scale(1.055);filter:saturate(1.12)}
+.game-card-placeholder span{font-size:84px;text-shadow:0 10px 35px rgba(0,0,0,.3)}
+.game-card-content{padding:20px}
+.game-card-title{font-size:20px;letter-spacing:-.035em}
+.game-card-description{line-height:1.6}
+.game-status{border-radius:99px;padding:5px 10px;letter-spacing:.06em}
+.game-tag{border-radius:99px;padding:5px 9px;background:rgba(255,255,255,.025)}
+.play-game{padding:10px 16px}
+.empty-state{border-radius:18px;background:rgba(255,255,255,.02)}
+.game-view{background:#05070c}
+.game-toolbar{background:rgba(10,14,23,.96);border-bottom-color:var(--line);backdrop-filter:blur(18px)}
+.toolbar-button{border-radius:10px;background:rgba(255,255,255,.045)}
+.toolbar-button:hover{transform:translateY(-1px);border-color:rgba(124,232,189,.3);background:rgba(124,232,189,.08)}
+.loading-panel,.game-error{background:radial-gradient(circle at 50% 45%,rgba(124,232,189,.07),transparent 38%),#05070c}
+.vf-toast{border-radius:14px;background:rgba(16,23,35,.96);backdrop-filter:blur(18px);box-shadow:0 18px 55px rgba(0,0,0,.35)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;box-shadow:0 0 0 5px rgba(124,232,189,.1)}
+@media(hover:none){.game-card:hover{transform:none}.nav-item:hover{transform:none}}
+@media(max-width:900px){
+  .sidebar{width:232px;flex-basis:232px}
+  .launcher-view{padding:38px 24px}
+}
+@media(max-width:760px){
+  .sidebar{position:fixed;height:100dvh;min-height:0;z-index:40}
+  .nav-open::before{content:"";position:fixed;z-index:35;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(3px)}
+  .mobile-nav{z-index:30;padding:8px 8px max(8px,env(safe-area-inset-bottom));background:rgba(10,15,24,.92);backdrop-filter:blur(22px)}
+  .mobile-nav .nav-item{min-height:54px;border-radius:12px}
+  .mobile-nav .nav-item.is-active{box-shadow:inset 0 2px var(--accent)}
+  .launcher-view{padding:30px 18px calc(100px + env(safe-area-inset-bottom))}
+  .game-card-image{min-height:165px}
+}
+@media(max-width:480px){
+  .topbar{gap:8px}
+  .icon-button{width:38px;height:38px}
+  .search-box{padding:8px 10px}
+  .launcher-view{padding-right:14px;padding-left:14px}
+  .game-card{border-radius:15px}
+  .game-card-content{padding:17px}
+}
+@media(prefers-reduced-motion:reduce){
+  .launcher-view>*{animation:none!important}
+  .game-card,.game-card-image img,.nav-item,.primary-button,.play-game{transition:none!important}
+}
