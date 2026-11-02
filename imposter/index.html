@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090b12">
+<title>Imposter — VoidForge Studios</title>
+<style>
+:root{color-scheme:dark;--bg:#090b12;--panel:#111622;--panel2:#171e2c;--line:#293244;--text:#f4f6fb;--muted:#9aa6b9;--mint:#79e2b5;--pink:#ff718b;--gold:#f4c66b;--radius:22px}
+*{box-sizing:border-box}body{margin:0;min-height:100dvh;background:radial-gradient(ellipse at 15% 0%,#1a2332 0,transparent 42%),radial-gradient(ellipse at 90% 80%,#201525 0,transparent 35%),var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #79e2b5;outline-offset:3px}
+.shell{width:min(100% - 32px,980px);margin:auto;padding:24px 0 56px}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:32px}.brand{display:flex;align-items:center;gap:12px}.mark{width:42px;height:42px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(145deg,#79e2b5,#287c67);color:#07130f;font-weight:1000;font-size:21px;box-shadow:0 8px 28px #79e2b52a}.brand b{display:block;letter-spacing:-.4px}.brand small{color:var(--muted);font-size:10px;letter-spacing:2.5px;font-weight:800}.pill{border:1px solid var(--line);border-radius:99px;padding:7px 12px;color:var(--muted);font-size:12px}
+main{max-width:760px;margin:0 auto}.hero{text-align:center;margin:12px 0 28px}.eyebrow{font-size:11px;letter-spacing:3px;font-weight:900;color:var(--mint);text-transform:uppercase}.hero h1{font-size:clamp(42px,9vw,76px);letter-spacing:-4px;line-height:1;margin:12px 0}.hero h1 span{color:var(--mint)}.hero p{max-width:500px;margin:14px auto;color:var(--muted);font-size:16px}
+.panel{background:linear-gradient(145deg,#151c29f2,#101520f5);border:1px solid var(--line);border-radius:var(--radius);padding:clamp(18px,4vw,30px);box-shadow:0 22px 70px #0005}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}.panel h2{font-size:23px;letter-spacing:-.7px;margin:0}.muted{color:var(--muted)}.field{display:grid;gap:7px;margin:14px 0}.field label{font-size:12px;font-weight:800;color:#c7d0df}.field input,.field select{width:100%;min-height:48px;background:#0b101a;border:1px solid var(--line);border-radius:13px;padding:0 14px;color:var(--text)}.field input::placeholder{color:#647086}
+.players{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.player-row{display:flex;align-items:center;gap:9px;background:#0c121d;border:1px solid var(--line);border-radius:13px;padding:7px 9px}.player-row .num{width:25px;height:25px;border-radius:8px;display:grid;place-items:center;background:#202a3a;color:var(--mint);font-size:11px;font-weight:900;flex:none}.player-row input{min-width:0;width:100%;border:0;outline:0;background:transparent;color:var(--text);padding:7px 2px}.player-row button{border:0;background:transparent;color:#738097;font-size:18px;padding:4px}.player-actions{display:flex;gap:10px;margin:12px 0 20px}.btn{border:1px solid var(--line);background:#1a2332;color:var(--text);border-radius:13px;padding:12px 16px;font-weight:800;transition:.18s}.btn:hover{transform:translateY(-1px);border-color:#53647d}.btn.primary{background:var(--mint);color:#07130f;border-color:var(--mint)}.btn.primary:hover{background:#9af0cc}.btn.danger{color:var(--pink)}.btn:disabled{opacity:.35;cursor:not-allowed;transform:none}.btn.full{width:100%;min-height:52px}.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.note{background:#101b20;border:1px solid #24483d;border-radius:13px;padding:12px 14px;color:#b7d9cc;font-size:12px;margin:16px 0}.hidden{display:none!important}
+.stepbar{display:flex;gap:7px;margin:0 0 20px}.stepbar span{height:4px;flex:1;border-radius:8px;background:#263142}.stepbar span.done{background:var(--mint)}.center{text-align:center}.big-icon{width:76px;height:76px;margin:8px auto 18px;display:grid;place-items:center;border-radius:25px;background:#1c2c2a;border:1px solid #31564b;font-size:34px}.role-card{max-width:440px;margin:0 auto;text-align:center;padding:26px;border-radius:20px;border:1px solid var(--line);background:linear-gradient(145deg,#192435,#101722)}.role-card.imposter{border-color:#7b3549;background:linear-gradient(145deg,#321b2b,#171520)}.role-label{font-size:11px;letter-spacing:3px;font-weight:900;color:var(--muted)}.secret-word{font-size:clamp(32px,8vw,52px);font-weight:950;letter-spacing:-1.5px;margin:14px 0}.role-card.imposter .secret-word{color:var(--pink)}.turn-name{font-size:28px;font-weight:900;letter-spacing:-1px;margin:8px 0}.subcard{padding:16px;border-radius:15px;background:#0b111b;border:1px solid var(--line);margin:16px 0}.turn-track{display:flex;flex-wrap:wrap;gap:7px;margin:16px 0}.turn-chip{padding:7px 11px;border-radius:99px;background:#1b2534;color:var(--muted);font-size:12px}.turn-chip.active{background:#244c40;color:#a8f2d2}.turn-chip.done{background:#172b26;color:#79e2b5;text-decoration:line-through}.vote-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.vote-option{min-height:58px;text-align:left;display:flex;align-items:center;gap:12px;background:#0c121d;border:1px solid var(--line);border-radius:14px;padding:12px;color:var(--text);font-weight:800}.vote-option.selected{border-color:var(--mint);background:#152b25}.avatar{width:32px;height:32px;border-radius:11px;display:grid;place-items:center;background:#243246;color:var(--mint);font-weight:900;flex:none}.result{border-radius:18px;padding:22px;text-align:center;background:#10251f;border:1px solid #285c48}.result.bad{background:#2a1822;border-color:#71334a}.result h2{font-size:32px;margin:6px}.score-list{display:grid;gap:8px;margin:16px 0}.score-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 13px;background:#0c121d;border:1px solid var(--line);border-radius:12px}.score-row strong{color:var(--mint)}.footer{text-align:center;color:#657186;font-size:11px;margin-top:24px}
+@media(max-width:560px){.shell{width:min(100% - 22px,980px);padding-top:16px}.top{margin-bottom:24px}.pill{font-size:10px}.players,.settings-grid,.vote-list{grid-template-columns:1fr}.hero h1{letter-spacing:-2.5px}.player-actions .btn{flex:1;padding:11px 8px}.panel{border-radius:18px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+<header class="top"><div class="brand"><div class="mark">V</div><div><b>VOIDFORGE</b><small>STUDIOS · PARTY GAMES</small></div></div><span class="pill">● LOCAL PARTY GAME</span></header>
+<main>
+<section class="hero"><div class="eyebrow">THE SOCIAL DEDUCTION GAME</div><h1>Find the <span>Imposter.</span></h1><p>Ein geheimes Wort. Ein Spieler kennt es nicht. Könnt ihr den Imposter entlarven?</p></section>
+<div class="stepbar" id="stepbar"><span class="done"></span><span></span><span></span><span></span></div>
+<section class="panel" id="setup">
+<div class="panel-head"><div><div class="eyebrow">01 / LOBBY</div><h2>Wer spielt mit?</h2></div><span class="pill" id="playerCount">4 Spieler</span></div>
+<p class="muted">Gebt eure Namen ein. Gebt das Gerät danach reihum weiter, damit jeder seine Rolle geheim ansehen kann.</p>
+<div class="players" id="players"></div>
+<div class="player-actions"><button class="btn" id="addPlayer" type="button">＋ Spieler hinzufügen</button><button class="btn danger" id="removePlayer" type="button">− Entfernen</button></div>
+<div class="settings-grid">
+<div class="field"><label for="category">Wort-Kategorie</label><select id="category"><option value="all">🎲 Zufallsmix</option><option value="food">🍕 Essen & Trinken</option><option value="animals">🐾 Tiere</option><option value="places">🌍 Orte & Reisen</option><option value="objects">📦 Gegenstände</option><option value="people">🎭 Menschen & Berufe</option><option value="nature">🌿 Natur</option><option value="entertainment">🎮 Unterhaltung</option><option value="sports">⚽ Sport</option></select></div>
+<div class="field"><label for="rounds">Hinweis-Runden</label><select id="rounds"><option value="1">1 Runde</option><option value="2" selected>2 Runden</option><option value="3">3 Runden</option></select></div>
+</div>
+<div class="note">🔒 <b>Privat auf einem Gerät:</b> Die Rollen werden nur nacheinander angezeigt. Niemand sollte beim Weitergeben auf den Bildschirm schauen.</div>
+<button class="btn primary full" id="start" type="button">Spiel starten <span>→</span></button>
+</section>
+<section class="panel hidden" id="reveal">
+<div class="panel-head"><div><div class="eyebrow">02 / GEHEIME ROLLEN</div><h2>Nur für deine Augen</h2></div><span class="pill" id="revealProgress">1 / 4</span></div>
+<div class="center"><div class="big-icon">🔐</div><p class="muted">Gib das Gerät an diese Person weiter:</p><div class="turn-name" id="revealName">Spieler 1</div><p class="muted" id="revealHint">Tippe erst dann auf Anzeigen, wenn niemand sonst auf den Bildschirm schaut.</p></div>
+<div class="role-card hidden" id="roleCard"><div class="role-label" id="roleLabel">DEIN GEHEIMES WORT</div><div class="secret-word" id="secretWord">Pizza</div><p class="muted" id="roleDescription">Gib einen passenden Hinweis, ohne das Wort zu verraten.</p></div>
+<button class="btn primary full" id="showRole" type="button">Rolle anzeigen</button>
+<button class="btn full hidden" id="hideRole" type="button">Verstanden · Weitergeben →</button>
+</section>
+<section class="panel hidden" id="clues">
+<div class="panel-head"><div><div class="eyebrow">03 / HINWEISE</div><h2>Zeigt, dass ihr es wisst.</h2></div><span class="pill" id="roundBadge">Runde 1 / 2</span></div>
+<div class="center"><p class="muted">Reihum nennt jeder genau ein Wort, das zum geheimen Begriff passt. Verratet nicht zu viel!</p><div class="subcard"><div class="eyebrow">JETZT AM ZUG</div><div class="turn-name" id="clueName">Spieler 1</div><div class="muted" id="cluePosition">Hinweis 1 von 4</div></div></div>
+<div class="turn-track" id="clueTrack"></div>
+<button class="btn primary full" id="nextClue" type="button">Hinweis gegeben · Weiter →</button>
+<button class="btn full" id="toVote" type="button">Zur Abstimmung wechseln</button>
+</section>
+<section class="panel hidden" id="vote">
+<div class="panel-head"><div><div class="eyebrow">04 / ABSTIMMUNG</div><h2>Wer ist der Imposter?</h2></div><span class="pill" id="voteProgress">1 / 4</span></div>
+<div class="center"><p class="muted">Diskutiert gemeinsam. Danach stimmt jeder einzeln ab. Die Auswahl wird vor dem nächsten Spieler verborgen.</p><div class="turn-name" id="voterName">Spieler 1 stimmt ab</div></div>
+<div class="vote-list" id="voteList"></div>
+<button class="btn primary full" id="castVote" type="button" disabled style="margin-top:16px">Stimme abgeben</button>
+</section>
+<section class="panel hidden" id="guess">
+<div class="panel-head"><div><div class="eyebrow">LETZTE CHANCE</div><h2>Der Imposter darf raten!</h2></div><span class="pill">Geheime Antwort</span></div>
+<div class="center"><div class="big-icon">🕵️</div><p class="muted" id="guessPrompt">Der Imposter wurde entlarvt. Kann er das geheime Wort erraten?</p><div class="turn-name" id="guessName">Imposter</div></div>
+<div class="field"><label for="guessInput">Was war das geheime Wort?</label><input id="guessInput" autocomplete="off" placeholder="Dein Tipp …"></div>
+<button class="btn primary full" id="submitGuess" type="button">Tipp bestätigen</button>
+<button class="btn full" id="skipGuess" type="button" style="margin-top:9px">Nicht raten</button>
+</section>
+<section class="panel hidden" id="result">
+<div class="eyebrow">RUNDE BEENDET</div><div class="result" id="resultBox"><div class="big-icon">🏆</div><h2 id="resultTitle">Die Crew gewinnt!</h2><p id="resultText" class="muted"></p></div>
+<div class="subcard"><div class="eyebrow">DAS GEHEIME WORT</div><div class="secret-word" id="answerWord">Pizza</div><p class="muted" id="answerCategory"></p><p id="imposterReveal"></p></div>
+<h2 style="font-size:18px">Punktestand</h2><div class="score-list" id="scoreList"></div>
+<button class="btn primary full" id="nextGame" type="button">Nächste Runde spielen ↻</button>
+<button class="btn full" id="newLobby" type="button" style="margin-top:9px">Neue Spielrunde einrichten</button>
+</section>
+</main>
+<div class="footer">VOIDFORGE STUDIOS · IMPOSTER · MADE FOR GAME NIGHT</div>
+</div>
+<script>
+"use strict";
+const WORDS={
+food:["Pizza","Sushi","Hamburger","Schokolade","Pfannkuchen","Spaghetti","Popcorn","Eiscreme","Käsekuchen","Pommes","Wassermelone","Brezel","Tacos","Kaffee","Zitronenkuchen","Currywurst","Lasagne","Croissant","Döner","Mango"],
+animals:["Elefant","Pinguin","Delfin","Känguru","Giraffe","Fuchs","Schildkröte","Eule","Hai","Koala","Flamingo","Igel","Löwe","Papagei","Krokodil","Panda","Fledermaus","Wolf"],
+places:["Flughafen","Strand","Schule","Krankenhaus","Kino","Bibliothek","Schwimmbad","Berge","Museum","Bahnhof","Campingplatz","Restaurant","Zoo","Leuchtturm","Supermarkt","Weltraumstation"],
+objects:["Regenschirm","Kopfhörer","Zahnbürste","Rucksack","Fernbedienung","Sonnenbrille","Schlüssel","Wecker","Kamera","Taschenlampe","Skateboard","Kühlschrank","Kissen","Schere","Ladegerät","Spielkonsole"],
+people:["Feuerwehrmann","Lehrerin","Astronaut","Detektiv","Koch","Pilotin","Zauberer","Tierarzt","Influencer","Schiedsrichter","Forscherin","Musiker","Polizistin","Architekt"],
+nature:["Regenbogen","Vulkan","Wasserfall","Schneeflocke","Gewitter","Wüste","Nordlicht","Dschungel","Sonnenfinsternis","Korallenriff","Gletscher","Sternschnuppe","Ozean","Lavastrom"],
+entertainment:["Minecraft","Achterbahn","Superheld","Zaubershow","Videospiel","Geisterbahn","Dinosaurier","Roboter","Weltraum","Detektivfilm","Comic","Karaoke","Piratenschiff","Zeitmaschine"],
+sports:["Fußball","Basketball","Tennis","Schwimmen","Skifahren","Boxen","Volleyball","Skateboarden","Tischtennis","Handball","Surfen","Badminton","Leichtathletik"]
+};
+const CATEGORY_NAMES={food:"Essen & Trinken",animals:"Tiere",places:"Orte & Reisen",objects:"Gegenstände",people:"Menschen & Berufe",nature:"Natur",entertainment:"Unterhaltung",sports:"Sport"};
+const $=id=>document.getElementById(id);
+let players=[{name:"Spieler 1",score:0},{name:"Spieler 2",score:0},{name:"Spieler 3",score:0},{name:"Spieler 4",score:0}];
+let roles=[],word="",category="",imposter=-1,round=1,maxRounds=2,clueIndex=0,voterIndex=0,selectedVote=-1,votes=[],lastWord="",winner="",roundFinished=false;
+const screens=["setup","reveal","clues","vote","guess","result"];
+function show(id){screens.forEach(s=>$(s).classList.toggle("hidden",s!==id));const step={setup:0,reveal:1,clues:2,vote:3,guess:3,result:3}[id]||0;[...$("stepbar").children].forEach((e,i)=>e.classList.toggle("done",i<=step))}
+function renderPlayers(){const box=$("players");box.replaceChildren();players.forEach((p,i)=>{const row=document.createElement("div");row.className="player-row";const n=document.createElement("span");n.className="num";n.textContent=String(i+1).padStart(2,"0");const input=document.createElement("input");input.value=p.name;input.maxLength=22;input.setAttribute("aria-label","Name Spieler "+(i+1));input.addEventListener("input",()=>{p.name=input.value});const del=document.createElement("button");del.type="button";del.textContent="×";del.setAttribute("aria-label","Spieler entfernen");del.addEventListener("click",()=>{if(players.length<=3)return;players.splice(i,1);renderPlayers()});row.append(n,input,del);box.append(row)});$("playerCount").textContent=players.length+" Spieler";$("addPlayer").disabled=players.length>=8;$("removePlayer").disabled=players.length<=3}
+$("addPlayer").addEventListener("click",()=>{if(players.length<8){players.push({name:"Spieler "+(players.length+1),score:0});renderPlayers()}});
+$("removePlayer").addEventListener("click",()=>{if(players.length>3){players.pop();renderPlayers()}});
+function chooseWord(){const key=$("category").value;const available=key==="all"?Object.keys(WORDS):[key];const cat=available[Math.floor(Math.random()*available.length)];let choices=WORDS[cat].filter(w=>w!==lastWord);if(!choices.length)choices=WORDS[cat];category=cat;word=choices[Math.floor(Math.random()*choices.length)];lastWord=word}
+function beginRound(){players.forEach((p,i)=>{p.name=p.name.trim()||"Spieler "+(i+1)});if(new Set(players.map(p=>p.name.toLocaleLowerCase())).size!==players.length){alert("Bitte verwendet unterschiedliche Spielernamen.");return}maxRounds=Number($("rounds").value);round=1;chooseWord();imposter=Math.floor(Math.random()*players.length);roles=players.map((_,i)=>i===imposter?"imposter":"crew");startReveal()}
+$("start").addEventListener("click",beginRound);
+function startReveal(){clueIndex=0;show("reveal");renderReveal()}
+function renderReveal(){$("revealProgress").textContent=(clueIndex+1)+" / "+players.length;$("revealName").textContent=players[clueIndex].name;$("roleCard").classList.add("hidden");$("showRole").classList.remove("hidden");$("hideRole").classList.add("hidden");$("revealHint").textContent="Tippe erst dann auf Anzeigen, wenn niemand sonst auf den Bildschirm schaut."}
+$("showRole").addEventListener("click",()=>{const isSpy=roles[clueIndex]==="imposter";$("roleCard").classList.remove("hidden");$("roleCard").classList.toggle("imposter",isSpy);$("roleLabel").textContent=isSpy?"DU BIST DER IMPOSTER":"DEIN GEHEIMES WORT";$("secretWord").textContent=isSpy?"IMPOSTER":word;$("roleDescription").textContent=isSpy?"Du kennst das Wort nicht. Höre gut zu, bluffe und versuche es zu erraten.": "Merke dir das Wort. Gib einen passenden Hinweis, ohne es direkt zu verraten.";$("showRole").classList.add("hidden");$("hideRole").classList.remove("hidden")});
+$("hideRole").addEventListener("click",()=>{clueIndex++;if(clueIndex<players.length)renderReveal();else startClues()});
+function startClues(){round=1;clueIndex=0;show("clues");renderClue()}
+function renderClue(){$("roundBadge").textContent="Runde "+round+" / "+maxRounds;$("clueName").textContent=players[clueIndex].name;$("cluePosition").textContent="Hinweis "+(clueIndex+1)+" von "+players.length;$("clueTrack").replaceChildren();players.forEach((p,i)=>{const chip=document.createElement("span");chip.className="turn-chip"+(i<clueIndex?" done":i===clueIndex?" active":"");chip.textContent=p.name;$("clueTrack").append(chip)});$("nextClue").textContent=clueIndex===players.length-1?(round<maxRounds?"Runde abschließen →":"Zur Abstimmung →"):"Hinweis gegeben · Weiter →";$("toVote").classList.toggle("hidden",round===maxRounds&&clueIndex===0)}
+$("nextClue").addEventListener("click",()=>{clueIndex++;if(clueIndex>=players.length){if(round<maxRounds){round++;clueIndex=0;renderClue()}else startVote()}else renderClue()});
+$("toVote").addEventListener("click",startVote);
+function startVote(){voterIndex=0;votes=Array(players.length).fill(-1);selectedVote=-1;show("vote");renderVote()}
+function renderVote(){$("voteProgress").textContent=(voterIndex+1)+" / "+players.length;$("voterName").textContent=players[voterIndex].name+" stimmt ab";$("voteList").replaceChildren();players.forEach((p,i)=>{if(i===voterIndex)return;const b=document.createElement("button");b.type="button";b.className="vote-option"+(selectedVote===i?" selected":"");const av=document.createElement("span");av.className="avatar";av.textContent=p.name.trim().charAt(0).toUpperCase();const label=document.createElement("span");label.textContent=p.name;b.append(av,label);b.addEventListener("click",()=>{selectedVote=i;renderVote()});$("voteList").append(b)});$("castVote").disabled=selectedVote<0;$("castVote").textContent=voterIndex===players.length-1?"Abstimmung abschließen":"Stimme geheim abgeben →"}
+$("castVote").addEventListener("click",()=>{if(selectedVote<0)return;votes[voterIndex]=selectedVote;voterIndex++;selectedVote=-1;if(voterIndex<players.length)renderVote();else resolveVotes()});
+function resolveVotes(){const counts=players.map((_,i)=>votes.filter(v=>v===i).length);const high=Math.max(...counts);const top=counts.map((n,i)=>n===high?i:-1).filter(i=>i>=0);if(top.length!==1){winner="tie";finishRound("tie");return}const eliminated=top[0];if(eliminated===imposter){$("guessName").textContent=players[imposter].name;$("guessInput").value="";show("guess")}else{winner="imposter";finishRound("imposter")}}
+$("submitGuess").addEventListener("click",()=>{const guess=$("guessInput").value.trim();if(!guess){$("guessInput").focus();return}finishRound(guess.localeCompare(word,"de",{sensitivity:"base"})===0?"guess":"crew")});
+$("guessInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("submitGuess").click()});
+$("skipGuess").addEventListener("click",()=>finishRound("crew"));
+function finishRound(outcome){roundFinished=true;let title="",message="",crewWon=false,imposterWon=false;if(outcome==="tie"){title="Unentschieden!";message="Die Stimmen sind gleich verteilt. Niemand wurde eindeutig entlarvt – der Imposter entkommt.";imposterWon=true}else if(outcome==="imposter"){title="Der Imposter entkommt!";message=players[imposter].name+" wurde nicht gewählt. Die Crew lag daneben.";imposterWon=true}else if(outcome==="guess"){title="Der Imposter gewinnt!";message=players[imposter].name+" wurde entlarvt, hat aber das geheime Wort richtig erraten: "+word;imposterWon=true}else{title="Die Crew gewinnt!";message="Der Imposter wurde entlarvt und konnte das Wort nicht erraten.";crewWon=true}
+if(crewWon)players.forEach((p,i)=>{if(i!==imposter)p.score++});if(imposterWon)players[imposter].score+=outcome==="guess"?2:1;
+$("resultTitle").textContent=title;$("resultText").textContent=message;$("resultBox").classList.toggle("bad",imposterWon);$("answerWord").textContent=word;$("answerCategory").textContent="Kategorie: "+(CATEGORY_NAMES[category]||category);$("imposterReveal").textContent="Der Imposter war: "+players[imposter].name;
+$("scoreList").replaceChildren();[...players].sort((a,b)=>b.score-a.score).forEach(p=>{const row=document.createElement("div");row.className="score-row";const name=document.createElement("span");name.textContent=p.name;const score=document.createElement("strong");score.textContent=p.score+" Punkt"+(p.score===1?"":"e");row.append(name,score);$("scoreList").append(row)});show("result")}
+$("nextGame").addEventListener("click",()=>{chooseWord();imposter=Math.floor(Math.random()*players.length);roles=players.map((_,i)=>i===imposter?"imposter":"crew");startReveal()});
+$("newLobby").addEventListener("click",()=>{renderPlayers();show("setup")});
+renderPlayers();show("setup");
+</script>
+</body>
+</html>
