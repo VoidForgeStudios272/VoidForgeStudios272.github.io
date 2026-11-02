@@ -153,7 +153,7 @@ document.addEventListener("click",e=>{if(e.target.closest("button")&&!e.target.c
 const STORAGE_KEY="voidforge-imposter-v2";
 function readSaved(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}")}catch{return {}}}
 const saved=readSaved();
-let players=Array.isArray(saved.players)&&saved.players.length>=3&&saved.players.map(p=>({name:String(p.name||"Spieler").slice(0,22),score:Math.max(0,Number(p.score)||0)})):[{name:"Spieler 1",score:0},{name:"Spieler 2",score:0},{name:"Spieler 3",score:0},{name:"Spieler 4",score:0}];
+let players=Array.isArray(saved.players)&&saved.players.length>=3?saved.players.map(p=>({name:String(p.name||"Spieler").slice(0,22),score:Math.max(0,Number(p.score)||0)})):[{name:"Spieler 1",score:0},{name:"Spieler 2",score:0},{name:"Spieler 3",score:0},{name:"Spieler 4",score:0}];
 let soundEnabled=saved.soundEnabled!==false;
 let roles=[],word="",category="",imposter=-1,round=1,maxRounds=2,clueIndex=0,voterIndex=0,selectedVote=-1,votes=[],lastWord="",usedWords=new Set(),winner="",roundFinished=false;
 const screens=["setup","reveal","clues","vote","guess","result"];
