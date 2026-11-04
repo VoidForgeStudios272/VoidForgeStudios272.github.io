@@ -1,7 +1,7 @@
 {
-  "name": "VoidForge Web Launcher",
-  "short_name": "VoidForge",
-  "description": "VoidForge Studio gives you many options",
+  "name": "Microsoft Teams",
+  "short_name": "msteams",
+  "description": "Microsoft Teams, chat and call anywhere!",
   "id": "./",
   "start_url": "./",
   "scope": "./",
