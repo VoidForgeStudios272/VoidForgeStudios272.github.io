@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#080d19">
+  <meta name="description" content="Among Us inspired menu concept for VoidForge Studios.">
+  <title>Among Us — VoidForge Studios</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/main.js" defer></script>
+</head>
+<body>
+  <div class="space" aria-hidden="true">
+    <div class="stars stars-one"></div><div class="stars stars-two"></div>
+    <div class="planet"></div><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+    <div class="ship ship-one">✦</div><div class="ship ship-two">✧</div>
+  </div>
+  <header class="topbar">
+    <a class="studio" href="../" aria-label="VoidForge Studios home"><span class="studio-mark">V</span><span>VOIDFORGE <small>STUDIOS</small></span></a>
+    <div class="top-actions">
+      <span class="status"><i></i> SYSTEM ONLINE</span>
+      <button class="icon-button" id="settingsTop" aria-label="Open settings" title="Settings">⚙</button>
+    </div>
+  </header>
+
+  <main class="menu-shell">
+    <section class="hero">
+      <div class="eyebrow"><span></span> CREW CONTROL // MAIN DECK</div>
+      <h1>AMONG <span>US</span></h1>
+      <p class="tagline">Who can you trust?</p>
+      <div class="hero-art" aria-label="A red crewmate floating in space">
+        <div class="crew-shadow"></div>
+        <div class="crew" id="heroCrew"><div class="crew-backpack"></div><div class="crew-body"><div class="crew-glass"></div></div><div class="crew-feet"></div></div>
+        <div class="art-label">CREW MEMBER <b>#008</b></div>
+        <div class="art-crosshair">＋</div>
+      </div>
+      <div class="build">VOIDFORGE EDITION <span>•</span> MENU CONCEPT 1.0</div>
+    </section>
+
+    <section class="menu-panel" aria-label="Main menu">
+      <div class="panel-head"><div><span class="tiny-label">WELCOME BACK</span><h2>Ready for launch?</h2></div><div class="player-chip"><span class="mini-avatar">●</span><span>PLAYER <b id="playerName">CREWMATE</b></span></div></div>
+      <div class="main-actions">
+        <button class="menu-button primary" data-action="online"><span class="button-icon">⌁</span><span><b>ONLINE</b><small>Find a crew or host a room</small></span><strong>›</strong></button>
+        <button class="menu-button" data-action="local"><span class="button-icon">⌂</span><span><b>LOCAL</b><small>Play with nearby players</small></span><strong>›</strong></button>
+        <button class="menu-button" data-action="freeplay"><span class="button-icon">▣</span><span><b>FREEPLAY</b><small>Explore the ship at your pace</small></span><strong>›</strong></button>
+      </div>
+      <div class="secondary-actions">
+        <button class="tile-button" data-action="customize"><span>♟</span><b>CUSTOMIZE</b><small>Suit up your crewmate</small></button>
+        <button class="tile-button" data-action="settings"><span>⚙</span><b>SETTINGS</b><small>Make it yours</small></button>
+        <button class="tile-button" data-action="account"><span>◎</span><b>ACCOUNT</b><small>Player profile</small></button>
+      </div>
+      <div class="panel-foot"><span><i class="pulse"></i> ALL SYSTEMS NOMINAL</span><span>REGION: AUTO <b>•</b> v1.0.0</span></div>
+    </section>
+  </main>
+
+  <footer class="footer"><span>© VOIDFORGE STUDIOS</span><span>UNOFFICIAL FAN-MADE MENU CONCEPT</span><span class="footer-links"><a href="../">HOME</a><a href="https://github.com/VoidForgeStudios272/VoidForgeStudios272.github.io" target="_blank" rel="noreferrer">GITHUB ↗</a></span></footer>
+
+  <div class="modal-backdrop" id="modalBackdrop" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" id="modalClose" aria-label="Close">×</button>
+      <div class="modal-kicker">VOIDFORGE // CREW TERMINAL</div>
+      <h2 id="modalTitle">ONLINE</h2>
+      <div id="modalContent"></div>
+    </section>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
