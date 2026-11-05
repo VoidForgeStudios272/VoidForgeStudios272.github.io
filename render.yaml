@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: voidforge-among-us-backend
+    runtime: node
+    rootDir: among-us/engine/backend
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /status
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ALLOWED_ORIGIN
+        value: https://voidforgestudios272.github.io
