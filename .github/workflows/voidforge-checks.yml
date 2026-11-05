@@ -62,7 +62,17 @@ jobs:
             echo ""
             echo "Checking $file"
 
-            if node --check "$file"; then
+            # The repository package.json is CommonJS, but browser files such as
+            # game3d.js are native ES modules. Parse those as modules via stdin
+            # without changing the runtime type of the rest of the project.
+            if grep -Eq '^[[:space:]]*(import[[:space:]]|export[[:space:]]|export\{)' "$file"; then
+              if node --input-type=module --check < "$file"; then
+                echo "PASS (ES module): $file"
+              else
+                echo "FAIL (ES module): $file"
+                FAILED=1
+              fi
+            elif node --check "$file"; then
               echo "PASS: $file"
             else
               echo "FAIL: $file"
