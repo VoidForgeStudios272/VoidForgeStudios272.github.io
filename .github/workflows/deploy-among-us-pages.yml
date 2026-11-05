@@ -49,7 +49,7 @@ jobs:
       - name: Assemble the complete VoidForge site
         run: |
           mkdir site
-          rsync -a --exclude='.git' --exclude='among-us/prepare-upstream.mjs' --exclude='among-us/INTEGRATION-STATUS.md' ./ site/
+          rsync -a --exclude='.git' --exclude='site' --exclude='among-us/prepare-upstream.mjs' --exclude='among-us/INTEGRATION-STATUS.md' ./ site/
           rm -rf site/among-us
           mkdir -p site/among-us
           cp -a among-us/frontend/dist/. site/among-us/
