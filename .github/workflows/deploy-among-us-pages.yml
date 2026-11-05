@@ -1,0 +1,68 @@
+name: Deploy VoidForge Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'among-us/**'
+      - '.gitmodules'
+      - '.github/workflows/deploy-among-us-pages.yml'
+      - 'render.yaml'
+      - 'index.html'
+      - 'games.json'
+      - 'css/**'
+      - 'js/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (including the game engine submodule)
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: among-us/engine/frontend/package-lock.json
+      - name: Prepare upstream assets and VoidForge paths
+        run: node among-us/prepare-upstream.mjs
+      - name: Install frontend dependencies
+        run: npm ci --prefix among-us/engine/frontend
+      - name: Build Among Us
+        env:
+          VITE_BACKEND_URL: ${{ vars.AMONG_US_BACKEND_URL }}
+          VITE_SOCKET_URL: ${{ vars.AMONG_US_BACKEND_URL }}
+          VITE_ASSET_BASE_URL: https://raw.githubusercontent.com/arizkhalid/among-us-clone/main/frontend/public/
+        run: npm run build --prefix among-us/engine/frontend
+      - name: Assemble the complete VoidForge site
+        run: |
+          mkdir site
+          rsync -a --exclude='.git' --exclude='among-us/engine' --exclude='among-us/prepare-upstream.mjs' --exclude='among-us/INTEGRATION-STATUS.md' ./ site/
+          rm -rf site/among-us
+          mkdir -p site/among-us
+          cp -a among-us/engine/frontend/dist/. site/among-us/
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
