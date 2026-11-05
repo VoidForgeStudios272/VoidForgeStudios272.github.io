@@ -2,7 +2,7 @@ services:
   - type: web
     name: voidforge-among-us-backend
     runtime: node
-    rootDir: among-us/engine/backend
+    rootDir: among-us/backend
     buildCommand: npm ci
     startCommand: npm start
     healthCheckPath: /status
