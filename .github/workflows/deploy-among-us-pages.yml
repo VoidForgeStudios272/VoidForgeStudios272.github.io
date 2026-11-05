@@ -42,10 +42,7 @@ jobs:
         run: node among-us/prepare-upstream.mjs
       - name: Install frontend dependencies
         run: npm ci --prefix among-us/frontend
-      - name: Build Among Us
-        env:
-          VITE_BACKEND_URL: ${{ vars.AMONG_US_BACKEND_URL }}
-          VITE_SOCKET_URL: ${{ vars.AMONG_US_BACKEND_URL }}
+      - name: Build Among Us frontend (no backend configured)
         run: npm run build --prefix among-us/frontend
       - name: Assemble the complete VoidForge site
         run: |
