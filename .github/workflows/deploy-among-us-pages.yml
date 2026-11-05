@@ -5,7 +5,6 @@ on:
     branches: [main]
     paths:
       - 'among-us/**'
-      - '.gitmodules'
       - '.github/workflows/deploy-among-us-pages.yml'
       - 'render.yaml'
       - 'index.html'
@@ -30,33 +29,30 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout (including the game engine submodule)
+      - name: Checkout VoidForge source
         uses: actions/checkout@v6
-        with:
-          submodules: recursive
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: among-us/engine/frontend/package-lock.json
-      - name: Prepare upstream assets and VoidForge paths
+          cache-dependency-path: among-us/frontend/package-lock.json
+      - name: Prepare local Among Us assets and VoidForge paths
         run: node among-us/prepare-upstream.mjs
       - name: Install frontend dependencies
-        run: npm ci --prefix among-us/engine/frontend
+        run: npm ci --prefix among-us/frontend
       - name: Build Among Us
         env:
           VITE_BACKEND_URL: ${{ vars.AMONG_US_BACKEND_URL }}
           VITE_SOCKET_URL: ${{ vars.AMONG_US_BACKEND_URL }}
-          VITE_ASSET_BASE_URL: https://raw.githubusercontent.com/arizkhalid/among-us-clone/main/frontend/public/
-        run: npm run build --prefix among-us/engine/frontend
+        run: npm run build --prefix among-us/frontend
       - name: Assemble the complete VoidForge site
         run: |
           mkdir site
-          rsync -a --exclude='.git' --exclude='among-us/engine' --exclude='among-us/prepare-upstream.mjs' --exclude='among-us/INTEGRATION-STATUS.md' ./ site/
+          rsync -a --exclude='.git' --exclude='among-us/prepare-upstream.mjs' --exclude='among-us/INTEGRATION-STATUS.md' ./ site/
           rm -rf site/among-us
           mkdir -p site/among-us
-          cp -a among-us/engine/frontend/dist/. site/among-us/
+          cp -a among-us/frontend/dist/. site/among-us/
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
       - name: Upload Pages artifact
