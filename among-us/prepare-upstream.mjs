@@ -1,4 +1,4 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile, rm } from 'node:fs/promises';
 
 const root = 'among-us/engine/frontend';
 const upstream = 'https://raw.githubusercontent.com/arizkhalid/among-us-clone/main/frontend/public/';
@@ -30,8 +30,15 @@ await replace('src/index.css', [
 ]);
 
 await replace('index.html', [
-  ['<title>Vite + React + TS</title>', '<title>Among Us — VoidForge Studios</title>'],
+  ['<title>Among US</title>', '<title>Among Us — VoidForge Studios</title>'],
   ['href="/favicon.png"', `href="${upstream}favicon.png"`]
 ]);
 
-console.log('VoidForge paths and upstream asset loading prepared.');
+// The upstream sprite/map artwork is loaded from its original public repository.
+// Remove the checked-out copies before Vite builds so the VoidForge Pages artifact
+// contains the app bundle, not a redistributed copy of third-party game artwork.
+await rm(`${root}/public/assets`, { recursive: true, force: true });
+await rm(`${root}/public/favicon.png`, { force: true });
+await rm(`${root}/public/kill`, { force: true });
+
+console.log('VoidForge paths prepared; binary assets will load from the upstream repository.');
