@@ -1,0 +1,31 @@
+sequenceDiagram
+    box Frontend Components
+        participant app as App.jsx
+        participant menu as Menu.jsx
+    end
+    box Phaser
+        participant main as main.js
+        participant game as Game.js
+        participant lobby as Lobby.js
+    end
+    box Backend Components
+        participant roomev as roomEvents.js
+        participant playerev as playerEvents.js
+        participant api as api.js
+    end
+    app ->>+ menu: displays
+    menu ->> roomev: player:register
+    roomev -->> menu: player:registered
+    menu ->> roomev: room:create
+    roomev -->> menu: room:created, room:joined
+    menu -->>- app: callback {roomId, playerId}
+    Note over app: PAGE.WAITING
+    app ->> roomev: game:start
+    roomev -->> app: game:started
+    app ->> lobby: eventBus:startGame
+    Note over main, lobby: Game Scenes Start
+    lobby ->> api: isImposter
+    api -->> lobby: boolean
+    lobby ->> api: getPlayers
+    api -->> lobby: [...players]
+

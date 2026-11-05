@@ -1,0 +1,260 @@
+/* Lobby room card - glass effect */
+.lobbyCard {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 12px 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #fff;
+}
+
+.lobbyCard:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(78, 204, 163, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.container {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url("/assets/background.jpg");
+  background-size: cover;
+  background-position: center;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* Main card - frosted glass */
+.card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 20px;
+  padding: 40px;
+  min-width: 380px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  text-align: center;
+}
+
+.title {
+  color: #fff;
+  font-size: 36px;
+  margin: 0 0 24px 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.subtitle {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 18px;
+  margin: 0 0 16px 0;
+  font-weight: 500;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.welcome {
+  color: #4ecca3;
+  font-size: 18px;
+  margin: 0 0 16px 0;
+  text-shadow: 0 0 10px rgba(78, 204, 163, 0.4);
+}
+
+/* Input - glass style */
+.input {
+  padding: 14px 18px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(78, 204, 163, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #fff;
+  outline: none;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.input:focus {
+  border-color: #4ecca3;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 15px rgba(78, 204, 163, 0.3);
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Button - glass with accent */
+.button {
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1px solid rgba(78, 204, 163, 0.5);
+  background: rgba(78, 204, 163, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.button:hover {
+  background: rgba(78, 204, 163, 0.4);
+  border-color: #4ecca3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(78, 204, 163, 0.3);
+}
+
+/* Primary button - glass with accent */
+.buttonPrimary {
+  padding: 16px 28px;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1px solid rgba(233, 69, 96, 0.5);
+  background: rgba(233, 69, 96, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.buttonPrimary:hover {
+  background: rgba(233, 69, 96, 0.5);
+  border-color: #e94560;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(233, 69, 96, 0.4);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 16px 0;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.error {
+  color: #ff6b6b;
+  margin-top: 16px;
+  font-size: 14px;
+  text-shadow: 0 0 10px rgba(255, 107, 107, 0.4);
+}
+
+.roomList {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.roomId {
+  color: #4ecca3;
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(78, 204, 163, 0.4);
+}
+
+.highlight {
+  color: #f39c12;
+  text-shadow: 0 0 8px rgba(243, 156, 18, 0.4);
+}
+
+.noRooms {
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+}
+
+/* Color picker - glass section */
+.colorPickerSection {
+  margin: 16px 0;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+}
+
+.colorLabel {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  margin: 0 0 14px 0;
+}
+
+.colorGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.colorOption {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.colorOption:hover {
+  transform: scale(1.15);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.colorOptionSelected {
+  transform: scale(1.2);
+  border-color: #4ecca3 !important;
+  box-shadow:
+    0 0 20px rgba(78, 204, 163, 0.6),
+    0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* Clear button - subtle glass */
+.clearColorButton {
+  padding: 8px 16px;
+  font-size: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(233, 69, 96, 0.4);
+  background: rgba(233, 69, 96, 0.2);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clearColorButton:hover {
+  background: rgba(233, 69, 96, 0.35);
+  border-color: #e94560;
+  box-shadow: 0 2px 12px rgba(233, 69, 96, 0.3);
+}
+
+/* TODO clean up CSS*/
+
+.backBtn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1000;
+}

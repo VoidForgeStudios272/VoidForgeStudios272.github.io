@@ -1,0 +1,33 @@
+@keyframes slideDownUp {
+  0% { transform: translateY(-100px); opacity: 0; }
+  25% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-100px); opacity: 0; }
+}
+
+.container {
+  position: absolute;
+  left: 40%;
+  width: fit-content;
+  padding: 0.7rem 1rem;
+  top: 20px;
+  border-radius: 4px;
+  color: white;
+  font-size: x-large;
+  font-family: "CaskaydiaMono NF Light", monospace;
+  font-weight: bold;
+  animation: slideDownUp 5s ease-in-out forwards;
+  z-index: 1000;
+}
+
+
+.imposter {
+  background: red;
+  border: solid 2px lightcoral;
+}
+
+.crewmate {
+  background: #0ec3c9;
+  border: solid 2px #66ddee;
+}
+

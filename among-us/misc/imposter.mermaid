@@ -1,0 +1,7 @@
+sequenceDiagram
+app ->>+ app: handleStartGameBtn
+app ->>- api: game:start {roomId, playerId}
+api -->> app: game:started {roomId, playerId}
+app ->>+ app: handleStartGame {roomId, playerId}
+app ->>- Lobby: eventBus:startGame {roomId, playerId}
+

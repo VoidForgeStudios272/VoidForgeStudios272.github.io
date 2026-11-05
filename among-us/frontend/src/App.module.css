@@ -1,0 +1,131 @@
+.statusBadge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 10px;
+  background-color: #222;
+  color: white;
+  border-radius: 5px;
+  z-index: 1000;
+}
+
+.connected {
+  background-color: #4caf50;
+}
+
+.disconnected {
+  background-color: #f44336;
+}
+
+.gameWrapper {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.backButton {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1000;
+  padding: 8px 16px;
+  background-color: #e94560;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.roomTag {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  padding: 8px 16px;
+  background-color: #16213e;
+  color: #4ecca3;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 18px;
+}
+
+.gameContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  background-color: #000;
+  overflow: hidden;
+}
+
+.gameContainer canvas {
+  display: block;
+}
+
+.startBtn {
+  position: absolute;
+  background: black;
+  bottom: 10px;
+}
+
+.error {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100%);
+  background-color: #f44336;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  font-weight: 600;
+  z-index: 2000;
+  transition: transform 220ms ease, opacity 220ms ease;
+  opacity: 0;
+  pointer-events: none;
+}
+.error.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+.error .message {
+  display: inline-block;
+  vertical-align: middle;
+}
+.error .close {
+  margin-left: 10px;
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.95);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.uiContainer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: 20px;
+}
+
+.killBtn {
+  padding: 12px 24px;
+  background-color: #e94560;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}

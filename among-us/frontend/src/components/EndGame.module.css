@@ -1,0 +1,129 @@
+.endGameOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    animation: fadeIn 0.5s ease-out forwards;
+    font-family: 'Arial Black', sans-serif;
+}
+
+.victory {
+    background: radial-gradient(circle, rgba(64, 224, 208, 0.9) 0%, rgba(0, 128, 128, 1) 100%);
+}
+
+.defeat {
+    background: radial-gradient(circle, rgba(255, 69, 0, 0.9) 0%, rgba(139, 0, 0, 1) 100%);
+}
+
+.content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.title {
+    font-size: 6rem;
+    color: white;
+    margin: 0;
+    letter-spacing: 10px;
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    animation: slideDown 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.victory .title {
+    color: #ffd700;
+    text-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+}
+
+.defeat .title {
+    color: #ff3333;
+}
+
+.winnerMessage {
+    font-size: 2rem;
+    color: white;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    opacity: 0;
+    animation: fadeIn 0.5s ease-out 0.8s forwards;
+}
+
+.characterContainer {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.character {
+    width: 100px;
+    height: 120px;
+    position: relative;
+    opacity: 0;
+    animation: fadeIn 0.5s ease-out 1s forwards;
+}
+
+.victory .character {
+    color: #ffd700;
+}
+
+.defeat .character {
+    color: #ff3333;
+}
+
+.crewmateSvg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.3));
+}
+
+.jump {
+    animation: fadeIn 0.5s ease-out 1s forwards, jump 0.5s infinite alternate ease-in-out;
+}
+
+.ghost {
+    animation: fadeIn 0.5s ease-out 1s forwards, float 2s infinite alternate ease-in-out;
+    opacity: 0.6 !important;
+}
+
+.menuBtn {
+    padding: 15px 40px;
+    font-size: 1.5rem;
+    margin-top: 20px;
+    opacity: 0;
+    animation: fadeIn 0.5s ease-out 1.5s forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100px) scale(0.5);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes jump {
+    from { transform: translateY(0); }
+    to { transform: translateY(-30px); }
+}
+
+@keyframes float {
+    from { transform: translateY(0) rotate(-5deg); }
+    to { transform: translateY(-20px) rotate(5deg); }
+}

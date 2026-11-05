@@ -1,0 +1,10 @@
+sequenceDiagram
+  participant server as server.js
+  participant game as Game.js
+  participant app as App.jsx
+
+  Note over server, app: on( playerLeave || playerKill || meetingEnd )
+  server ->> game: game:ended
+  game ->> game: scene.stop('Game')
+  game ->> app: game:ended
+

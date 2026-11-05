@@ -1,0 +1,46 @@
+sequenceDiagram
+%% Participants + separation
+  box Frontend
+    participant App as App.jsx
+    participant Room as Room.jsx
+    participant Main as main.js
+  end
+  box Backend
+    participant Server as server.js
+    participant DB as db.ks
+  end
+%% Basic call with auto-activation
+  App ->>+ Main: init()
+  Main ->>+ Server: connect()
+  Server -->>- Main: ack
+  Main -->>- App: ready
+  Note over App, Server: initial handshake
+%% Optional path
+  opt cached session
+    App ->> Server: resume()
+    Server -->> App: resumed
+  end
+%% Alternative paths
+  alt join success
+    App ->> Room: enter()
+    Room ->>+ Server: join(roomId)
+    activate DB
+    Server ->> DB: fetch room
+    DB -->> Server: state
+    deactivate DB
+    Server -->>- Room: room state
+  else join error
+    Server -->> Room: error
+  end
+%% Loop
+  loop heartbeat (every 5s)
+    Main ->> Server: ping
+    Server -->> Main: pong
+  end
+%% Parallel actions
+  par sync players
+    Server -->> Room: players update
+  and sync chat
+    Server -->> Room: chat messages
+  end
+  Note right of Server: emits via sockets

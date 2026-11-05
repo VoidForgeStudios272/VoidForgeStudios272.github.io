@@ -1,0 +1,31 @@
+.tile {
+  display: flex;
+  border: 1px solid #ccc;
+  padding: 8px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  justify-content: space-between;
+}
+.tile:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+.name {
+  font-weight: bold;
+  margin-left: 10px;
+  margin-top: 8px;
+  color: black;
+}
+.playerIcon {
+  position: relative;
+  width: fit-content;
+  height: fit-content;
+  margin-top: 4px;
+}
+.ivoted {
+  position: absolute;
+  top: -4px;
+  left: 4px;
+  width: 20px;
+  height: 20px;
+}
