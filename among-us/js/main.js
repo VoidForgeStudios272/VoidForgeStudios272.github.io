@@ -55,14 +55,18 @@
     modalContent.querySelectorAll("[data-map]").forEach(b=>b.addEventListener("click",()=>mapDetails(maps.find(m=>m.id===b.dataset.map))));
     $("#launchSelected").addEventListener("click",()=>startPractice(maps.find(m=>m.id===chosen)||maps[0]));
   }
-  function startPractice(map){
-    let tasks=0,wires=[false,false,false];
-    const draw=()=>{
-      openModal("FREEPLAY // "+map.name,`<p>${map.desc}</p><div class="map-practice-preview">${mapSvg(map)}</div><div class="setting-line"><span>Task progress</span><b>${tasks} / 3</b></div><div style="display:grid;gap:10px;margin:16px 0">${wires.map((done,i)=>`<button class="menu-button task-button" data-task="${i}" ${done?"disabled":""} style="justify-content:space-between;opacity:${done?".55":"1"}"><span><b>WIRING PANEL ${i+1}</b><small>${done?"Connection restored":"Connect the power cables"}</small></span><strong>${done?"✓":"›"}</strong></button>`).join("")}</div><div class="setting-line"><span>Ship status</span><b style="color:${tasks===3?"#65dfa3":"#f1c66c"}">${tasks===3?"ALL TASKS COMPLETE":"REPAIR IN PROGRESS"}</b></div><div class="modal-row"><button class="modal-action subtle" id="resetPractice">RESTART</button><button class="modal-action subtle" id="changeMap">CHANGE MAP</button><button class="modal-action" id="leavePractice">LEAVE</button></div>`);
-      modalContent.querySelectorAll("[data-task]").forEach(b=>b.addEventListener("click",()=>{const i=Number(b.dataset.task);if(!wires[i]){wires[i]=true;tasks++;safeWrite("vf-amongus-tasks",String((Number(safeRead("vf-amongus-tasks","0"))||0)+1));draw();if(tasks===3)showToast("All practice tasks completed!");}}));
-      $("#resetPractice").addEventListener("click",()=>{tasks=0;wires=[false,false,false];draw();});
-      $("#changeMap").addEventListener("click",mapPicker);$("#leavePractice").addEventListener("click",closeModal);
-    };draw();
+  async function startPractice(map){
+    closeModal();
+    showToast("Loading 3D map…");
+    try {
+      const game = await import("./game3d.js");
+      await game.start3DGame(map.id,{color:safeRead("vf-amongus-color","#e94d55")});
+    } catch(error) {
+      console.error(error);
+      openModal("3D MAP UNAVAILABLE",`<p>The 3D map could not start. Check your connection and make sure WebGL is enabled in this browser.</p><p style="color:#f1c66c">${String(error.message||error).replace(/[&<>"']/g,"")}</p><div class="modal-row"><button class="modal-action" id="retry3d">TRY AGAIN</button><button class="modal-action subtle" id="back3d">BACK TO MAPS</button></div>`);
+      $("#retry3d").addEventListener("click",()=>startPractice(map));
+      $("#back3d").addEventListener("click",mapPicker);
+    }
   }
   function action(type){if(type==="customize")return customize();if(type==="settings")return settings();if(type==="account")return profile();if(type==="online")return online();if(type==="local"||type==="freeplay")return mapPicker();}
   document.querySelectorAll("[data-action]").forEach(b=>b.addEventListener("click",()=>action(b.dataset.action)));
