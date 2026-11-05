@@ -1,5 +1,5 @@
 const MAPS = {
-  skeld:{title:"THE SKELD",floor:0x24394b,wall:0x8ca8b8,accent:0x55c9df,sky:0x081321,rooms:["CAFETERIA","WEAPONS","O2","NAVIGATION","SHIELDS","COMMS","STORAGE","ADMIN","ELECTRICAL","SECURITY","MEDBAY","REACTOR","UPPER ENGINE","LOWER ENGINE"],nodes:[[150,45],[280,45],[410,45],[535,45],[150,145],[280,145],[410,145],[535,145],[150,245],[280,245],[410,245],[535,245],[280,345],[410,345]],edges:[[0,1],[1,2],[2,3],[0,4],[4,5],[5,6],[6,7],[7,3],[4,8],[8,9],[9,10],[10,11],[9,12],[10,13],[5,9],[1,6]]},
+  skeld:{title:"THE SKELD",floor:0x24394b,wall:0x8ca8b8,accent:0x55c9df,sky:0x081321,rooms:["CAFETERIA","WEAPONS","O2","NAVIGATION","SHIELDS","COMMS","STORAGE","ADMIN","ELECTRICAL","SECURITY","MEDBAY","REACTOR","UPPER ENGINE","LOWER ENGINE"],nodes:[[150,45],[280,45],[410,45],[535,45],[150,145],[280,145],[410,145],[535,145],[150,245],[280,245],[410,245],[535,245],[280,345],[410,345]],edges:[[0,1],[1,2],[2,3],[0,4],[4,5],[5,6],[6,7],[7,3],[4,8],[8,9],[9,10],[10,11],[9,12],[10,13],[5,9]]},
   mira:{title:"MIRA HQ",floor:0x493b56,wall:0xb8a1c9,accent:0xe39be0,sky:0x171020,rooms:["LAUNCHPAD","MEDBAY","LOCKER ROOM","CAFETERIA","BALCONY","OFFICE","ADMIN","GREENHOUSE","REACTOR","LABORATORY","DECONTAM","COMMS"],nodes:[[150,45],[280,45],[410,45],[535,45],[150,145],[280,145],[410,145],[535,145],[150,245],[280,245],[410,245],[535,245]],edges:[[0,1],[1,2],[2,3],[0,4],[4,5],[5,6],[6,7],[7,3],[4,8],[8,9],[9,10],[10,11],[2,6],[5,9]]},
   polus:{title:"POLUS",floor:0x344b54,wall:0xa8c5c9,accent:0x75e0e5,sky:0x10232c,rooms:["DROPSHIP","ELECTRICAL","O2","COMMS","WEAPONS","OFFICE","ADMIN","LABORATORY","MEDBAY","STORAGE","SECURITY","SPECIMEN"],nodes:[[150,45],[280,45],[410,45],[535,45],[150,145],[280,145],[410,145],[535,145],[150,245],[280,245],[410,245],[535,245]],edges:[[0,1],[1,2],[2,3],[0,4],[4,5],[5,6],[6,7],[7,3],[4,8],[8,9],[9,10],[10,11],[5,9],[6,10]]},
   airship:{title:"THE AIRSHIP",floor:0x4a3b35,wall:0xc5a77d,accent:0xffbd69,sky:0x1b1110,rooms:["COCKPIT","ARMORY","BRIG","RECORDS","MEETING","MAIN HALL","KITCHEN","ENGINE","ELECTRICAL","VAULT","SHOWERS","CARGO","COMMS","MEDICAL"],nodes:[[150,45],[280,45],[410,45],[535,45],[150,145],[280,145],[410,145],[535,145],[150,245],[280,245],[410,245],[535,245],[280,345],[410,345]],edges:[[0,1],[1,2],[2,3],[0,4],[4,5],[5,6],[6,7],[7,3],[4,8],[8,9],[9,10],[10,11],[9,12],[10,13],[5,9],[6,10]]},
@@ -109,7 +109,7 @@ export async function start3DGame(mapId, options={}) {
     function roomNameAt(pos){let best=0,dist=Infinity;pts.forEach((p,i)=>{const d=(p.x-pos.x)**2+(p.z-pos.z)**2;if(d<dist){dist=d;best=i;}});return map.rooms[best];}
     function attemptUse(){
       if(!nearTask||nearTask.done){hint.textContent="Move close to a glowing console to interact.";return;}
-      nearTask.done=true;completed++;nearTask.group.scale.setScalar(.75);nearTask.group.children.forEach(o=>{if(o.material&&o.material.emissive)o.material.emissive.setHex(0x164c2c);});
+      nearTask.done=true;completed++;try{const old=Math.max(0,Number(localStorage.getItem("vf-amongus-tasks"))||0);localStorage.setItem("vf-amongus-tasks",String(old+1));}catch{}nearTask.group.scale.setScalar(.75);nearTask.group.children.forEach(o=>{if(o.material&&o.material.emissive)o.material.emissive.setHex(0x164c2c);});
       hint.textContent=completed===3?"ALL REPAIRS COMPLETE — GREAT WORK!":"Repair complete. Find the next console.";
       updateHud();
       if(completed===3){host.querySelector(".vf3d-center").hidden=false;host.querySelector(".vf3d-center").textContent="MISSION COMPLETE";host.querySelector(".vf3d-center").classList.add("show");}
@@ -123,10 +123,10 @@ export async function start3DGame(mapId, options={}) {
       btn.addEventListener("pointerdown",down);btn.addEventListener("pointerup",up);btn.addEventListener("pointercancel",up);btn.addEventListener("pointerleave",up);
     });
     host.querySelector(".vf3d-use").addEventListener("click",attemptUse);
-    const close=()=>{if(disposed)return;disposed=true;cancelAnimationFrame(raf);window.removeEventListener("keydown",keydown);window.removeEventListener("keyup",keyup);renderer.dispose();host.remove();};
+    const close=()=>{if(disposed)return;disposed=true;cancelAnimationFrame(raf);window.removeEventListener("keydown",keydown);window.removeEventListener("keyup",keyup);if(ro)ro.disconnect();renderer.dispose();host.remove();};
     host.querySelector(".vf3d-exit").addEventListener("click",close);
     const resize=()=>{if(disposed)return;const w=view.clientWidth,h=view.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/Math.max(1,h);camera.updateProjectionMatrix();};
-    const ro=new ResizeObserver(resize);ro.observe(view);
+    const ro=typeof ResizeObserver!=="undefined"?new ResizeObserver(resize):null;if(ro)ro.observe(view);
     function blocked(x,z){return colliders.some(c=>Math.abs(x-c.x)<c.w/2+.48&&Math.abs(z-c.z)<c.d/2+.48);}
     function loop(){
       if(disposed)return;raf=requestAnimationFrame(loop);const dt=Math.min(clock.getDelta(),.045);
