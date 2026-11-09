@@ -1804,6 +1804,77 @@
     }
   }
 
+
+  /* =========================================================
+     HARD RESET
+     Clears VoidForge launcher preferences and its own offline
+     shell cache. It deliberately does not erase unrelated
+     applications' storage on the same origin.
+  ========================================================= */
+  async function hardResetLauncher() {
+    const firstConfirm = window.confirm(
+      "Hard reset VoidForge?\\n\\nThis removes local profiles, the active profile, Panic settings and the VoidForge offline shell cache. Your game files and games.json will not be deleted."
+    );
+    if (!firstConfirm) return;
+
+    const typed = window.prompt('Type RESET to confirm the hard reset:');
+    if (typed !== "RESET") {
+      if (typed !== null) showToast("Reset cancelled. Type RESET exactly to continue.");
+      return;
+    }
+
+    const button = $("#hardResetLauncher");
+    if (button) {
+      button.disabled = true;
+      button.setAttribute("aria-busy", "true");
+    }
+    showToast("Resetting VoidForge…", 2500);
+
+    try {
+      [
+        PROFILE_STORAGE_KEY,
+        ACTIVE_PROFILE_KEY,
+        PANIC_URL_KEY,
+        PANIC_KEY_KEY
+      ].forEach(key => localStorage.removeItem(key));
+
+      if ("caches" in window) {
+        const names = await caches.keys();
+        await Promise.all(
+          names.filter(name => name.startsWith("voidforge-shell-"))
+            .map(name => caches.delete(name))
+        );
+      }
+
+      if ("serviceWorker" in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        const ownScope = new URL("./", window.location.href).href;
+        await Promise.all(
+          registrations
+            .filter(registration => registration.scope.startsWith(ownScope))
+            .map(registration => registration.unregister())
+        );
+      }
+
+      const url = new URL(window.location.href);
+      url.searchParams.set("vf_reset", String(Date.now()));
+      url.hash = "";
+      window.location.replace(url.href);
+    } catch (error) {
+      console.error("[VoidForge] Hard reset failed:", error);
+      if (button) {
+        button.disabled = false;
+        button.removeAttribute("aria-busy");
+      }
+      showToast("Reset could not finish. Check browser storage permissions.");
+    }
+  }
+
+  function setupHardReset() {
+    const button = $("#hardResetLauncher");
+    if (button) button.addEventListener("click", hardResetLauncher);
+  }
+
   /* =========================================================
      LAUNCHER FULLSCREEN
   ========================================================= */
@@ -2093,6 +2164,7 @@
     setupNavigation();
     setupSearch();
     setupHardRefresh();
+    setupHardReset();
     setupLauncherFullscreen();
     setupMobileMenu();
     setupConnectionStatus();
