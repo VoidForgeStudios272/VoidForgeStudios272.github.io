@@ -2146,12 +2146,27 @@
       return;
     }
     try {
-      await ensureFirebaseChat();
+      setStatus("Loading Firebase…", "pending");
+      // Do not leave the UI spinning forever if a blocked SDK request,
+      // browser storage restriction, or stalled auth request never resolves.
+      await Promise.race([
+        ensureFirebaseChat(),
+        new Promise((_, reject) => window.setTimeout(
+          () => reject(Object.assign(
+            new Error("Firebase initialization timed out after 15 seconds. Check network access to www.gstatic.com and Firebase Authentication settings."),
+            { code: "voidforge/connection-timeout" }
+          )),
+          15000
+        ))
+      ]);
+      setStatus("Opening lobby…", "pending");
       subscribeToChatMessages("global", messages, status, empty);
     } catch (error) {
       console.error("[VoidForge Chat] Firebase initialization failed:", error);
       const code = error?.code || "";
-      const message = code === "auth/operation-not-allowed"
+      const message = code === "voidforge/connection-timeout"
+        ? "Firebase did not finish connecting within 15 seconds. Check that this browser can load www.gstatic.com, that Firebase Authentication → Anonymous is enabled, and that Firestore Database is created."
+        : code === "auth/operation-not-allowed"
         ? "Enable Anonymous sign-in in Firebase Authentication → Sign-in method."
         : code === "auth/unauthorized-domain"
           ? "Add this website's domain to Firebase Authentication → Settings → Authorized domains."
