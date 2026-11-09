@@ -1,28 +1,21 @@
 {
-  "name": "Microsoft Teams",
-  "short_name": "msteams",
-  "description": "Microsoft Teams, chat and call anywhere!",
   "id": "./",
+  "name": "Microsoft Teams",
+  "short_name": "Teams",
+  "description": "Microsoft Teams — chat, meet, call, and collaborate anywhere.",
+  "lang": "en",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0b0820",
-  "theme_color": "#0b0820",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#080612",
+  "theme_color": "#080612",
+  "categories": ["communication", "social", "productivity"],
+  "prefer_related_applications": false,
   "icons": [
     {
-      "src": "./assets/voidforge-mark-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "./assets/voidforge-mark-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "./assets/favicon.svg",
+      "src": "./assets/favicon.svg?v=9",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
