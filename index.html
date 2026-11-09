@@ -304,6 +304,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
           <button
             class="nav-item"
+            data-view="profiles"
+            type="button"
+          >
+            <span class="nav-icon" aria-hidden="true">◎</span>
+            <span class="nav-label">Profiles</span>
+          </button>
+
+          <button
+            class="nav-item"
             data-view="about"
             type="button"
           >
@@ -461,18 +470,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
           <button
             class="profile-button"
-            data-view="settings"
+            data-view="profiles"
             type="button"
             aria-label="Open player settings"
           >
 
-            <span class="profile-avatar">
-              VF
+            <span class="profile-avatar" id="activeProfileAvatar">
+              P
             </span>
 
             <span class="profile-copy">
-              <strong>Player</strong>
-              <small>Web edition</small>
+              <strong id="activeProfileName">Player</strong>
+              <small id="activeProfileSubtitle">Local profile</small>
             </span>
 
             <span
