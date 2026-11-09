@@ -1916,7 +1916,7 @@
     info.appendChild(createElement("h2","","Game integration"));
     info.appendChild(createElement("p","","Games in the VoidForge player can request these preferences and listen for live changes. Preferences are stored locally in this browser; unsupported games simply ignore settings they do not use."));
     const reset=createElement("button","secondary-button","Reset all Studio settings");reset.type="button";
-    reset.addEventListener("click",()=>{studioSettings={...STUDIO_SETTINGS_DEFAULTS};persistStudioSettings();renderSettingsView(root);broadcastStudioSettings();showToast("Studio settings restored to defaults.");});
+    reset.addEventListener("click",()=>{studioSettings={...STUDIO_SETTINGS_DEFAULTS};persistStudioSettings();localStorage.removeItem(GAME_PROFILE_KEY);studioGameProfiles=readGameProfiles();persistGameProfiles();renderSettingsView(root);broadcastStudioSettings();showToast("All Studio and game-specific settings restored to defaults.");});
     info.appendChild(reset);content.appendChild(info);section.appendChild(content);root.replaceChildren(section);
   }
 
