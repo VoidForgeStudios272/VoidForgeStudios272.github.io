@@ -74,6 +74,7 @@
     root.dataset.vfTargetFps = current.targetFps || "60";
     root.dataset.vfInvertY = current.invertY ? "true" : "false";
     root.dataset.vfRenderScale = String(current.renderScale ?? 100);
+    root.dataset.vfAntiAliasing = current.antiAliasing === false ? "false" : "true";
     root.style.setProperty("--vf-fov", String(current.fov ?? 90) + "deg");
     root.style.setProperty("--vf-sensitivity", String(current.sensitivity ?? 1));
     root.style.setProperty("--vf-render-scale", String(Number(current.renderScale ?? 100) / 100));
@@ -165,8 +166,7 @@
     .vf-no-particles .particles, .vf-no-particles canvas.particles { display: none !important; }
     .vf-high-contrast { filter: contrast(1.18); }
     .vf-large-cursor, .vf-large-cursor * { cursor: default; }
-    .vf-no-crosshair::after { content:none !important; }
-    .vf-developer-mode.vf-crosshair-enabled::after {
+    .vf-crosshair-enabled body::after {
       content:"+"; position:fixed; z-index:2147483000; left:50%; top:50%; transform:translate(-50%,-50%);
       color:rgba(255,255,255,.9); font:18px/1 monospace; text-shadow:0 1px 3px #000; pointer-events:none;
     }
