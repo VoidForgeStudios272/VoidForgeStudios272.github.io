@@ -2092,11 +2092,11 @@
 
   function subscribeToChatMessages(roomId, messages, status, empty, onError) {
     const setStatus = (label, state = "") => {
-      if (!status.isConnected) return;
+      if (!status._vfChatActive) return;
       status.textContent = label;
       status.dataset.state = state;
     };
-    status.isConnected = true;
+    status._vfChatActive = true;
     const messagesRef = chatFirebase.collection(chatFirebase.db, "rooms", roomId, "messages");
     const recentQuery = chatFirebase.query(
       messagesRef,
@@ -2136,11 +2136,11 @@
 
   async function connectFirebaseChat(messages, status, empty) {
     const setStatus = (label, state = "") => {
-      if (!status.isConnected) return;
+      if (!status._vfChatActive) return;
       status.textContent = label;
       status.dataset.state = state;
     };
-    status.isConnected = true;
+    status._vfChatActive = true;
     if (!navigator.onLine) {
       setStatus("Offline", "offline");
       return;
