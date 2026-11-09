@@ -44,6 +44,7 @@ service cloud.firestore {
         && resource.data.type == 'private'
         && resource.data.participants is list
         && resource.data.participants.size() == 1
+        && !resource.data.participants.hasAny([request.auth.uid])
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participants'])
         && request.resource.data.participants is list
         && request.resource.data.participants.size() == 2
