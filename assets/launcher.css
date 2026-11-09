@@ -2416,3 +2416,99 @@ button:disabled { cursor: not-allowed; opacity: .6; }
   .chat-shell { min-height: 78dvh; }
   .chat-messages { min-height: 130px; max-height: 42dvh; }
 }
+
+/* =========================================================
+   GAME VIEW LAYERING FIX
+   Keep launcher chrome behind the game and reserve a real
+   toolbar row so the iframe can never slide underneath it.
+   ========================================================= */
+.game-view:not([hidden]) {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  isolation: isolate;
+}
+
+.game-view {
+  z-index: 80;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.game-toolbar {
+  position: relative;
+  z-index: 3;
+  flex: none;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.game-toolbar-info {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.game-toolbar-actions {
+  display: flex;
+  align-items: center;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.game-stage {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.game-stage iframe {
+  position: relative;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+@media (max-width: 760px) {
+  .game-toolbar {
+    gap: 8px;
+  }
+
+  .game-toolbar-actions {
+    flex: 0 1 auto;
+    max-width: 62vw;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+  }
+
+  .game-toolbar-actions .toolbar-button {
+    flex: 0 0 auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-toolbar {
+    gap: 6px;
+  }
+
+  .game-toolbar-info {
+    flex: 1 1 38%;
+  }
+
+  .game-toolbar-actions {
+    max-width: 64vw;
+  }
+}
+
