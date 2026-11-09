@@ -2512,3 +2512,29 @@ button:disabled { cursor: not-allowed; opacity: .6; }
   }
 }
 
+
+
+/* =========================================================
+   STUDIO SETTINGS — responsive preference dashboard
+   ========================================================= */
+.settings-view { min-width: 0; }
+.settings-content { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; width:100%; max-width:1120px; padding-bottom:40px; }
+.settings-intro { grid-column:1/-1; max-width:760px; margin:-8px 0 4px; color:var(--muted); line-height:1.65; }
+.studio-settings-group { min-width:0; overflow:hidden; border:1px solid rgba(160,180,215,.13); border-radius:16px; background:linear-gradient(145deg,rgba(20,30,48,.94),rgba(11,17,29,.96)); }
+.studio-settings-heading { padding:18px 19px 13px; border-bottom:1px solid rgba(160,180,215,.10); }
+.studio-settings-heading h2,.studio-settings-info h2 { margin:0; font-size:15px; color:#edf3ff; }
+.studio-settings-heading p,.studio-settings-info p { margin:5px 0 0; color:var(--muted); font-size:12px; line-height:1.55; }
+.studio-settings-list { padding:2px 18px; }
+.studio-setting-row { min-height:58px; display:flex; align-items:center; justify-content:space-between; gap:14px; padding:11px 0; border-bottom:1px solid rgba(160,180,215,.075); }
+.studio-setting-row:last-child { border-bottom:0; }
+.studio-setting-copy { min-width:0; }
+.studio-setting-copy strong { display:block; color:#dce6f7; font-size:12px; font-weight:600; }
+.studio-toggle { width:42px; height:23px; flex:0 0 42px; accent-color:#78aaff; cursor:pointer; }
+.studio-select { width:min(150px,48%); min-width:100px; padding:8px 10px; border:1px solid rgba(160,180,215,.17); border-radius:9px; color:#eaf2ff; background:#111c2d; font-size:12px; }
+.studio-range-wrap { width:min(190px,52%); display:flex; align-items:center; gap:10px; }
+.studio-range { width:100%; min-width:50px; accent-color:#78aaff; }
+.studio-range-value { min-width:36px; color:#a9c8ff; font-size:11px; text-align:right; font-variant-numeric:tabular-nums; }
+.studio-settings-info { grid-column:1/-1; padding:18px 19px; }
+.studio-settings-info .secondary-button { margin-top:14px; padding:10px 13px; border-radius:9px; color:#eaf2ff; }
+@media(max-width:760px) { .settings-content { grid-template-columns:minmax(0,1fr); gap:12px; } .settings-intro,.studio-settings-info { grid-column:1; } }
+@media(max-width:420px) { .studio-settings-heading { padding:15px; } .studio-settings-list { padding:2px 14px; } .studio-setting-row { gap:9px; } .studio-setting-copy strong { font-size:11px; } .studio-select { min-width:92px; width:46%; } .studio-range-wrap { width:48%; gap:6px; } }
