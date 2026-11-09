@@ -1779,6 +1779,10 @@
         latestGameSize=msg.width&&msg.height?(msg.width+"×"+msg.height):"";
         updateGameStatsOverlay();
       }
+      if(msg.type==="voidforge:reload-request"&&msg.gameId===String(currentGame?.id||"")) {
+        if(studioSettings.autoReload) reloadGame();
+        else showToast("This game requested a reload, but automatic reload is disabled in Studio Settings.");
+      }
     });
     window.addEventListener("storage",event=>{if(event.key===STUDIO_SETTINGS_KEY){studioSettings=readStudioSettings();broadcastStudioSettings();updateGameStatsOverlay();}});
   }
