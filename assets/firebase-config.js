@@ -1,10 +1,11 @@
-// VoidForge Firebase client configuration.
-// Replace these values with your Firebase Web App config:
-// Firebase Console → Project settings → General → Your apps.
-// This file contains public client identifiers, NOT private server credentials.
+// VoidForge Firebase Web App configuration.
+// These are public client identifiers; access control belongs in Firestore Rules.
 export const firebaseConfig = {
-  apiKey: "YOUR_FIREBASE_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  appId: "YOUR_FIREBASE_APP_ID"
+  apiKey: "AIzaSyCQ1i3-sVnvJDYBisWxJgeNgtDdn7nzGKk",
+  authDomain: "voidforgest.firebaseapp.com",
+  projectId: "voidforgest",
+  storageBucket: "voidforgest.firebasestorage.app",
+  messagingSenderId: "196337749734",
+  appId: "1:196337749734:web:40b9a85fda6fc6d297b527",
+  measurementId: "G-50X307R878"
 };
