@@ -11,6 +11,7 @@
   let lastReport = performance.now();
   const listeners = new Set();
   const mediaBaseVolumes = new WeakMap();
+  const mediaBaseMuted = new WeakMap();
 
   function reportPerformance() {
     const now = performance.now();
@@ -43,6 +44,7 @@
     const media = root.querySelectorAll ? root.querySelectorAll("audio,video") : [];
     media.forEach(element => {
       if (!mediaBaseVolumes.has(element)) mediaBaseVolumes.set(element, element.volume);
+      if (!mediaBaseMuted.has(element)) mediaBaseMuted.set(element, element.muted);
       const src = (element.currentSrc || element.src || "").toLowerCase();
       const kind = element.dataset.audioType || (/(music|bgm|soundtrack|theme)/.test(src) ? "music" : "sfx");
       const level = kind === "music" ? current.musicVolume : current.sfxVolume;
@@ -50,7 +52,7 @@
       const channel = Number(level ?? 100) / 100;
       const base = mediaBaseVolumes.get(element);
       element.volume = Math.max(0, Math.min(1, base * master * channel));
-      if (current.muted) element.muted = true;
+      element.muted = !!current.muted || mediaBaseMuted.get(element);
     });
   }
 
