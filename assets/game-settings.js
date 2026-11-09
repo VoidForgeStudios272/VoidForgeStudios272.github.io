@@ -6,6 +6,7 @@
   "use strict";
   if (window.VoidForgeSettings) return;
   let current = {};
+  let currentGameSettings = {};
   let frameCount = 0;
   let fps = 0;
   let lastReport = performance.now();
@@ -98,9 +99,11 @@
     if (event.source !== window.parent || event.origin !== window.location.origin ||
         !event.data || event.data.type !== "voidforge:settings") return;
     current = { ...(event.data.settings || {}), gameId: event.data.gameId || "" };
+    currentGameSettings = { ...(event.data.gameSettings || {}) };
     applySettings();
     const detail = { ...current };
     window.dispatchEvent(new CustomEvent("voidforge:settings-change", { detail }));
+    window.dispatchEvent(new CustomEvent("voidforge:game-settings-change", { detail:{gameId:current.gameId,settings:{...currentGameSettings}} }));
     listeners.forEach(callback => { try { callback(detail); } catch (error) { console.error("[VoidForge settings]", error); } });
   }
 
@@ -146,6 +149,14 @@
     },
     requestReload() {
       window.parent.postMessage({ type: "voidforge:reload-request", gameId: current.gameId || "" }, window.location.origin);
+    },
+    getGame() { return { ...currentGameSettings }; },
+    onGameChange(callback) {
+      if (typeof callback !== "function") return () => {};
+      const handler = event => { try { callback({ ...event.detail.settings }); } catch (error) { console.error("[VoidForge game settings]", error); } };
+      window.addEventListener("voidforge:game-settings-change", handler);
+      if (Object.keys(currentGameSettings).length) callback({ ...currentGameSettings });
+      return () => window.removeEventListener("voidforge:game-settings-change", handler);
     },
     cameraOptions() {
       return { fov:Number(current.fov ?? 90), sensitivity:Number(current.sensitivity ?? 1), invertY:!!current.invertY, crosshair:current.crosshair!==false };
