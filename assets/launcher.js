@@ -1179,10 +1179,12 @@
   ========================================================= */
 
   function setupGameEvents() {
+    setupStudioSettingsBridge();
     if (gameFrame) {
       gameFrame.addEventListener(
         "load",
         () => {
+          if (currentGame && gameFrame.contentWindow) window.setTimeout(broadcastStudioSettings, 0);
           if (
             gameFrame.src !==
               "about:blank" &&
@@ -1680,55 +1682,88 @@
      SETTINGS VIEW
   ========================================================= */
 
-  function renderSettingsView(root) {
-    const section =
-      createLauncherView();
-
-    section.appendChild(
-      createViewHeading(
-        "Settings",
-        "Launcher settings."
-      )
-    );
-
-    const content =
-      createElement(
-        "div",
-        "settings-content"
-      );
-
-    const intro = createElement("p","", "Configure an emergency Panic URL and keyboard shortcut. Settings are stored only in this browser.");
-    content.appendChild(intro);
-
-    const form = createElement("div","panic-settings");
-    const urlLabel = createElement("label","panic-field");
-    urlLabel.appendChild(createElement("span","", "Panic URL"));
-    const urlInput = createElement("input");
-    urlInput.type = "url"; urlInput.placeholder = "https://example.com"; urlInput.value = getPanicUrl(); urlInput.autocomplete = "off";
-    urlLabel.appendChild(urlInput);
-    form.appendChild(urlLabel);
-
-    const keyLabel = createElement("label","panic-field");
-    keyLabel.appendChild(createElement("span","", "Panic key"));
-    const keyInput = createElement("input");
-    keyInput.type = "text"; keyInput.placeholder = "F1"; keyInput.maxLength = 20; keyInput.value = localStorage.getItem(PANIC_KEY_KEY) || ""; keyInput.autocomplete = "off";
-    keyLabel.appendChild(keyInput); form.appendChild(keyLabel);
-
-    const save = createElement("button","primary-button","Save Panic settings");
-    save.type = "button"; save.addEventListener("click", () => { localStorage.setItem(PANIC_URL_KEY,urlInput.value.trim()); localStorage.setItem(PANIC_KEY_KEY,keyInput.value.trim()); showToast("Panic settings saved."); });
-    form.appendChild(save);
-    const note = createElement("p","hint","When a game is open, the Panic button is in the game toolbar. Pressing the configured key immediately opens the saved URL."); form.appendChild(note);
-    content.appendChild(form);
-
-    section.appendChild(
-      content
-    );
-
-    root.replaceChildren(
-      section
-    );
+  const STUDIO_SETTINGS_KEY = "voidforgeStudioSettingsV1";
+  const STUDIO_SETTINGS_DEFAULTS = {
+    masterVolume:80,musicVolume:70,sfxVolume:85,muted:false,graphics:"high",
+    showFps:false,showPerformance:false,reduceMotion:false,screenShake:true,particles:true,
+    language:"system",textScale:100,difficulty:"normal",autosave:true,notifications:true,
+    confirmExit:true,controllerVibration:true,subtitles:true,colorMode:"system"
+  };
+  let studioSettings = readStudioSettings();
+  function readStudioSettings() {
+    try { const saved=JSON.parse(localStorage.getItem(STUDIO_SETTINGS_KEY)||"{}"); return {...STUDIO_SETTINGS_DEFAULTS,...(saved&&typeof saved==="object"?saved:{})}; }
+    catch { return {...STUDIO_SETTINGS_DEFAULTS}; }
   }
-
+  function persistStudioSettings() {
+    try { localStorage.setItem(STUDIO_SETTINGS_KEY,JSON.stringify(studioSettings)); }
+    catch(error) { console.warn("[VoidForge] Settings could not be saved:",error); }
+  }
+  function broadcastStudioSettings() {
+    if(!gameFrame?.contentWindow||!currentGame) return;
+    gameFrame.contentWindow.postMessage({type:"voidforge:settings",version:1,gameId:String(currentGame.id),settings:{...studioSettings}},window.location.origin);
+  }
+  function updateStudioSetting(key,value) {
+    if(!(key in STUDIO_SETTINGS_DEFAULTS)) return;
+    const base=STUDIO_SETTINGS_DEFAULTS[key];
+    if(typeof base==="boolean"&&typeof value!=="boolean") return;
+    if(typeof base==="number") { value=Number(value); if(!Number.isFinite(value)) return; value=Math.max(key==="textScale"?75:0,Math.min(key==="textScale"?150:100,value)); }
+    if(typeof base==="string"&&typeof value!=="string") return;
+    studioSettings[key]=value; persistStudioSettings(); broadcastStudioSettings();
+    window.dispatchEvent(new CustomEvent("voidforge:settings-change",{detail:{...studioSettings,key,value}}));
+  }
+  function setupStudioSettingsBridge() {
+    window.addEventListener("message",event=>{
+      if(!gameFrame?.contentWindow||event.source!==gameFrame.contentWindow||event.origin!==window.location.origin) return;
+      const msg=event.data; if(!msg||typeof msg!=="object") return;
+      if(msg.type==="voidforge:settings-request") broadcastStudioSettings();
+      if(msg.type==="voidforge:settings-update"&&msg.settings&&typeof msg.settings==="object")
+        Object.entries(msg.settings).forEach(([key,value])=>{if(key in STUDIO_SETTINGS_DEFAULTS) updateStudioSetting(key,value);});
+    });
+    window.addEventListener("storage",event=>{if(event.key===STUDIO_SETTINGS_KEY){studioSettings=readStudioSettings();broadcastStudioSettings();}});
+  }
+  function renderSettingsView(root) {
+    const section=createLauncherView("settings-view");
+    section.appendChild(createViewHeading("Studio Settings","One shared settings profile for every game in your VoidForge library."));
+    const content=createElement("div","settings-content");
+    content.appendChild(createElement("p","settings-intro","Adjust your console experience once. Supported games receive these preferences automatically when they launch and whenever you change them."));
+    const groups=[
+      {title:"Audio",desc:"Control game sound levels.",fields:[["masterVolume","Master volume","range",0,100,"%"],["musicVolume","Music volume","range",0,100,"%"],["sfxVolume","Sound effects","range",0,100,"%"],["muted","Mute all game audio","toggle"]]},
+      {title:"Display & Graphics",desc:"Choose visual quality and performance overlays.",fields:[["graphics","Graphics quality","select",["low","medium","high","ultra"]],["showFps","Show FPS counter","toggle"],["showPerformance","Performance overlay","toggle"],["textScale","Game UI scale","range",75,150,"%"],["colorMode","Game color mode","select",["system","dark","light"]]]},
+      {title:"Gameplay",desc:"Set shared gameplay preferences.",fields:[["difficulty","Default difficulty","select",["easy","normal","hard","adaptive"]],["autosave","Enable autosave when supported","toggle"],["confirmExit","Confirm before leaving a game","toggle"],["controllerVibration","Controller vibration","toggle"],["subtitles","Subtitles when supported","toggle"]]},
+      {title:"Accessibility & Experience",desc:"Make games more comfortable to play.",fields:[["reduceMotion","Reduce motion and animations","toggle"],["screenShake","Screen shake effects","toggle"],["particles","Particle effects","toggle"],["language","Preferred language","select",["system","en","de","fr","es"]],["notifications","Game notifications","toggle"]]}
+    ];
+    groups.forEach(group=>{
+      const panel=createElement("section","studio-settings-group"),head=createElement("div","studio-settings-heading");
+      head.appendChild(createElement("h2","",group.title)); head.appendChild(createElement("p","",group.desc)); panel.appendChild(head);
+      const list=createElement("div","studio-settings-list");
+      group.fields.forEach(field=>{
+        const [key,label,type,a,b,suffix]=field,row=createElement("div","studio-setting-row"),copy=createElement("div","studio-setting-copy");
+        copy.appendChild(createElement("strong","",label));
+        if(type==="range"){
+          const wrap=createElement("div","studio-range-wrap"),input=createElement("input","studio-range"),out=createElement("output","studio-range-value",String(studioSettings[key])+suffix);
+          input.type="range";input.min=String(a);input.max=String(b);input.value=String(studioSettings[key]);
+          input.addEventListener("input",()=>{out.textContent=input.value+suffix;updateStudioSetting(key,Number(input.value));});
+          appendChildren(wrap,input,out);appendChildren(row,copy,wrap);
+        } else if(type==="toggle"){
+          const input=createElement("input","studio-toggle");input.type="checkbox";input.checked=Boolean(studioSettings[key]);input.setAttribute("role","switch");input.setAttribute("aria-label",label);
+          input.addEventListener("change",()=>updateStudioSetting(key,input.checked));appendChildren(row,copy,input);
+        } else {
+          const select=createElement("select","studio-select");
+          a.forEach(option=>select.appendChild(new Option(option.charAt(0).toUpperCase()+option.slice(1),option)));
+          select.value=studioSettings[key];select.setAttribute("aria-label",label);select.addEventListener("change",()=>updateStudioSetting(key,select.value));
+          appendChildren(row,copy,select);
+        }
+        list.appendChild(row);
+      });
+      panel.appendChild(list);content.appendChild(panel);
+    });
+    const info=createElement("section","studio-settings-group studio-settings-info");
+    info.appendChild(createElement("h2","","Game integration"));
+    info.appendChild(createElement("p","","Games in the VoidForge player can request these preferences and listen for live changes. Preferences are stored locally in this browser; unsupported games simply ignore settings they do not use."));
+    const reset=createElement("button","secondary-button","Reset all Studio settings");reset.type="button";
+    reset.addEventListener("click",()=>{studioSettings={...STUDIO_SETTINGS_DEFAULTS};persistStudioSettings();renderSettingsView(root);broadcastStudioSettings();showToast("Studio settings restored to defaults.");});
+    info.appendChild(reset);content.appendChild(info);section.appendChild(content);root.replaceChildren(section);
+  }
 
   /* =========================================================
      FIREBASE ONLINE + PRIVATE CHAT
