@@ -1736,17 +1736,17 @@
   };
   function readGameProfiles() {
     try { const saved=JSON.parse(localStorage.getItem(GAME_PROFILE_KEY)||"{}"); const result={};
-      Object.entries(GAME_PROFILE_DEFINITIONS).forEach(([id,def])=>{result[id]={};def.fields.forEach(field=>{const [key,type,a,b,fallback]=field;const value=saved?.[id]?.[key];result[id][key]=value===undefined?fallback:value;});});return result;
-    } catch { const result={};Object.entries(GAME_PROFILE_DEFINITIONS).forEach(([id,def])=>{result[id]=Object.fromEntries(def.fields.map(f=>[f[0],f[4]]));});return result; }
+      Object.entries(GAME_PROFILE_DEFINITIONS).forEach(([id,def])=>{result[id]={};def.fields.forEach(field=>{const key=field[0],type=field[2],fallback=type==="range"?field[5]:type==="select"?field[4]:field[3];const value=saved?.[id]?.[key];result[id][key]=value===undefined?fallback:value;});});return result;
+    } catch { const result={};Object.entries(GAME_PROFILE_DEFINITIONS).forEach(([id,def])=>{result[id]=Object.fromEntries(def.fields.map(f=>[f[0],f[2]==="range"?f[5]:f[2]==="select"?f[4]:f[3]]));});return result; }
   }
   let studioGameProfiles=readGameProfiles();
   function persistGameProfiles(){try{localStorage.setItem(GAME_PROFILE_KEY,JSON.stringify(studioGameProfiles));}catch(error){console.warn("[VoidForge] Game profiles could not be saved:",error);}}
   function updateGameProfile(gameId,key,value){
     const def=GAME_PROFILE_DEFINITIONS[gameId],field=def?.fields.find(f=>f[0]===key);if(!field)return;
-    const type=field[1];
+    const type=field[2];
     if(type==="toggle"&&typeof value!=="boolean")return;
-    if(type==="range"){value=Number(value);if(!Number.isFinite(value))return;value=Math.max(field[2],Math.min(field[3],value));}
-    if(type==="select"&&!field[2].some(option=>option[0]===String(value)))return;
+    if(type==="range"){value=Number(value);if(!Number.isFinite(value))return;value=Math.max(field[3],Math.min(field[4],value));}
+    if(type==="select"&&!field[3].some(option=>option[0]===String(value)))return;
     studioGameProfiles[gameId][key]=value;persistGameProfiles();broadcastStudioSettings();
     window.dispatchEvent(new CustomEvent("voidforge:game-profile-change",{detail:{gameId,settings:{...studioGameProfiles[gameId]}}}));
   }
