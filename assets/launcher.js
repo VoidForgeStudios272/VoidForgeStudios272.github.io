@@ -1184,7 +1184,20 @@
       gameFrame.addEventListener(
         "load",
         () => {
-          if (currentGame && gameFrame.contentWindow) window.setTimeout(broadcastStudioSettings, 0);
+          if (currentGame && gameFrame.contentWindow) {
+            try {
+              const gameDocument = gameFrame.contentDocument;
+              if (gameDocument && !gameDocument.querySelector("[data-voidforge-settings-bridge]")) {
+                const bridgeScript = gameDocument.createElement("script");
+                bridgeScript.src = new URL("./assets/game-settings.js", document.baseURI).href;
+                bridgeScript.dataset.voidforgeSettingsBridge = "true";
+                (gameDocument.head || gameDocument.documentElement).appendChild(bridgeScript);
+              }
+            } catch (error) {
+              console.warn("[VoidForge] Game settings bridge could not be injected:", error);
+            }
+            window.setTimeout(broadcastStudioSettings, 0);
+          }
           if (
             gameFrame.src !==
               "about:blank" &&
