@@ -56,5 +56,5 @@
   </main>
 
   <script src="app.js" defer></script>
-</body>
+<script>window.addEventListener('voidforge:game-settings-change',e=>{const q=e.detail?.settings||{};if(q.chatScale!==undefined)document.documentElement.style.setProperty('--vf-chat-scale',String(Number(q.chatScale)/100));document.body.classList.toggle('vf-compact-messages',!!q.compactMessages)});const st=document.createElement('style');st.textContent='.messages{font-size:calc(1em * var(--vf-chat-scale,1))}.vf-compact-messages .message{padding-block:7px!important;margin-block:5px!important}';document.head.append(st);</script></body>
 </html>
