@@ -1850,7 +1850,8 @@
         import("https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js"),
         import("https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js")
       ]);
-      const app = appSdk.initializeApp(config, "voidforge-chat");
+      const existingApp = appSdk.getApps().find(item => item.name === "voidforge-chat");
+      const app = existingApp || appSdk.initializeApp(config, "voidforge-chat");
       const auth = authSdk.getAuth(app);
       const credential = await authSdk.signInAnonymously(auth);
       const db = firestoreSdk.getFirestore(app);
