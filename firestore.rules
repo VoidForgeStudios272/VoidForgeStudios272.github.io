@@ -37,7 +37,11 @@ service cloud.firestore {
         && request.resource.data.createdBy == request.auth.uid
         && request.resource.data.createdAt == request.time;
 
-      allow get, list: if roomId != 'global' && isPrivateMember(roomId);
+      // A signed-in player needs to read the room metadata after resolving
+      // a high-entropy invite code, before they can be added as its second member.
+      // Message reads remain restricted to actual room participants below.
+      allow get: if roomId != 'global' && signedIn();
+      allow list: if roomId != 'global' && isPrivateMember(roomId);
 
       // A room can be joined once: only its second participant may be added.
       allow update: if signedIn()
