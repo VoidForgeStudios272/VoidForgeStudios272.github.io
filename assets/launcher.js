@@ -2759,42 +2759,6 @@
      FAVICON HARD RESET
   ========================================================= */
 
-  async function refreshFaviconOnStart() {
-    if (!navigator.onLine) {
-      return;
-    }
-
-    try {
-      const url = new URL("./assets/favicon.svg", document.baseURI);
-      url.searchParams.set("start", String(Date.now()));
-
-      const response = await fetch(url.href, {
-        method: "GET",
-        cache: "no-store",
-        credentials: "same-origin"
-      });
-
-      if (!response.ok) {
-        throw new Error(`Favicon request failed: ${response.status}`);
-      }
-
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
-
-      document
-        .querySelectorAll('link[rel~="icon"]')
-        .forEach(link => link.remove());
-
-      const favicon = document.createElement("link");
-      favicon.rel = "icon";
-      favicon.type = "image/svg+xml";
-      favicon.href = blobUrl;
-
-      document.head.appendChild(favicon);
-    } catch (error) {
-      console.debug("[VoidForge] Favicon refresh skipped:", error);
-    }
-  }
 
   /* =========================================================
      GLOBAL API
@@ -2839,7 +2803,6 @@
     setupLauncherFullscreen();
     setupMobileMenu();
     setupConnectionStatus();
-    await refreshFaviconOnStart();
 
     /*
      * FIX: renderView() was previously only ever triggered by a
