@@ -546,7 +546,7 @@ input:focus {
   </main>
 </div>
 
-<script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+<script src="https://cdn.socket.io/4.8.1/socket.io.min.js">window.addEventListener('voidforge:game-settings-change',e=>{const q=e.detail?.settings||{};if(q.cameraZoom!==undefined){state.zoom=Number(q.cameraZoom);resizeCanvas()}if(q.interpolationMs!==undefined)state.interpolationMs=Number(q.interpolationMs)});</script>
 <script>
 "use strict";
 
