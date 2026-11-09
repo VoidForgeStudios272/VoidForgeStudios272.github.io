@@ -1740,6 +1740,7 @@
   let latestGameFps = null;
   let latestGameSize = "";
   let gameSessionStartedAt = 0;
+  let gameStatsInterval = null;
   function ensureGameStatsOverlay() {
     if(!gameView) return;
     if(!gameStatsOverlay) {
@@ -1749,6 +1750,7 @@
       gameStatsOverlay.setAttribute("aria-label","Game performance");
       gameView.appendChild(gameStatsOverlay);
     }
+    if(!gameStatsInterval) gameStatsInterval=window.setInterval(updateGameStatsOverlay,1000);
     updateGameStatsOverlay();
   }
   function updateGameStatsOverlay() {
