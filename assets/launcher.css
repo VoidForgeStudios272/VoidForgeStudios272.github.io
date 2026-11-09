@@ -2105,3 +2105,146 @@ button:disabled { cursor: not-allowed; opacity: .6; }
   .private-invite-card { padding:22px; }
   .private-invite-code { font-size:20px; }
 }
+
+
+/* =========================================================
+   VOIDFORGE TOP NAVIGATION — full-width horizontal sidebar
+   ========================================================= */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+}
+.sidebar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: clamp(12px, 2vw, 28px);
+  padding: 10px clamp(14px, 3vw, 38px);
+  border-right: 0;
+  border-bottom: 1px solid var(--line);
+  background: rgba(8, 12, 20, .94);
+  box-shadow: 0 10px 30px rgba(0,0,0,.16);
+  backdrop-filter: blur(20px);
+  transform: none;
+}
+.sidebar .brand {
+  flex: 0 0 auto;
+  padding: 4px 12px 4px 0;
+  margin: 0;
+}
+.sidebar .brand strong { font-size: 16px; }
+.sidebar .brand small { font-size: 8px; }
+.sidebar .nav-section {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  margin: 0;
+}
+.sidebar .nav-heading,
+.sidebar .sidebar-spacer,
+.sidebar .connection-card,
+.sidebar .sidebar-footer {
+  display: none !important;
+}
+.sidebar .nav-list {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 5px;
+  min-width: 0;
+}
+.sidebar .nav-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 9px 13px;
+  white-space: nowrap;
+}
+.sidebar .nav-item .nav-badge { margin-left: 2px; }
+.main-content {
+  width: 100%;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.mobile-menu,
+.mobile-nav { display: none !important; }
+
+@media (max-width: 760px) {
+  .sidebar {
+    position: sticky;
+    inset: auto;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    padding: 8px 12px;
+    transform: none !important;
+  }
+  .sidebar .brand {
+    padding: 3px 8px 3px 0;
+  }
+  .sidebar .brand img {
+    width: 26px;
+    height: 26px;
+  }
+  .sidebar .nav-section {
+    flex: 1 1 auto;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .sidebar .nav-section::-webkit-scrollbar { display: none; }
+  .sidebar .nav-list {
+    width: max-content;
+    gap: 4px;
+  }
+  .sidebar .nav-item {
+    min-height: 40px;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  .sidebar .nav-item .nav-icon { font-size: 15px; }
+  .topbar {
+    position: relative;
+    z-index: 1;
+  }
+  .launcher-view {
+    padding-bottom: clamp(28px, 5vw, 48px);
+  }
+}
+@media (max-width: 480px) {
+  .sidebar {
+    align-items: flex-start;
+    gap: 5px 8px;
+  }
+  .sidebar .brand {
+    flex-basis: 100%;
+    padding-bottom: 4px;
+  }
+  .sidebar .nav-section {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+  .sidebar .nav-list {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .sidebar .nav-item {
+    flex: 0 0 auto;
+    padding-inline: 9px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sidebar { scroll-behavior: auto; }
+}
