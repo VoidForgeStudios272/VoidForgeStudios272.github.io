@@ -1790,6 +1790,11 @@
         if(studioSettings.autoReload) reloadGame();
         else showToast("This game requested a reload, but automatic reload is disabled in Studio Settings.");
       }
+      if(msg.type==="voidforge:game-error"&&studioSettings.developerMode&&studioSettings.showConsoleErrors) {
+        console.error("[VoidForge game]",msg.message||"Game error",msg.source||"",msg.line||"");
+        showToast("Game error captured — check the browser console.");
+      }
+
     });
     window.addEventListener("storage",event=>{if(event.key===STUDIO_SETTINGS_KEY){studioSettings=readStudioSettings();broadcastStudioSettings();updateGameStatsOverlay();}});
   }
