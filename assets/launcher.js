@@ -102,6 +102,145 @@
   let games = [];
   let currentGame = null;
 
+
+  /* =========================================================
+     LOCAL PLAYER PROFILES
+     Profiles are browser-local; no account or backend required.
+  ========================================================= */
+  const PROFILE_STORAGE_KEY = "voidforgeProfilesV1";
+  const ACTIVE_PROFILE_KEY = "voidforgeActiveProfileV1";
+  const PROFILE_COLORS = ["#6d9cff", "#8b7cff", "#48c7a5", "#e4a35e", "#e47d9b", "#65b9d8"];
+  let profiles = [];
+  let activeProfileId = "";
+
+  function loadProfiles() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(PROFILE_STORAGE_KEY) || "[]");
+      profiles = Array.isArray(saved) ? saved.filter(p => p && typeof p.id === "string" && typeof p.name === "string") : [];
+    } catch { profiles = []; }
+    if (!profiles.length) profiles = [{ id: "player-default", name: "Player", color: PROFILE_COLORS[0], createdAt: Date.now() }];
+    activeProfileId = localStorage.getItem(ACTIVE_PROFILE_KEY) || profiles[0].id;
+    if (!profiles.some(p => p.id === activeProfileId)) activeProfileId = profiles[0].id;
+    saveProfiles();
+    updateProfileHeader();
+  }
+
+  function saveProfiles() {
+    try {
+      localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profiles));
+      localStorage.setItem(ACTIVE_PROFILE_KEY, activeProfileId);
+    } catch (error) {
+      console.warn("[VoidForge] Could not save local profiles:", error);
+      showToast("Profiles could not be saved in this browser.");
+    }
+  }
+
+  function getActiveProfile() {
+    return profiles.find(p => p.id === activeProfileId) || profiles[0];
+  }
+
+  function updateProfileHeader() {
+    const profile = getActiveProfile();
+    if (!profile) return;
+    const name = $("#activeProfileName");
+    const avatar = $("#activeProfileAvatar");
+    const subtitle = $("#activeProfileSubtitle");
+    if (name) name.textContent = profile.name;
+    if (avatar) {
+      avatar.textContent = profile.name.trim().charAt(0).toUpperCase() || "P";
+      avatar.style.background = profile.color || PROFILE_COLORS[0];
+    }
+    if (subtitle) subtitle.textContent = "Local profile";
+  }
+
+  function renderProfilesView(root) {
+    const section = createLauncherView("profiles-view");
+    section.appendChild(createViewHeading("Profiles", "Choose who is playing on this device."));
+    const note = createElement("p", "profiles-note", "Profiles are saved in this browser on this device. They are not online accounts and do not sync between devices.");
+    section.appendChild(note);
+
+    const grid = createElement("div", "profiles-grid");
+    profiles.forEach(profile => {
+      const card = createElement("article", "profile-card" + (profile.id === activeProfileId ? " is-current" : ""));
+      const avatar = createElement("div", "profile-card-avatar", profile.name.trim().charAt(0).toUpperCase() || "P");
+      avatar.style.background = profile.color || PROFILE_COLORS[0];
+      const info = createElement("div", "profile-card-info");
+      info.appendChild(createElement("strong", "", profile.name));
+      info.appendChild(createElement("small", "", profile.id === activeProfileId ? "Currently active" : "Local profile"));
+      const top = createElement("div", "profile-card-top");
+      appendChildren(top, avatar, info);
+      card.appendChild(top);
+
+      const actions = createElement("div", "profile-card-actions");
+      if (profile.id !== activeProfileId) {
+        const select = createElement("button", "secondary-button profile-action", "Use profile");
+        select.type = "button";
+        select.addEventListener("click", () => {
+          activeProfileId = profile.id;
+          saveProfiles();
+          updateProfileHeader();
+          renderProfilesView(root);
+          showToast("Switched to " + profile.name + ".");
+        });
+        actions.appendChild(select);
+      } else {
+        actions.appendChild(createElement("span", "profile-current-label", "ACTIVE"));
+      }
+
+      const rename = createElement("button", "icon-button profile-small-action", "✎");
+      rename.type = "button"; rename.title = "Rename " + profile.name; rename.setAttribute("aria-label", rename.title);
+      rename.addEventListener("click", () => {
+        const next = window.prompt("New profile name", profile.name);
+        if (next === null) return;
+        const clean = next.trim().slice(0, 24);
+        if (!clean) { showToast("Enter a profile name."); return; }
+        profile.name = clean; saveProfiles(); updateProfileHeader(); renderProfilesView(root);
+      });
+      actions.appendChild(rename);
+
+      if (profiles.length > 1) {
+        const remove = createElement("button", "icon-button profile-small-action profile-remove", "×");
+        remove.type = "button"; remove.title = "Delete " + profile.name; remove.setAttribute("aria-label", remove.title);
+        remove.addEventListener("click", () => {
+          if (!window.confirm("Delete the local profile \"" + profile.name + "\"?")) return;
+          profiles = profiles.filter(p => p.id !== profile.id);
+          if (activeProfileId === profile.id) activeProfileId = profiles[0].id;
+          saveProfiles(); updateProfileHeader(); renderProfilesView(root);
+          showToast("Profile deleted.");
+        });
+        actions.appendChild(remove);
+      }
+      card.appendChild(actions);
+      grid.appendChild(card);
+    });
+    section.appendChild(grid);
+
+    const createPanel = createElement("form", "profile-create-panel");
+    createPanel.addEventListener("submit", event => {
+      event.preventDefault();
+      const input = $("#newProfileName", createPanel);
+      const name = (input?.value || "").trim().slice(0, 24);
+      if (!name) { input?.focus(); return; }
+      if (profiles.length >= 12) { showToast("You can create up to 12 profiles."); return; }
+      const color = PROFILE_COLORS[profiles.length % PROFILE_COLORS.length];
+      const profile = { id: "profile-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7), name, color, createdAt: Date.now() };
+      profiles.push(profile);
+      activeProfileId = profile.id;
+      saveProfiles(); updateProfileHeader(); renderProfilesView(root);
+      showToast("Profile created.");
+    });
+    createPanel.appendChild(createElement("h2", "", "Add a profile"));
+    const row = createElement("div", "profile-create-row");
+    const input = createElement("input");
+    input.id = "newProfileName"; input.type = "text"; input.maxLength = 24; input.placeholder = "Enter a profile name"; input.autocomplete = "off"; input.required = true; input.setAttribute("aria-label", "New profile name");
+    const add = createElement("button", "primary-button", "Create profile"); add.type = "submit";
+    appendChildren(row, input, add);
+    createPanel.appendChild(row);
+    createPanel.appendChild(createElement("small", "hint", "Up to 12 profiles. Each profile has its own name and color."));
+    section.appendChild(createPanel);
+    root.replaceChildren(section);
+  }
+
   /* =========================================================
      TOAST
   ========================================================= */
@@ -1354,6 +1493,10 @@
         );
         break;
 
+      case "profiles":
+        renderProfilesView(viewRoot);
+        break;
+
       case "settings":
         renderSettingsView(
           viewRoot
@@ -1944,6 +2087,7 @@
 
   async function init() {
     setupGameEvents();
+    loadProfiles();
     setupPanic();
     setupKeyboardEvents();
     setupNavigation();
