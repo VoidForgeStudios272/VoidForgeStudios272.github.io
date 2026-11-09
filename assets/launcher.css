@@ -2063,3 +2063,45 @@ button:disabled { cursor: not-allowed; opacity: .6; }
   .chat-message { max-width: 90%; }
 }
 @media (prefers-reduced-motion: reduce) { .chat-shell * { scroll-behavior: auto !important; } }
+
+
+/* =========================================================
+   PRIVATE CHAT — invite-only two-person conversations
+   ========================================================= */
+.chat-tabs { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 20px; }
+.chat-tab { min-height:42px; padding:10px 16px; border:1px solid var(--line); border-radius:11px; color:var(--muted); background:rgba(255,255,255,.025); font:inherit; cursor:pointer; }
+.chat-tab.is-active { color:#eaf2ff; border-color:rgba(120,170,255,.38); background:rgba(120,170,255,.12); }
+.private-chat-home { display:grid; gap:20px; }
+.private-chat-intro { display:flex; align-items:center; gap:14px; padding:18px 20px; border:1px solid var(--line); border-radius:16px; background:linear-gradient(120deg,rgba(120,170,255,.09),rgba(255,255,255,.02)); }
+.private-chat-intro h2 { margin:0; font-size:18px; }
+.private-chat-intro p { margin:5px 0 0; color:var(--muted); font-size:12px; line-height:1.5; }
+.private-chat-symbol { display:grid; place-items:center; flex:0 0 44px; width:44px; height:44px; border:1px solid rgba(120,170,255,.2); border-radius:13px; background:rgba(120,170,255,.1); font-size:20px; }
+.private-chat-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.private-chat-action-card { display:flex; flex-direction:column; align-items:flex-start; gap:10px; min-width:0; padding:20px; border:1px solid var(--line); border-radius:16px; background:#0e1522; }
+.private-chat-action-card h3 { margin:0; font-size:15px; }
+.private-chat-action-card p { margin:0 0 6px; color:var(--muted); font-size:12px; line-height:1.5; }
+.private-chat-action-card .primary-button, .private-chat-action-card .secondary-button { margin-top:auto; }
+.private-code-input { width:100%; min-height:44px; padding:0 13px; border:1px solid var(--line-strong); border-radius:10px; outline:none; color:var(--text); background:#080f1a; font:600 14px ui-monospace,monospace; letter-spacing:.12em; text-transform:uppercase; }
+.private-code-input:focus { border-color:rgba(120,170,255,.65); box-shadow:0 0 0 3px rgba(120,170,255,.1); }
+.private-chat-list { display:grid; gap:12px; }
+.private-chat-list h3 { margin:0; font-size:15px; }
+.private-chat-list-item { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:14px 16px; border:1px solid var(--line); border-radius:13px; background:rgba(255,255,255,.025); }
+.private-chat-list-details { display:grid; gap:4px; min-width:0; }
+.private-chat-list-details strong { overflow-wrap:anywhere; font-size:13px; }
+.private-chat-list-details small { color:var(--muted); font-size:11px; }
+.private-back-button { align-self:flex-start; margin:12px 18px 0; min-height:36px; font-size:12px; }
+.private-room-shell .chat-room-header { border-bottom:0; }
+.private-invite-overlay { position:fixed; z-index:1000; inset:0; display:grid; place-items:center; padding:20px; background:rgba(1,5,12,.78); backdrop-filter:blur(12px); }
+.private-invite-card { display:grid; justify-items:center; gap:12px; width:min(100%,420px); padding:28px; border:1px solid var(--line-strong); border-radius:20px; background:#101a2a; box-shadow:0 24px 80px rgba(0,0,0,.45); text-align:center; }
+.private-invite-card h2 { margin:0; font-size:21px; }
+.private-invite-card p { margin:0 0 4px; color:var(--muted); font-size:12px; line-height:1.55; }
+.private-invite-code { padding:12px 16px; border:1px dashed rgba(120,170,255,.5); border-radius:12px; color:#c7ddff; background:rgba(120,170,255,.08); font:800 24px ui-monospace,monospace; letter-spacing:.16em; }
+.private-invite-card button { width:100%; }
+@media(max-width:680px) {
+  .private-chat-actions { grid-template-columns:1fr; }
+  .private-chat-action-card { padding:16px; }
+  .private-chat-intro { align-items:flex-start; padding:15px; }
+  .private-chat-list-item { align-items:flex-start; }
+  .private-invite-card { padding:22px; }
+  .private-invite-code { font-size:20px; }
+}
