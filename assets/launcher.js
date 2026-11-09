@@ -1487,6 +1487,10 @@
         );
         break;
 
+      case "chat":
+        renderChatView(viewRoot);
+        break;
+
       case "about":
         renderAboutView(
           viewRoot
@@ -1722,6 +1726,178 @@
     root.replaceChildren(
       section
     );
+  }
+
+
+  /* =========================================================
+     FIREBASE ONLINE CHAT
+     Requires assets/firebase-config.js and Firebase Auth +
+     Cloud Firestore enabled in the Firebase project.
+  ========================================================= */
+  let chatUnsubscribe = null;
+  let chatFirebase = null;
+  let chatBusy = false;
+
+  function stopChatListener() {
+    if (chatUnsubscribe) {
+      chatUnsubscribe();
+      chatUnsubscribe = null;
+    }
+  }
+
+  function renderChatView(root) {
+    stopChatListener();
+    const section = createLauncherView("chat-view");
+    section.appendChild(createViewHeading("Online Chat", "Talk with players across VoidForge in real time."));
+    const shell = createElement("section", "chat-shell");
+    const header = createElement("div", "chat-room-header");
+    const roomInfo = createElement("div", "chat-room-info");
+    const live = createElement("span", "chat-live-dot");
+    const roomText = createElement("div");
+    roomText.appendChild(createElement("strong", "", "Global Lobby"));
+    roomText.appendChild(createElement("small", "", "Everyone on VoidForge can join"));
+    appendChildren(roomInfo, live, roomText);
+    const status = createElement("span", "chat-connection-status", "Connecting…");
+    status.id = "vfChatStatus";
+    appendChildren(header, roomInfo, status);
+    const messages = createElement("div", "chat-messages");
+    messages.id = "vfChatMessages";
+    messages.setAttribute("role", "log");
+    messages.setAttribute("aria-live", "polite");
+    messages.setAttribute("aria-label", "Global chat messages");
+    const empty = createElement("div", "chat-empty");
+    empty.id = "vfChatEmpty";
+    empty.appendChild(createElement("div", "chat-empty-icon", "✦"));
+    empty.appendChild(createElement("strong", "", "Welcome to the lobby"));
+    empty.appendChild(createElement("p", "", "Messages from other VoidForge players will appear here."));
+    messages.appendChild(empty);
+    const form = createElement("form", "chat-compose");
+    const input = createElement("input");
+    input.id = "vfChatInput";
+    input.type = "text";
+    input.maxLength = 500;
+    input.placeholder = "Message the lobby…";
+    input.autocomplete = "off";
+    input.setAttribute("aria-label", "Chat message");
+    input.required = true;
+    const send = createElement("button", "primary-button", "Send");
+    send.type = "submit";
+    form.appendChild(input);
+    form.appendChild(send);
+    const hint = createElement("p", "chat-hint", "Be respectful. Never share passwords, personal details, or private information.");
+    appendChildren(shell, header, messages, form, hint);
+    section.appendChild(shell);
+    root.replaceChildren(section);
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      const message = input.value.trim();
+      if (!message || chatBusy) return;
+      if (!chatFirebase?.db || !chatFirebase?.user) {
+        showToast("Chat is not connected yet. Check Firebase setup.");
+        return;
+      }
+      chatBusy = true;
+      send.disabled = true;
+      try {
+        const profile = getActiveProfile();
+        const safeName = (profile?.name || "Player").trim().slice(0, 24) || "Player";
+        await chatFirebase.addDoc(
+          chatFirebase.collection(chatFirebase.db, "rooms", "global", "messages"),
+          {
+            text: message,
+            senderName: safeName,
+            senderUid: chatFirebase.user.uid,
+            createdAt: chatFirebase.serverTimestamp()
+          }
+        );
+        input.value = "";
+        input.focus();
+      } catch (error) {
+        console.error("[VoidForge Chat] Send failed:", error);
+        showToast("Message could not be sent. Check your connection.");
+      } finally {
+        chatBusy = false;
+        send.disabled = false;
+      }
+    });
+    connectFirebaseChat(messages, status, empty, send);
+  }
+
+  async function connectFirebaseChat(messages, status, empty, sendButton) {
+    const setStatus = (label, state = "") => {
+      if (!status.isConnected) return;
+      status.textContent = label;
+      status.dataset.state = state;
+    };
+    status.isConnected = true;
+    if (!navigator.onLine) {
+      setStatus("Offline", "offline");
+      return;
+    }
+    try {
+      const configModule = await import("./firebase-config.js");
+      const config = configModule.firebaseConfig;
+      if (!config || !config.apiKey || String(config.apiKey).includes("YOUR_")) {
+        setStatus("Setup required", "offline");
+        empty.replaceChildren(
+          createElement("strong", "", "Firebase setup required"),
+          createElement("p", "", "Add your Firebase web app settings to assets/firebase-config.js, then enable Anonymous Authentication and Cloud Firestore.")
+        );
+        return;
+      }
+      const [appSdk, authSdk, firestoreSdk] = await Promise.all([
+        import("https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js"),
+        import("https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js"),
+        import("https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js")
+      ]);
+      const app = appSdk.initializeApp(config, "voidforge-chat");
+      const auth = authSdk.getAuth(app);
+      const credential = await authSdk.signInAnonymously(auth);
+      const db = firestoreSdk.getFirestore(app);
+      chatFirebase = { db, user: credential.user, ...firestoreSdk };
+      setStatus("Connected", "online");
+      const messagesRef = firestoreSdk.collection(db, "rooms", "global", "messages");
+      const recentQuery = firestoreSdk.query(
+        messagesRef,
+        firestoreSdk.orderBy("createdAt", "desc"),
+        firestoreSdk.limit(75)
+      );
+      stopChatListener();
+      chatUnsubscribe = firestoreSdk.onSnapshot(recentQuery, snapshot => {
+        const rows = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).reverse();
+        messages.replaceChildren();
+        if (!rows.length) {
+          empty.hidden = false;
+          messages.appendChild(empty);
+          return;
+        }
+        empty.hidden = true;
+        const currentUid = credential.user.uid;
+        rows.forEach(row => {
+          const own = row.senderUid === currentUid;
+          const item = createElement("article", "chat-message" + (own ? " is-own" : ""));
+          const meta = createElement("div", "chat-message-meta");
+          meta.appendChild(createElement("strong", "", String(row.senderName || "Player").slice(0, 24)));
+          const date = row.createdAt?.toDate ? row.createdAt.toDate() : null;
+          meta.appendChild(createElement("time", "", date ? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Just now"));
+          item.appendChild(meta);
+          item.appendChild(createElement("p", "chat-message-text", String(row.text || "").slice(0, 500)));
+          messages.appendChild(item);
+        });
+        messages.scrollTop = messages.scrollHeight;
+      }, error => {
+        console.error("[VoidForge Chat] Listener failed:", error);
+        setStatus("Connection error", "offline");
+        showToast("Could not load chat. Check your Firestore rules.");
+      });
+    } catch (error) {
+      console.error("[VoidForge Chat] Firebase initialization failed:", error);
+      setStatus("Not configured", "offline");
+      empty.replaceChildren(
+        createElement("strong", "", "Chat could not connect"),
+        createElement("p", "", "Check assets/firebase-config.js, Anonymous Authentication, Firestore, and the Firebase security rules.")
+      );
+    }
   }
 
   /* =========================================================
