@@ -113,6 +113,17 @@
       if (typeof key !== "string" || !key) return;
       window.parent.postMessage({ type: "voidforge:settings-update", settings: { [key]: value } }, window.location.origin);
     },
+    notify(title, options = {}) {
+      if (current.notifications === false || !("Notification" in window) || Notification.permission !== "granted") return false;
+      try { new Notification(String(title || "Game notification"), options); return true; } catch { return false; }
+    },
+    vibrate(pattern = 30) {
+      if (current.controllerVibration === false || typeof navigator.vibrate !== "function") return false;
+      try { return navigator.vibrate(pattern); } catch { return false; }
+    },
+    requestReload() {
+      window.parent.postMessage({ type: "voidforge:reload-request", gameId: current.gameId || "" }, window.location.origin);
+    },
     request() { window.parent.postMessage({ type: "voidforge:settings-request" }, window.location.origin); }
   });
 
