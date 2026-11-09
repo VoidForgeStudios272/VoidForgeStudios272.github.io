@@ -80,8 +80,6 @@
     root.style.setProperty("--vf-sensitivity", String(current.sensitivity ?? 1));
     root.style.setProperty("--vf-render-scale", String(Number(current.renderScale ?? 100) / 100));
     root.classList.toggle("vf-no-antialias", current.antiAliasing === false);
-    root.classList.toggle("vf-no-crosshair", current.crosshair === false);
-    root.classList.toggle("vf-crosshair-enabled", current.crosshair !== false);
     root.classList.toggle("vf-safe-area-guide", !!current.showSafeArea);
     root.classList.toggle("vf-reduce-motion", !!current.reduceMotion);
     root.classList.toggle("vf-no-screen-shake", current.screenShake === false);
@@ -159,7 +157,7 @@
       return () => window.removeEventListener("voidforge:game-settings-change", handler);
     },
     cameraOptions() {
-      return { fov:Number(current.fov ?? 90), sensitivity:Number(current.sensitivity ?? 1), invertY:!!current.invertY, crosshair:current.crosshair!==false };
+      return { fov:Number(current.fov ?? 90), sensitivity:Number(current.sensitivity ?? 1), invertY:!!current.invertY };
     },
     request() { window.parent.postMessage({ type: "voidforge:settings-request" }, window.location.origin); }
   });
@@ -177,10 +175,6 @@
     .vf-no-particles .particles, .vf-no-particles canvas.particles { display: none !important; }
     .vf-high-contrast { filter: contrast(1.18); }
     .vf-large-cursor, .vf-large-cursor * { cursor: default; }
-    .vf-crosshair-enabled body::after {
-      content:"+"; position:fixed; z-index:2147483000; left:50%; top:50%; transform:translate(-50%,-50%);
-      color:rgba(255,255,255,.9); font:18px/1 monospace; text-shadow:0 1px 3px #000; pointer-events:none;
-    }
     .vf-safe-area-guide::after {
       content:""; position:fixed; z-index:2147483000; inset:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);
       border:1px dashed rgba(80,170,255,.85); pointer-events:none;
