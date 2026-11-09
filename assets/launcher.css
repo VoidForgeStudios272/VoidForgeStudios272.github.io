@@ -1942,3 +1942,73 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .nav-item, .profile-card, .primary-button { transition: none !important; }
 }
+
+
+/* =========================================================
+   POLISH PASS — hierarchy, controls and reset action
+   ========================================================= */
+:root {
+  --bg: #080b12;
+  --panel: #101827;
+  --panel-light: #152137;
+  --panel-hover: #1a2940;
+  --line: rgba(174, 196, 231, .12);
+  --line-strong: rgba(174, 196, 231, .2);
+  --text: #f3f6fc;
+  --muted: #9aa8bd;
+  --accent: #78aaff;
+  --accent-strong: #b9d4ff;
+}
+body { background-color: var(--bg); }
+.app-shell { background: #080b12; }
+.main-content { min-width: 0; }
+.view-heading { margin-bottom: 26px; }
+.view-heading h1 { letter-spacing: -.035em; }
+.view-heading p { color: var(--muted); max-width: 680px; }
+.nav-item { border: 1px solid transparent; border-radius: 11px; }
+.nav-item:focus-visible, .icon-button:focus-visible, .profile-button:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 3px;
+}
+.top-actions { gap: 9px; }
+.top-actions .icon-button {
+  width: 40px; height: 40px; border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.035);
+  color: #dbe7fb;
+  transition: background .16s ease, border-color .16s ease, color .16s ease;
+}
+.top-actions .icon-button:hover {
+  background: rgba(120,170,255,.10);
+  border-color: rgba(120,170,255,.32);
+}
+.top-actions .hard-reset-trigger {
+  color: #ff9ca8;
+  border-color: rgba(255,126,145,.22);
+  background: rgba(255,126,145,.055);
+}
+.top-actions .hard-reset-trigger:hover {
+  color: #ffd5da;
+  border-color: rgba(255,126,145,.48);
+  background: rgba(255,126,145,.13);
+}
+.top-actions .hard-reset-trigger:disabled { opacity: .55; cursor: wait; }
+.game-card, .profile-card, .profile-create-panel, .settings-content {
+  border-color: var(--line);
+  box-shadow: none;
+}
+.game-card { border-radius: 15px; overflow: hidden; }
+.game-card:hover { border-color: rgba(120,170,255,.36); }
+.profile-card, .profile-create-panel { border-radius: 16px; }
+.primary-button, .secondary-button, .icon-button {
+  transition: background .16s ease, border-color .16s ease, transform .16s ease;
+}
+.primary-button:active, .secondary-button:active { transform: translateY(1px); }
+button:disabled { cursor: not-allowed; opacity: .6; }
+@media (max-width: 640px) {
+  .top-actions { gap: 6px; }
+  .top-actions .icon-button { width: 36px; height: 36px; }
+  .top-actions .hard-reset-trigger { font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .top-actions .icon-button, .primary-button, .secondary-button { transition: none !important; }
+}
