@@ -2035,9 +2035,29 @@
     const existingApp = appSdk.getApps().find(item => item.name === "voidforge-chat");
     const app = existingApp || appSdk.initializeApp(config, "voidforge-chat");
     const auth = authSdk.getAuth(app);
-    const credential = await authSdk.signInAnonymously(auth);
+
+    // Keep the anonymous identity stable across page reloads. This is
+    // essential for private-room membership, which is stored by UID.
+    await authSdk.setPersistence(auth, authSdk.browserLocalPersistence);
+    const user = await new Promise((resolve, reject) => {
+      let unsubscribe = () => {};
+      unsubscribe = authSdk.onAuthStateChanged(auth, async currentUser => {
+        unsubscribe();
+        if (currentUser) {
+          resolve(currentUser);
+          return;
+        }
+        try {
+          const credential = await authSdk.signInAnonymously(auth);
+          resolve(credential.user);
+        } catch (error) {
+          reject(error);
+        }
+      }, reject);
+    });
+
     const db = firestoreSdk.getFirestore(app);
-    chatFirebase = { db, user: credential.user, ...firestoreSdk };
+    chatFirebase = { db, user, ...firestoreSdk };
     return chatFirebase;
   }
 
@@ -2130,10 +2150,21 @@
       subscribeToChatMessages("global", messages, status, empty);
     } catch (error) {
       console.error("[VoidForge Chat] Firebase initialization failed:", error);
-      setStatus("Not configured", "offline");
+      const code = error?.code || "";
+      const message = code === "auth/operation-not-allowed"
+        ? "Enable Anonymous sign-in in Firebase Authentication → Sign-in method."
+        : code === "auth/unauthorized-domain"
+          ? "Add this website's domain to Firebase Authentication → Settings → Authorized domains."
+          : code === "permission-denied"
+            ? "Firestore denied access. Publish the latest firestore.rules in Firebase Console."
+            : code === "unavailable"
+              ? "Firestore is unavailable. Check your connection and database region."
+              : (error?.message || "Check Firebase configuration, Anonymous Authentication, and Cloud Firestore.");
+      setStatus("Connection failed", "offline");
       empty.replaceChildren(
         createElement("strong", "", "Chat could not connect"),
-        createElement("p", "", "Check assets/firebase-config.js, Anonymous Authentication, and Cloud Firestore.")
+        createElement("p", "", message),
+        createElement("small", "", code ? "Firebase error: " + code : "Open the browser console for details.")
       );
     }
   }
