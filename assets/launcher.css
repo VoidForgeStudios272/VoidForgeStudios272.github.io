@@ -2252,3 +2252,167 @@ button:disabled { cursor: not-allowed; opacity: .6; }
 /* The former off-canvas drawer is no longer used in top-navigation mode. */
 .nav-open::before { display: none !important; }
 @media (max-width: 760px) { .nav-open .sidebar { transform: none !important; } }
+
+
+/* =========================================================
+   VOIDFORGE MOBILE CHAT POLISH
+   ========================================================= */
+@media (max-width: 600px) {
+  .chat-shell {
+    width: 100%;
+    min-width: 0;
+    min-height: min(72dvh, 720px);
+    border-radius: 14px;
+  }
+
+  .chat-room-header {
+    align-items: flex-start;
+    gap: 10px;
+    padding: 13px 14px;
+  }
+
+  .chat-room-info {
+    flex: 1 1 auto;
+    gap: 9px;
+  }
+
+  .chat-room-info strong { font-size: 14px; }
+  .chat-room-info small {
+    max-width: 52vw;
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  .chat-connection-status {
+    flex: 0 0 auto;
+    padding-top: 2px;
+    font-size: 10px;
+  }
+
+  .chat-messages {
+    flex: 1 1 auto;
+    min-height: 220px;
+    max-height: min(52dvh, 520px);
+    padding: 12px;
+    gap: 9px;
+    scroll-padding-bottom: 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .chat-message {
+    max-width: 92%;
+    padding: 10px 12px;
+    border-radius: 12px 12px 12px 4px;
+  }
+
+  .chat-message-meta {
+    flex-wrap: wrap;
+    gap: 5px 9px;
+  }
+
+  .chat-message-text {
+    font-size: 14px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+
+  .chat-compose {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    gap: 8px;
+    padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+    background: #0b111c;
+  }
+
+  .chat-compose input {
+    min-height: 48px;
+    padding: 0 12px;
+    font-size: 16px;
+  }
+
+  .chat-compose .primary-button {
+    min-width: 68px;
+    min-height: 48px;
+    padding-inline: 13px;
+  }
+
+  .chat-hint {
+    padding: 0 12px 10px;
+    font-size: 10px;
+    line-height: 1.4;
+  }
+
+  .chat-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .chat-tab {
+    min-width: 0;
+    min-height: 46px;
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+
+  .private-chat-home { gap: 14px; }
+  .private-chat-intro { gap: 11px; }
+  .private-chat-intro h2 { font-size: 16px; }
+  .private-chat-intro p { font-size: 12px; }
+
+  .private-chat-actions { grid-template-columns: minmax(0, 1fr); }
+  .private-chat-action-card { width: 100%; padding: 15px; }
+  .private-chat-action-card button,
+  .private-chat-action-card .primary-button,
+  .private-chat-action-card .secondary-button {
+    width: 100%;
+    min-height: 46px;
+  }
+
+  .private-chat-list-item {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+    padding: 13px;
+  }
+
+  .private-chat-list-item button,
+  .private-chat-list-item .primary-button,
+  .private-chat-list-item .secondary-button {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .private-back-button {
+    margin: 10px 12px 0;
+    min-height: 42px;
+  }
+
+  .private-invite-overlay { padding: 14px; }
+  .private-invite-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 22px 17px;
+  }
+  .private-invite-code {
+    max-width: 100%;
+    font-size: clamp(16px, 5vw, 20px);
+    letter-spacing: .12em;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 380px) {
+  .chat-room-header { flex-direction: column; }
+  .chat-room-info small { max-width: 78vw; }
+  .chat-connection-status { align-self: flex-end; }
+  .chat-compose { gap: 6px; padding-inline: 8px; }
+  .chat-compose .primary-button { min-width: 60px; padding-inline: 10px; }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .chat-shell { min-height: 78dvh; }
+  .chat-messages { min-height: 130px; max-height: 42dvh; }
+}
