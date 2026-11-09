@@ -191,5 +191,5 @@ if(saved.rounds)$("rounds").value=saved.rounds;
 $("category").addEventListener("change",saveSettings);$("rounds").addEventListener("change",saveSettings);
 renderPlayers();show("setup");
 </script>
-</body>
+<script id="voidforge-studio-profile">window.addEventListener('voidforge:game-settings-change',event=>{const q=event.detail?.settings||{};if(q.category!==undefined){const el=document.getElementById('category');if(el){el.value=q.category;el.dispatchEvent(new Event('change',{bubbles:true}));}}if(q.rounds!==undefined){const el=document.getElementById('rounds');if(el){el.value=String(q.rounds);el.dispatchEvent(new Event('change',{bubbles:true}));}}if(q.soundEnabled!==undefined){const el=document.getElementById('soundToggle');if(el&&String(el.getAttribute('aria-pressed'))!==String(!!q.soundEnabled))el.click();}});</script></body>
 </html>
