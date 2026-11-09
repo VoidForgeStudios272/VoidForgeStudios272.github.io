@@ -2552,3 +2552,8 @@ button:disabled { cursor: not-allowed; opacity: .6; }
 .vf-large-cursor, .vf-large-cursor * {
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M4 2 L4 25 L10 19 L15 29 L19 27 L14 17 L23 17 Z' fill='white' stroke='%23061120' stroke-width='2'/%3E%3C/svg%3E") 4 2, auto !important;
 }
+
+/* Developer and camera settings refinements */
+.studio-settings-group:has([aria-label="Enable Developer Mode"]) { border-color:rgba(87,153,255,.28); }
+.studio-settings-group:has([aria-label="Enable Developer Mode"]) .studio-settings-heading h2 { color:#9dc4ff; }
+.studio-setting-row input[type="range"] { touch-action:pan-y; }
