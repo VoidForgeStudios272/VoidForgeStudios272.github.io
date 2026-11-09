@@ -47,3 +47,17 @@ message limits. Anonymous accounts are browser/device identities, not verified
 accounts. The public lobby is visible to all authenticated chat visitors; do
 not use it for private or sensitive information. Add App Check and stronger
 abuse controls before opening it to a large public audience.
+
+
+### Private chats
+
+The Online Chat page also includes invite-only private conversations. Create a
+room to generate an 8-character invite code, then share it with one person.
+The first valid join fills the second participant slot; each room supports at
+most two Firebase anonymous-authenticated users. Private messages are stored
+under `rooms/{roomId}/messages` and Firestore rules restrict reads and writes
+to the room's two members. The room list and invite code are saved locally in
+that browser, so clearing browser storage removes the shortcut to the room.
+Keep the invite code private: anyone who obtains it before the room is full can
+attempt to join. Firebase anonymous identities are browser/device identities,
+not verified accounts, and are not automatically recoverable on another device.
