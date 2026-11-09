@@ -1880,7 +1880,7 @@
           createdAt: chatFirebase.serverTimestamp()
         });
         savePrivateRoom({ roomId: roomRef.id, code, title: "Private chat", createdAt: Date.now(), owner: true, displayName });
-        renderPrivateChatHome(section, root);
+        renderChatView(root, "private");
         showPrivateInvite(root, roomRef.id, code);
       } catch (error) {
         console.error("[VoidForge Chat] Private room creation failed:", error);
