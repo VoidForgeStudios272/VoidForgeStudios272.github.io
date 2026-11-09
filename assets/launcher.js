@@ -1017,6 +1017,7 @@
     }
 
     currentGame = game;
+    latestGameFps = null; latestGameSize = ""; ensureGameStatsOverlay();
 
     setText(
       gameTitle,
@@ -1109,6 +1110,7 @@
 
   function closeGame() {
     currentGame = null;
+    latestGameFps = null; latestGameSize = ""; updateGameStatsOverlay();
 
     if (gameFrame) {
       gameFrame.src =
@@ -1185,6 +1187,7 @@
         "load",
         () => {
           if (currentGame && gameFrame.contentWindow) {
+            latestGameFps=null; latestGameSize=""; updateGameStatsOverlay();
             try {
               const gameDocument = gameFrame.contentDocument;
               if (gameDocument && !gameDocument.querySelector("[data-voidforge-settings-bridge]")) {
@@ -1700,7 +1703,9 @@
     masterVolume:80,musicVolume:70,sfxVolume:85,muted:false,graphics:"high",
     showFps:false,showPerformance:false,reduceMotion:false,screenShake:true,particles:true,
     language:"system",textScale:100,difficulty:"normal",autosave:true,notifications:true,
-    confirmExit:true,controllerVibration:true,subtitles:true,colorMode:"system"
+    confirmExit:true,controllerVibration:true,subtitles:true,colorMode:"system",
+    showGameTimer:false,showGameResolution:false,highContrast:false,largeCursor:false,
+    pauseOnBlur:false,autoReload:false
   };
   let studioSettings = readStudioSettings();
   function readStudioSettings() {
@@ -1716,23 +1721,61 @@
     gameFrame.contentWindow.postMessage({type:"voidforge:settings",version:1,gameId:String(currentGame.id),settings:{...studioSettings}},window.location.origin);
   }
   function updateStudioSetting(key,value) {
-    if(!(key in STUDIO_SETTINGS_DEFAULTS)) return;
+    if(!Object.prototype.hasOwnProperty.call(STUDIO_SETTINGS_DEFAULTS,key)) return;
     const base=STUDIO_SETTINGS_DEFAULTS[key];
     if(typeof base==="boolean"&&typeof value!=="boolean") return;
-    if(typeof base==="number") { value=Number(value); if(!Number.isFinite(value)) return; value=Math.max(key==="textScale"?75:0,Math.min(key==="textScale"?150:100,value)); }
-    if(typeof base==="string"&&typeof value!=="string") return;
-    studioSettings[key]=value; persistStudioSettings(); broadcastStudioSettings();
+    if(typeof base==="number") { value=Number(value); if(!Number.isFinite(value)) return; value=Math.max(key==="textScale"?75:0,Math.min(100,value)); }
+    if(typeof base==="string") {
+      if(typeof value!=="string") return;
+      const allowed={
+        graphics:["low","medium","high","ultra"],language:["system","en","de","fr","es"],
+        difficulty:["easy","normal","hard","adaptive"],colorMode:["system","dark","light"]
+      };
+      if(allowed[key]&&!allowed[key].includes(value)) return;
+    }
+    studioSettings[key]=value; persistStudioSettings(); broadcastStudioSettings(); updateGameStatsOverlay();
     window.dispatchEvent(new CustomEvent("voidforge:settings-change",{detail:{...studioSettings,key,value}}));
   }
+  let gameStatsOverlay = null;
+  let latestGameFps = null;
+  let latestGameSize = "";
+  function ensureGameStatsOverlay() {
+    if(!gameView) return;
+    if(!gameStatsOverlay) {
+      gameStatsOverlay=document.createElement("output");
+      gameStatsOverlay.className="vf-game-stats";
+      gameStatsOverlay.setAttribute("aria-live","off");
+      gameStatsOverlay.setAttribute("aria-label","Game performance");
+      gameView.appendChild(gameStatsOverlay);
+    }
+    updateGameStatsOverlay();
+  }
+  function updateGameStatsOverlay() {
+    if(!gameStatsOverlay) return;
+    const visible=Boolean(studioSettings.showFps||studioSettings.showPerformance);
+    gameStatsOverlay.hidden=!visible;
+    if(!visible) return;
+    const fps=latestGameFps===null?"FPS —":("FPS "+latestGameFps);
+    const size=studioSettings.showPerformance&&latestGameSize?" · "+latestGameSize:"";
+    gameStatsOverlay.textContent=fps+size;
+    gameStatsOverlay.dataset.state=latestGameFps===null?"waiting":"live";
+  }
   function setupStudioSettingsBridge() {
+    ensureGameStatsOverlay();
     window.addEventListener("message",event=>{
-      if(!gameFrame?.contentWindow||event.source!==gameFrame.contentWindow||event.origin!==window.location.origin) return;
+      if(!gameFrame?.contentWindow||event.source!==gameFrame.contentWindow) return;
       const msg=event.data; if(!msg||typeof msg!=="object") return;
+      if(event.origin!==window.location.origin) return;
       if(msg.type==="voidforge:settings-request") broadcastStudioSettings();
       if(msg.type==="voidforge:settings-update"&&msg.settings&&typeof msg.settings==="object")
-        Object.entries(msg.settings).forEach(([key,value])=>{if(key in STUDIO_SETTINGS_DEFAULTS) updateStudioSetting(key,value);});
+        Object.entries(msg.settings).forEach(([key,value])=>{if(Object.prototype.hasOwnProperty.call(STUDIO_SETTINGS_DEFAULTS,key)) updateStudioSetting(key,value);});
+      if(msg.type==="voidforge:performance"&&msg.gameId===String(currentGame?.id||"")) {
+        latestGameFps=Number.isFinite(msg.fps)?Math.max(0,Math.round(msg.fps)):null;
+        latestGameSize=msg.width&&msg.height?(msg.width+"×"+msg.height):"";
+        updateGameStatsOverlay();
+      }
     });
-    window.addEventListener("storage",event=>{if(event.key===STUDIO_SETTINGS_KEY){studioSettings=readStudioSettings();broadcastStudioSettings();}});
+    window.addEventListener("storage",event=>{if(event.key===STUDIO_SETTINGS_KEY){studioSettings=readStudioSettings();broadcastStudioSettings();updateGameStatsOverlay();}});
   }
   function renderSettingsView(root) {
     const section=createLauncherView("settings-view");
@@ -1743,7 +1786,8 @@
       {title:"Audio",desc:"Control game sound levels.",fields:[["masterVolume","Master volume","range",0,100,"%"],["musicVolume","Music volume","range",0,100,"%"],["sfxVolume","Sound effects","range",0,100,"%"],["muted","Mute all game audio","toggle"]]},
       {title:"Display & Graphics",desc:"Choose visual quality and performance overlays.",fields:[["graphics","Graphics quality","select",["low","medium","high","ultra"]],["showFps","Show FPS counter","toggle"],["showPerformance","Performance overlay","toggle"],["textScale","Game UI scale","range",75,150,"%"],["colorMode","Game color mode","select",["system","dark","light"]]]},
       {title:"Gameplay",desc:"Set shared gameplay preferences.",fields:[["difficulty","Default difficulty","select",["easy","normal","hard","adaptive"]],["autosave","Enable autosave when supported","toggle"],["confirmExit","Confirm before leaving a game","toggle"],["controllerVibration","Controller vibration","toggle"],["subtitles","Subtitles when supported","toggle"]]},
-      {title:"Accessibility & Experience",desc:"Make games more comfortable to play.",fields:[["reduceMotion","Reduce motion and animations","toggle"],["screenShake","Screen shake effects","toggle"],["particles","Particle effects","toggle"],["language","Preferred language","select",["system","en","de","fr","es"]],["notifications","Game notifications","toggle"]]}
+      {title:"Accessibility & Experience",desc:"Make games more comfortable to play.",fields:[["reduceMotion","Reduce motion and animations","toggle"],["screenShake","Screen shake effects","toggle"],["particles","Particle effects","toggle"],["language","Preferred language","select",["system","en","de","fr","es"]],["notifications","Game notifications","toggle"],["highContrast","High contrast","toggle"],["largeCursor","Larger cursor","toggle"]]},
+      {title:"Game HUD & Behavior",desc:"Studio overlays work automatically; other options are sent to games that implement them.",fields:[["showGameTimer","Show session timer","toggle"],["showGameResolution","Show game resolution","toggle"],["pauseOnBlur","Request pause when game loses focus","toggle"],["autoReload","Allow games to request automatic reload","toggle"]]}
     ];
     groups.forEach(group=>{
       const panel=createElement("section","studio-settings-group"),head=createElement("div","studio-settings-heading");
