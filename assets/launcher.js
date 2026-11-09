@@ -1192,7 +1192,7 @@
               const gameDocument = gameFrame.contentDocument;
               if (gameDocument && !gameDocument.querySelector("[data-voidforge-settings-bridge]")) {
                 const bridgeScript = gameDocument.createElement("script");
-                bridgeScript.src = new URL("./assets/game-settings.js", document.baseURI).href;
+                bridgeScript.src = new URL("/assets/game-settings.js", window.location.origin).href;
                 bridgeScript.dataset.voidforgeSettingsBridge = "true";
                 (gameDocument.head || gameDocument.documentElement).appendChild(bridgeScript);
               }
