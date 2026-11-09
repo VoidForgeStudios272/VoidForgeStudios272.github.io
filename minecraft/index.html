@@ -4480,6 +4480,6 @@
         camera.fov = 75; camera.updateProjectionMatrix(); scene.fog.near = 19.8; scene.fog.far = 55; updateSurvivalHud(); updateTerrainPreview(); handleResize(); startGame(); requestAnimationFrame(animate);
     </script>
     <div id="clientModeBadge" aria-hidden="true">CLIENT MODE · QUICK START</div>
-</body>
+<script id="voidforge-studio-profile">window.addEventListener('voidforge:game-settings-change',event=>{const q=event.detail?.settings||{};const map={fov:'fov',sensitivity:'sensitivity',renderDistance:'renderDistance',graphicsQuality:'graphicsQuality',brightness:'brightness',uiScale:'uiScale',invertY:'invertY',autoSave:'autoSave',showHelp:'showHelp'};Object.entries(map).forEach(([key,id])=>{if(q[key]===undefined)return;const input=document.getElementById(id);if(!input)return;input.value=key==='invertY'||key==='autoSave'||key==='showHelp'?(q[key]===true?'on':q[key]===false?'off':q[key]):String(q[key]);input.dispatchEvent(new Event(input.type==='range'?'input':'change',{bubbles:true}));});});</script></body>
 
 </html>
