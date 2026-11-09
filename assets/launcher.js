@@ -1813,7 +1813,7 @@
   ========================================================= */
   async function hardResetLauncher() {
     const firstConfirm = window.confirm(
-      "Hard reset VoidForge?\\n\\nThis removes local profiles, the active profile, Panic settings and the VoidForge offline shell cache. Your game files and games.json will not be deleted."
+      "Hard reset VoidForge?\n\nThis removes local profiles, the active profile, Panic settings and the VoidForge offline shell cache. Your game files and games.json will not be deleted."
     );
     if (!firstConfirm) return;
 
