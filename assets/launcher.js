@@ -1711,6 +1711,45 @@
     shadows:"high",antiAliasing:true,targetFps:"60",showSafeArea:false
   };
   let studioSettings = readStudioSettings();
+  const GAME_PROFILE_KEY = "voidforgeGameProfilesV1";
+  const GAME_PROFILE_DEFINITIONS = {
+    minecraft:{title:"Minecraft",fields:[
+      ["fov","Field of view","range",55,100,75,"°"],["sensitivity","Look sensitivity","range",1,10,4,"×"],
+      ["renderDistance","Render distance","select",[["35","Low"],["55","Medium"],["75","High"]],"55"],
+      ["graphicsQuality","Graphics quality","select",[["low","Low"],["medium","Medium"],["high","High"]],"medium"],
+      ["brightness","Brightness","range",70,130,100,"%"],["uiScale","Mobile controls size","range",80,130,100,"%"],
+      ["invertY","Invert look","toggle",false],["autoSave","Auto save","toggle",true],["showHelp","In-game help","toggle",true]
+    ]},
+    snake:{title:"Multiplayer Snake",fields:[["cameraZoom","Camera zoom","range",1,4,2.15,"×",0.05],["interpolationMs","Movement smoothing","range",50,200,90," ms",5]]},
+    jarvis:{title:"J.A.R.V.I.S",fields:[["chatScale","Chat text size","range",80,130,100,"%"],["compactMessages","Compact messages","toggle",false]]},
+    pong:{title:"Pong",fields:[["ballSpeed","Ball speed","range",2,10,5,"×",0.5],["paddleSpeed","Paddle speed","range",2,12,6,"×",0.5]]},
+    breakout:{title:"Breakout",fields:[["ballSpeed","Ball speed","range",2,8,4,"×",0.5],["paddleSpeed","Paddle speed","range",10,60,30," px",2]]},
+    flappy:{title:"Flappy",fields:[["gravity","Gravity","range",0.15,0.6,0.35,"",0.01],["flapStrength","Flap strength","range",5,12,8,"",0.1],["pipeSpeed","Pipe speed","range",1,6,3,"×",0.25]]},
+    minesweeper:{title:"Minesweeper",fields:[["gridSize","Grid size","select",[["8","8 × 8"],["10","10 × 10"],["12","12 × 12"]],"10"],["mineCount","Number of mines","range",8,35,15,"",1]]},
+    "2048":{title:"2048",fields:[["spawnChance","Tile spawn chance","range",50,100,90,"%"],["startingTiles","Starting tiles","select",[["1","1 tile"],["2","2 tiles"],["3","3 tiles"]],"2"]]},
+    tetris:{title:"Tetris",fields:[["dropInterval","Drop speed","range",150,900,450," ms",25],["ghostPiece","Ghost piece preview","toggle",false]]},
+    tictactoe:{title:"Tic-Tac-Toe",fields:[["firstTurn","Starting player","select",[["X","Player X"],["O","Player O"]],"X"]]},
+    memory:{title:"Memory",fields:[["flipDelay","Card reveal delay","range",200,1000,500," ms",50],["symbolTheme","Card symbols","select",[["classic","Classic"],["space","Space"],["nature","Nature"]],"classic"]]},
+    asteroids:{title:"Asteroids",fields:[["thrust","Ship acceleration","range",0.06,0.2,0.12,"",0.01],["rotationSpeed","Rotation speed","range",0.04,0.12,0.07,"",0.01],["fireCooldown","Weapon cooldown","range",100,350,180," ms",10]]},
+    invaders:{title:"Invaders",fields:[["playerSpeed","Player speed","range",2,8,5,"×",0.5],["enemySpeed","Enemy speed","range",0.2,1.2,0.5,"×",0.05],["fireCooldown","Weapon cooldown","range",100,350,180," ms",10]]},
+    imposter:{title:"Imposter",fields:[["category","Word category","select",[["all","Random mix"],["food","Food"],["animals","Animals"],["places","Places"],["objects","Objects"],["people","People"],["nature","Nature"],["entertainment","Entertainment"],["sports","Sports"],["technology","Technology"],["school","School"],["vehicles","Vehicles"],["household","Household"]],"all"],["rounds","Clue rounds","select",[["1","1 round"],["2","2 rounds"],["3","3 rounds"]],"2"],["soundEnabled","Sound effects","toggle",true]]}
+  };
+  function readGameProfiles() {
+    try { const saved=JSON.parse(localStorage.getItem(GAME_PROFILE_KEY)||"{}"); const result={};
+      Object.entries(GAME_PROFILE_DEFINITIONS).forEach(([id,def])=>{result[id]={};def.fields.forEach(field=>{const [key,type,a,b,fallback]=field;const value=saved?.[id]?.[key];result[id][key]=value===undefined?fallback:value;});});return result;
+    } catch { const result={};Object.entries(GAME_PROFILE_DEFINITIONS).forEach(([id,def])=>{result[id]=Object.fromEntries(def.fields.map(f=>[f[0],f[4]]));});return result; }
+  }
+  let studioGameProfiles=readGameProfiles();
+  function persistGameProfiles(){try{localStorage.setItem(GAME_PROFILE_KEY,JSON.stringify(studioGameProfiles));}catch(error){console.warn("[VoidForge] Game profiles could not be saved:",error);}}
+  function updateGameProfile(gameId,key,value){
+    const def=GAME_PROFILE_DEFINITIONS[gameId],field=def?.fields.find(f=>f[0]===key);if(!field)return;
+    const type=field[1];
+    if(type==="toggle"&&typeof value!=="boolean")return;
+    if(type==="range"){value=Number(value);if(!Number.isFinite(value))return;value=Math.max(field[2],Math.min(field[3],value));}
+    if(type==="select"&&!field[2].some(option=>option[0]===String(value)))return;
+    studioGameProfiles[gameId][key]=value;persistGameProfiles();broadcastStudioSettings();
+    window.dispatchEvent(new CustomEvent("voidforge:game-profile-change",{detail:{gameId,settings:{...studioGameProfiles[gameId]}}}));
+  }
   function readStudioSettings() {
     try { const saved=JSON.parse(localStorage.getItem(STUDIO_SETTINGS_KEY)||"{}"); return {...STUDIO_SETTINGS_DEFAULTS,...(saved&&typeof saved==="object"?saved:{})}; }
     catch { return {...STUDIO_SETTINGS_DEFAULTS}; }
@@ -1721,7 +1760,7 @@
   }
   function broadcastStudioSettings() {
     if(!gameFrame?.contentWindow||!currentGame) return;
-    gameFrame.contentWindow.postMessage({type:"voidforge:settings",version:1,gameId:String(currentGame.id),settings:{...studioSettings}},window.location.origin);
+    gameFrame.contentWindow.postMessage({type:"voidforge:settings",version:1,gameId:String(currentGame.id),settings:{...studioSettings},gameSettings:currentGame?{...(studioGameProfiles[currentGame.id]||{})}:{}} ,window.location.origin);
   }
   function updateStudioSetting(key,value) {
     if(!Object.prototype.hasOwnProperty.call(STUDIO_SETTINGS_DEFAULTS,key)) return;
@@ -1839,6 +1878,40 @@
       });
       panel.appendChild(list);content.appendChild(panel);
     });
+    const profilePanel=createElement("section","studio-settings-group studio-game-profile");
+    const profileHead=createElement("div","studio-settings-heading");
+    profileHead.appendChild(createElement("h2","","Game-specific settings"));
+    profileHead.appendChild(createElement("p","","Choose a game to view and edit its own settings profile. Profiles are saved separately and sent to that game when it launches."));
+    profilePanel.appendChild(profileHead);
+    const profileSelect=createElement("select","studio-select");
+    Object.entries(GAME_PROFILE_DEFINITIONS).forEach(([id,def])=>profileSelect.appendChild(new Option(def.title,id)));
+    const profileList=createElement("div","studio-settings-list");
+    function renderGameProfile(gameId){
+      profileList.replaceChildren();const def=GAME_PROFILE_DEFINITIONS[gameId];if(!def)return;
+      def.fields.forEach(field=>{
+        const [key,label,type,a,b,suffix,step]=field,row=createElement("div","studio-setting-row"),copy=createElement("div","studio-setting-copy");
+        copy.appendChild(createElement("strong","",label));
+        const value=studioGameProfiles[gameId][key];
+        if(type==="range"){
+          const wrap=createElement("div","studio-range-wrap"),input=createElement("input","studio-range"),out=createElement("output","studio-range-value",String(value)+(suffix||""));
+          input.type="range";input.min=String(a);input.max=String(b);input.step=step?String(step):"1";input.value=String(value);
+          input.addEventListener("input",()=>{out.textContent=input.value+(suffix||"");updateGameProfile(gameId,key,Number(input.value));});
+          appendChildren(wrap,input,out);appendChildren(row,copy,wrap);
+        }else if(type==="toggle"){
+          const input=createElement("input","studio-toggle");input.type="checkbox";input.checked=Boolean(value);input.setAttribute("role","switch");input.setAttribute("aria-label",label);
+          input.addEventListener("change",()=>updateGameProfile(gameId,key,input.checked));appendChildren(row,copy,input);
+        }else{
+          const select=createElement("select","studio-select");
+          a.forEach(option=>select.appendChild(new Option(option[1],option[0])));
+          select.value=String(value);select.setAttribute("aria-label",label);select.addEventListener("change",()=>updateGameProfile(gameId,key,select.value));appendChildren(row,copy,select);
+        }
+        profileList.appendChild(row);
+      });
+    }
+    profileSelect.addEventListener("change",()=>renderGameProfile(profileSelect.value));
+    const selectedProfile=GAME_PROFILE_DEFINITIONS[currentGame?.id]?currentGame.id:Object.keys(GAME_PROFILE_DEFINITIONS)[0];
+    profileSelect.value=selectedProfile;profilePanel.appendChild(profileSelect);profilePanel.appendChild(profileList);renderGameProfile(selectedProfile);
+    content.appendChild(profilePanel);
     const info=createElement("section","studio-settings-group studio-settings-info");
     info.appendChild(createElement("h2","","Game integration"));
     info.appendChild(createElement("p","","Games in the VoidForge player can request these preferences and listen for live changes. Preferences are stored locally in this browser; unsupported games simply ignore settings they do not use."));
