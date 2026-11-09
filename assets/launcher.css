@@ -2538,3 +2538,13 @@ button:disabled { cursor: not-allowed; opacity: .6; }
 .studio-settings-info .secondary-button { margin-top:14px; padding:10px 13px; border-radius:9px; color:#eaf2ff; }
 @media(max-width:760px) { .settings-content { grid-template-columns:minmax(0,1fr); gap:12px; } .settings-intro,.studio-settings-info { grid-column:1; } }
 @media(max-width:420px) { .studio-settings-heading { padding:15px; } .studio-settings-list { padding:2px 14px; } .studio-setting-row { gap:9px; } .studio-setting-copy strong { font-size:11px; } .studio-select { min-width:92px; width:46%; } .studio-range-wrap { width:48%; gap:6px; } }
+
+.vf-game-stats {
+  position:absolute; z-index:12; top:12px; right:12px; max-width:calc(100% - 24px);
+  padding:8px 11px; border:1px solid rgba(155,190,245,.24); border-radius:9px;
+  color:#eaf2ff; background:rgba(5,11,22,.82); box-shadow:0 8px 24px rgba(0,0,0,.24);
+  backdrop-filter:blur(12px); font:650 11px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-variant-numeric:tabular-nums; pointer-events:none;
+}
+.vf-game-stats[hidden] { display:none !important; }
+.vf-game-stats[data-state="waiting"] { color:#aabbd5; }
