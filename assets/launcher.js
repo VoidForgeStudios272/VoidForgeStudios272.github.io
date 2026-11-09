@@ -1017,7 +1017,7 @@
     }
 
     currentGame = game;
-    latestGameFps = null; latestGameSize = ""; ensureGameStatsOverlay();
+    latestGameFps = null; latestGameSize = ""; gameSessionStartedAt = Date.now(); ensureGameStatsOverlay();
 
     setText(
       gameTitle,
@@ -1187,7 +1187,7 @@
         "load",
         () => {
           if (currentGame && gameFrame.contentWindow) {
-            latestGameFps=null; latestGameSize=""; updateGameStatsOverlay();
+            latestGameFps=null; latestGameSize=""; gameSessionStartedAt=Date.now(); updateGameStatsOverlay();
             try {
               const gameDocument = gameFrame.contentDocument;
               if (gameDocument && !gameDocument.querySelector("[data-voidforge-settings-bridge]")) {
@@ -1724,7 +1724,7 @@
     if(!Object.prototype.hasOwnProperty.call(STUDIO_SETTINGS_DEFAULTS,key)) return;
     const base=STUDIO_SETTINGS_DEFAULTS[key];
     if(typeof base==="boolean"&&typeof value!=="boolean") return;
-    if(typeof base==="number") { value=Number(value); if(!Number.isFinite(value)) return; value=Math.max(key==="textScale"?75:0,Math.min(100,value)); }
+    if(typeof base==="number") { value=Number(value); if(!Number.isFinite(value)) return; value=Math.max(key==="textScale"?75:0,Math.min(key==="textScale"?150:100,value)); }
     if(typeof base==="string") {
       if(typeof value!=="string") return;
       const allowed={
@@ -1739,6 +1739,7 @@
   let gameStatsOverlay = null;
   let latestGameFps = null;
   let latestGameSize = "";
+  let gameSessionStartedAt = 0;
   function ensureGameStatsOverlay() {
     if(!gameView) return;
     if(!gameStatsOverlay) {
@@ -1756,8 +1757,10 @@
     gameStatsOverlay.hidden=!visible;
     if(!visible) return;
     const fps=latestGameFps===null?"FPS —":("FPS "+latestGameFps);
-    const size=studioSettings.showPerformance&&latestGameSize?" · "+latestGameSize:"";
-    gameStatsOverlay.textContent=fps+size;
+    const size=(studioSettings.showPerformance||studioSettings.showGameResolution)&&latestGameSize?" · "+latestGameSize:"";
+    const elapsed=gameSessionStartedAt?Math.max(0,Math.floor((Date.now()-gameSessionStartedAt)/1000)):0;
+    const timer=studioSettings.showGameTimer?" · "+String(Math.floor(elapsed/60)).padStart(2,"0")+":"+String(elapsed%60).padStart(2,"0"):"";
+    gameStatsOverlay.textContent=fps+size+timer;
     gameStatsOverlay.dataset.state=latestGameFps===null?"waiting":"live";
   }
   function setupStudioSettingsBridge() {
