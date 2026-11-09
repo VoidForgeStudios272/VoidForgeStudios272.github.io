@@ -1731,13 +1731,14 @@
 
 
   /* =========================================================
-     FIREBASE ONLINE CHAT
-     Requires assets/firebase-config.js and Firebase Auth +
-     Cloud Firestore enabled in the Firebase project.
+     FIREBASE ONLINE + PRIVATE CHAT
+     Private rooms are invite-code based, two participants max.
   ========================================================= */
   let chatUnsubscribe = null;
   let chatFirebase = null;
   let chatBusy = false;
+  let activePrivateRoom = null;
+  const PRIVATE_ROOMS_KEY = "voidforgePrivateRoomsV1";
 
   function stopChatListener() {
     if (chatUnsubscribe) {
@@ -1746,10 +1747,52 @@
     }
   }
 
-  function renderChatView(root) {
+  function getPrivateRooms() {
+    try {
+      const value = JSON.parse(localStorage.getItem(PRIVATE_ROOMS_KEY) || "[]");
+      return Array.isArray(value) ? value.filter(room => room && typeof room.roomId === "string" && typeof room.code === "string") : [];
+    } catch { return []; }
+  }
+
+  function savePrivateRoom(room) {
+    const rooms = getPrivateRooms().filter(item => item.roomId !== room.roomId);
+    rooms.unshift(room);
+    try { localStorage.setItem(PRIVATE_ROOMS_KEY, JSON.stringify(rooms.slice(0, 50))); }
+    catch (error) { console.warn("[VoidForge Chat] Could not save private room locally:", error); }
+  }
+
+  function makePrivateCode() {
+    const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    const bytes = new Uint8Array(8);
+    crypto.getRandomValues(bytes);
+    return Array.from(bytes, byte => alphabet[byte % alphabet.length]).join("");
+  }
+
+  function chatButton(label, className, action) {
+    const button = createElement("button", className, label);
+    button.type = "button";
+    button.addEventListener("click", action);
+    return button;
+  }
+
+  function renderChatView(root, mode = "global") {
     stopChatListener();
+    activePrivateRoom = null;
     const section = createLauncherView("chat-view");
     section.appendChild(createViewHeading("Online Chat", "Talk with players across VoidForge in real time."));
+    const tabs = createElement("div", "chat-tabs");
+    tabs.appendChild(chatButton("Global Lobby", "chat-tab" + (mode === "global" ? " is-active" : ""), () => renderChatView(root, "global")));
+    tabs.appendChild(chatButton("Private Chats", "chat-tab" + (mode === "private" ? " is-active" : ""), () => renderChatView(root, "private")));
+    section.appendChild(tabs);
+    if (mode === "private") {
+      renderPrivateChatHome(section, root);
+    } else {
+      renderGlobalChat(section);
+    }
+    root.replaceChildren(section);
+  }
+
+  function renderGlobalChat(section) {
     const shell = createElement("section", "chat-shell");
     const header = createElement("div", "chat-room-header");
     const roomInfo = createElement("div", "chat-room-info");
@@ -1766,11 +1809,7 @@
     messages.setAttribute("role", "log");
     messages.setAttribute("aria-live", "polite");
     messages.setAttribute("aria-label", "Global chat messages");
-    const empty = createElement("div", "chat-empty");
-    empty.id = "vfChatEmpty";
-    empty.appendChild(createElement("div", "chat-empty-icon", "✦"));
-    empty.appendChild(createElement("strong", "", "Welcome to the lobby"));
-    empty.appendChild(createElement("p", "", "Messages from other VoidForge players will appear here."));
+    const empty = createChatEmpty("Welcome to the lobby", "Messages from other VoidForge players will appear here.");
     messages.appendChild(empty);
     const form = createElement("form", "chat-compose");
     const input = createElement("input");
@@ -1783,48 +1822,299 @@
     input.required = true;
     const send = createElement("button", "primary-button", "Send");
     send.type = "submit";
-    form.appendChild(input);
-    form.appendChild(send);
+    appendChildren(form, input, send);
     const hint = createElement("p", "chat-hint", "Be respectful. Never share passwords, personal details, or private information.");
     appendChildren(shell, header, messages, form, hint);
     section.appendChild(shell);
-    root.replaceChildren(section);
     form.addEventListener("submit", async event => {
       event.preventDefault();
-      const message = input.value.trim();
-      if (!message || chatBusy) return;
-      if (!chatFirebase?.db || !chatFirebase?.user) {
-        showToast("Chat is not connected yet. Check Firebase setup.");
-        return;
-      }
-      chatBusy = true;
-      send.disabled = true;
-      try {
-        const profile = getActiveProfile();
-        const safeName = (profile?.name || "Player").trim().slice(0, 24) || "Player";
-        await chatFirebase.addDoc(
-          chatFirebase.collection(chatFirebase.db, "rooms", "global", "messages"),
-          {
-            text: message,
-            senderName: safeName,
-            senderUid: chatFirebase.user.uid,
-            createdAt: chatFirebase.serverTimestamp()
-          }
-        );
-        input.value = "";
-        input.focus();
-      } catch (error) {
-        console.error("[VoidForge Chat] Send failed:", error);
-        showToast("Message could not be sent. Check your connection.");
-      } finally {
-        chatBusy = false;
-        send.disabled = false;
-      }
+      await sendChatMessage("global", input, send);
     });
-    connectFirebaseChat(messages, status, empty, send);
+    connectFirebaseChat(messages, status, empty);
   }
 
-  async function connectFirebaseChat(messages, status, empty, sendButton) {
+  function createChatEmpty(title, description) {
+    const empty = createElement("div", "chat-empty");
+    empty.className = "chat-empty";
+    empty.appendChild(createElement("div", "chat-empty-icon", "✦"));
+    empty.appendChild(createElement("strong", "", title));
+    empty.appendChild(createElement("p", "", description));
+    return empty;
+  }
+
+  function renderPrivateChatHome(section, root) {
+    const panel = createElement("section", "private-chat-home");
+    const intro = createElement("div", "private-chat-intro");
+    intro.appendChild(createElement("span", "private-chat-symbol", "🔒"));
+    const copy = createElement("div");
+    copy.appendChild(createElement("h2", "", "Your private conversations"));
+    copy.appendChild(createElement("p", "", "Create a private room and share its one-time invite code with one other player."));
+    intro.appendChild(copy);
+    panel.appendChild(intro);
+
+    const actions = createElement("div", "private-chat-actions");
+    const createPanel = createElement("form", "private-chat-action-card");
+    createPanel.appendChild(createElement("h3", "", "Start a private chat"));
+    createPanel.appendChild(createElement("p", "", "Create a private two-person conversation and invite someone."));
+    const createButton = createElement("button", "primary-button", "Create private chat");
+    createButton.type = "submit";
+    createPanel.appendChild(createButton);
+    createPanel.addEventListener("submit", async event => {
+      event.preventDefault();
+      createButton.disabled = true;
+      try {
+        await ensureFirebaseChat();
+        const code = makePrivateCode();
+        const roomRef = chatFirebase.doc(chatFirebase.collection(chatFirebase.db, "rooms"));
+        const profile = getActiveProfile();
+        const displayName = (profile?.name || "Player").trim().slice(0, 24) || "Player";
+        await chatFirebase.setDoc(roomRef, {
+          type: "private",
+          participants: [chatFirebase.user.uid],
+          createdBy: chatFirebase.user.uid,
+          createdAt: chatFirebase.serverTimestamp()
+        });
+        await chatFirebase.setDoc(chatFirebase.doc(chatFirebase.db, "invites", code), {
+          roomId: roomRef.id,
+          createdBy: chatFirebase.user.uid,
+          createdAt: chatFirebase.serverTimestamp()
+        });
+        savePrivateRoom({ roomId: roomRef.id, code, title: "Private chat", createdAt: Date.now(), owner: true, displayName });
+        renderPrivateChatHome(section, root);
+        showPrivateInvite(root, roomRef.id, code);
+      } catch (error) {
+        console.error("[VoidForge Chat] Private room creation failed:", error);
+        showToast("Could not create a private chat. Check Firebase setup and rules.");
+      } finally { createButton.disabled = false; }
+    });
+
+    const joinPanel = createElement("form", "private-chat-action-card");
+    joinPanel.appendChild(createElement("h3", "", "Join with an invite code"));
+    joinPanel.appendChild(createElement("p", "", "Enter the code shared by the other player."));
+    const codeInput = createElement("input");
+    codeInput.type = "text";
+    codeInput.maxLength = 8;
+    codeInput.minLength = 8;
+    codeInput.placeholder = "8-CHARACTER CODE";
+    codeInput.autocomplete = "off";
+    codeInput.spellcheck = false;
+    codeInput.setAttribute("aria-label", "Private chat invite code");
+    codeInput.className = "private-code-input";
+    const joinButton = createElement("button", "secondary-button", "Join private chat");
+    joinButton.type = "submit";
+    appendChildren(joinPanel, codeInput, joinButton);
+    joinPanel.addEventListener("submit", async event => {
+      event.preventDefault();
+      const code = codeInput.value.trim().toUpperCase();
+      if (!/^[A-HJ-NP-Z2-9]{8}$/.test(code)) {
+        showToast("Enter a valid 8-character invite code.");
+        codeInput.focus();
+        return;
+      }
+      joinButton.disabled = true;
+      try {
+        await ensureFirebaseChat();
+        const inviteRef = chatFirebase.doc(chatFirebase.db, "invites", code);
+        const inviteSnap = await chatFirebase.getDoc(inviteRef);
+        if (!inviteSnap.exists()) throw new Error("Invite not found");
+        const roomId = inviteSnap.data().roomId;
+        const roomRef = chatFirebase.doc(chatFirebase.db, "rooms", roomId);
+        const roomSnap = await chatFirebase.getDoc(roomRef);
+        if (!roomSnap.exists()) throw new Error("Room no longer exists");
+        const room = roomSnap.data();
+        if (room.type !== "private") throw new Error("Invalid room");
+        if (room.participants.includes(chatFirebase.user.uid)) {
+          savePrivateRoom({ roomId, code, title: "Private chat", createdAt: Date.now(), owner: false });
+        } else {
+          if (room.participants.length >= 2) throw new Error("This private chat is already full");
+          await chatFirebase.updateDoc(roomRef, {
+            participants: chatFirebase.arrayUnion(chatFirebase.user.uid)
+          });
+          savePrivateRoom({ roomId, code, title: "Private chat", createdAt: Date.now(), owner: false });
+        }
+        renderPrivateRoom(section, root, roomId, code);
+      } catch (error) {
+        console.error("[VoidForge Chat] Join private room failed:", error);
+        showToast(error.message === "This private chat is already full" ? error.message : "Invite is invalid, expired, or the room is unavailable.");
+      } finally { joinButton.disabled = false; }
+    });
+    actions.appendChild(createPanel);
+    actions.appendChild(joinPanel);
+    panel.appendChild(actions);
+
+    const list = createElement("div", "private-chat-list");
+    list.appendChild(createElement("h3", "", "Recent private chats"));
+    const rooms = getPrivateRooms();
+    if (!rooms.length) {
+      list.appendChild(createChatEmpty("No private chats yet", "Create a private chat or join one using an invite code."));
+    } else {
+      rooms.forEach(room => {
+        const item = createElement("article", "private-chat-list-item");
+        const details = createElement("div", "private-chat-list-details");
+        details.appendChild(createElement("strong", "", room.title || "Private conversation"));
+        details.appendChild(createElement("small", "", "Invite code: " + room.code));
+        const open = chatButton("Open", "secondary-button", () => renderPrivateRoom(section, root, room.roomId, room.code));
+        appendChildren(item, details, open);
+        list.appendChild(item);
+      });
+    }
+    panel.appendChild(list);
+    section.appendChild(panel);
+  }
+
+  async function showPrivateInvite(root, roomId, code) {
+    const overlay = createElement("div", "private-invite-overlay");
+    const card = createElement("section", "private-invite-card");
+    card.appendChild(createElement("span", "private-chat-symbol", "🔒"));
+    card.appendChild(createElement("h2", "", "Your private invite"));
+    card.appendChild(createElement("p", "", "Share this code with exactly one person. Anyone with the code can try to join until the room is full."));
+    const codeValue = createElement("strong", "private-invite-code", code);
+    card.appendChild(codeValue);
+    const copy = chatButton("Copy invite code", "primary-button", () => {
+      if (navigator.clipboard?.writeText) navigator.clipboard.writeText(code).then(() => showToast("Invite code copied.")).catch(() => showToast("Copy failed. Select the code manually."));
+      else showToast("Select and copy the invite code.");
+    });
+    const open = chatButton("Open private chat", "secondary-button", () => {
+      overlay.remove();
+      const section = $(".chat-view", root);
+      renderPrivateRoom(section || root.querySelector(".launcher-view"), root, roomId, code);
+    });
+    appendChildren(card, copy, open);
+    overlay.appendChild(card);
+    root.appendChild(overlay);
+  }
+
+  function renderPrivateRoom(section, root, roomId, code) {
+    stopChatListener();
+    activePrivateRoom = roomId;
+    const shell = createElement("section", "chat-shell private-room-shell");
+    const header = createElement("div", "chat-room-header");
+    const info = createElement("div", "chat-room-info");
+    info.appendChild(createElement("span", "private-chat-symbol", "🔒"));
+    const title = createElement("div");
+    title.appendChild(createElement("strong", "", "Private conversation"));
+    title.appendChild(createElement("small", "", "Invite-only • 2 participants maximum"));
+    info.appendChild(title);
+    const status = createElement("span", "chat-connection-status", "Connecting…");
+    appendChildren(header, info, status);
+    const back = chatButton("← Back to private chats", "secondary-button private-back-button", () => renderChatView(root, "private"));
+    const messages = createElement("div", "chat-messages");
+    messages.setAttribute("role", "log");
+    messages.setAttribute("aria-live", "polite");
+    const empty = createChatEmpty("Your private chat is ready", "Send a message to start the conversation.");
+    messages.appendChild(empty);
+    const form = createElement("form", "chat-compose");
+    const input = createElement("input");
+    input.type = "text"; input.maxLength = 500; input.placeholder = "Write a private message…"; input.autocomplete = "off"; input.required = true;
+    input.setAttribute("aria-label", "Private message");
+    const send = createElement("button", "primary-button", "Send");
+    send.type = "submit";
+    appendChildren(form, input, send);
+    const hint = createElement("p", "chat-hint", "Only the two members of this room can read its messages.");
+    appendChildren(shell, header, back, messages, form, hint);
+    section.replaceChildren(section.querySelector(".view-heading"), section.querySelector(".chat-tabs"), shell);
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      await sendChatMessage(roomId, input, send);
+    });
+    connectPrivateRoom(roomId, messages, status, empty);
+  }
+
+  async function ensureFirebaseChat() {
+    if (chatFirebase?.db && chatFirebase?.user) return chatFirebase;
+    const configModule = await import("./firebase-config.js");
+    const config = configModule.firebaseConfig;
+    if (!config || !config.apiKey || String(config.apiKey).includes("YOUR_")) {
+      throw new Error("Firebase configuration required");
+    }
+    const [appSdk, authSdk, firestoreSdk] = await Promise.all([
+      import("https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js"),
+      import("https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js"),
+      import("https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js")
+    ]);
+    const existingApp = appSdk.getApps().find(item => item.name === "voidforge-chat");
+    const app = existingApp || appSdk.initializeApp(config, "voidforge-chat");
+    const auth = authSdk.getAuth(app);
+    const credential = await authSdk.signInAnonymously(auth);
+    const db = firestoreSdk.getFirestore(app);
+    chatFirebase = { db, user: credential.user, ...firestoreSdk };
+    return chatFirebase;
+  }
+
+  async function sendChatMessage(roomId, input, sendButton) {
+    const message = input.value.trim();
+    if (!message || chatBusy) return;
+    chatBusy = true;
+    sendButton.disabled = true;
+    try {
+      await ensureFirebaseChat();
+      const profile = getActiveProfile();
+      const safeName = (profile?.name || "Player").trim().slice(0, 24) || "Player";
+      await chatFirebase.addDoc(
+        chatFirebase.collection(chatFirebase.db, "rooms", roomId, "messages"),
+        {
+          text: message,
+          senderName: safeName,
+          senderUid: chatFirebase.user.uid,
+          createdAt: chatFirebase.serverTimestamp()
+        }
+      );
+      input.value = "";
+      input.focus();
+    } catch (error) {
+      console.error("[VoidForge Chat] Send failed:", error);
+      showToast("Message could not be sent. Check your connection and Firebase rules.");
+    } finally {
+      chatBusy = false;
+      sendButton.disabled = false;
+    }
+  }
+
+  function subscribeToChatMessages(roomId, messages, status, empty, onError) {
+    const setStatus = (label, state = "") => {
+      if (!status.isConnected) return;
+      status.textContent = label;
+      status.dataset.state = state;
+    };
+    status.isConnected = true;
+    const messagesRef = chatFirebase.collection(chatFirebase.db, "rooms", roomId, "messages");
+    const recentQuery = chatFirebase.query(
+      messagesRef,
+      chatFirebase.orderBy("createdAt", "desc"),
+      chatFirebase.limit(75)
+    );
+    stopChatListener();
+    chatUnsubscribe = chatFirebase.onSnapshot(recentQuery, snapshot => {
+      const rows = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).reverse();
+      messages.replaceChildren();
+      if (!rows.length) {
+        empty.hidden = false;
+        messages.appendChild(empty);
+        return;
+      }
+      empty.hidden = true;
+      rows.forEach(row => {
+        const own = row.senderUid === chatFirebase.user.uid;
+        const item = createElement("article", "chat-message" + (own ? " is-own" : ""));
+        const meta = createElement("div", "chat-message-meta");
+        meta.appendChild(createElement("strong", "", String(row.senderName || "Player").slice(0, 24)));
+        const date = row.createdAt?.toDate ? row.createdAt.toDate() : null;
+        meta.appendChild(createElement("time", "", date ? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Just now"));
+        item.appendChild(meta);
+        item.appendChild(createElement("p", "chat-message-text", String(row.text || "").slice(0, 500)));
+        messages.appendChild(item);
+      });
+      messages.scrollTop = messages.scrollHeight;
+    }, error => {
+      console.error("[VoidForge Chat] Message listener failed:", error);
+      setStatus("Access denied", "offline");
+      if (onError) onError(error);
+      showToast("Could not load this chat. Check Firestore rules.");
+    });
+    setStatus("Connected", "online");
+  }
+
+  async function connectFirebaseChat(messages, status, empty) {
     const setStatus = (label, state = "") => {
       if (!status.isConnected) return;
       status.textContent = label;
@@ -1836,69 +2126,36 @@
       return;
     }
     try {
-      const configModule = await import("./firebase-config.js");
-      const config = configModule.firebaseConfig;
-      if (!config || !config.apiKey || String(config.apiKey).includes("YOUR_")) {
-        setStatus("Setup required", "offline");
-        empty.replaceChildren(
-          createElement("strong", "", "Firebase setup required"),
-          createElement("p", "", "Add your Firebase web app settings to assets/firebase-config.js, then enable Anonymous Authentication and Cloud Firestore.")
-        );
-        return;
-      }
-      const [appSdk, authSdk, firestoreSdk] = await Promise.all([
-        import("https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js"),
-        import("https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js"),
-        import("https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js")
-      ]);
-      const existingApp = appSdk.getApps().find(item => item.name === "voidforge-chat");
-      const app = existingApp || appSdk.initializeApp(config, "voidforge-chat");
-      const auth = authSdk.getAuth(app);
-      const credential = await authSdk.signInAnonymously(auth);
-      const db = firestoreSdk.getFirestore(app);
-      chatFirebase = { db, user: credential.user, ...firestoreSdk };
-      setStatus("Connected", "online");
-      const messagesRef = firestoreSdk.collection(db, "rooms", "global", "messages");
-      const recentQuery = firestoreSdk.query(
-        messagesRef,
-        firestoreSdk.orderBy("createdAt", "desc"),
-        firestoreSdk.limit(75)
-      );
-      stopChatListener();
-      chatUnsubscribe = firestoreSdk.onSnapshot(recentQuery, snapshot => {
-        const rows = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).reverse();
-        messages.replaceChildren();
-        if (!rows.length) {
-          empty.hidden = false;
-          messages.appendChild(empty);
-          return;
-        }
-        empty.hidden = true;
-        const currentUid = credential.user.uid;
-        rows.forEach(row => {
-          const own = row.senderUid === currentUid;
-          const item = createElement("article", "chat-message" + (own ? " is-own" : ""));
-          const meta = createElement("div", "chat-message-meta");
-          meta.appendChild(createElement("strong", "", String(row.senderName || "Player").slice(0, 24)));
-          const date = row.createdAt?.toDate ? row.createdAt.toDate() : null;
-          meta.appendChild(createElement("time", "", date ? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Just now"));
-          item.appendChild(meta);
-          item.appendChild(createElement("p", "chat-message-text", String(row.text || "").slice(0, 500)));
-          messages.appendChild(item);
-        });
-        messages.scrollTop = messages.scrollHeight;
-      }, error => {
-        console.error("[VoidForge Chat] Listener failed:", error);
-        setStatus("Connection error", "offline");
-        showToast("Could not load chat. Check your Firestore rules.");
-      });
+      await ensureFirebaseChat();
+      subscribeToChatMessages("global", messages, status, empty);
     } catch (error) {
       console.error("[VoidForge Chat] Firebase initialization failed:", error);
       setStatus("Not configured", "offline");
       empty.replaceChildren(
         createElement("strong", "", "Chat could not connect"),
-        createElement("p", "", "Check assets/firebase-config.js, Anonymous Authentication, Firestore, and the Firebase security rules.")
+        createElement("p", "", "Check assets/firebase-config.js, Anonymous Authentication, and Cloud Firestore.")
       );
+    }
+  }
+
+  async function connectPrivateRoom(roomId, messages, status, empty) {
+    try {
+      await ensureFirebaseChat();
+      const roomRef = chatFirebase.doc(chatFirebase.db, "rooms", roomId);
+      const roomSnap = await chatFirebase.getDoc(roomRef);
+      if (!roomSnap.exists() || roomSnap.data().type !== "private" || !roomSnap.data().participants.includes(chatFirebase.user.uid)) {
+        throw new Error("You are not a member of this private room.");
+      }
+      subscribeToChatMessages(roomId, messages, status, empty, () => {
+        empty.hidden = false;
+        empty.replaceChildren(createElement("strong", "", "Private chat unavailable"), createElement("p", "", "You may no longer be a member of this room."));
+      });
+    } catch (error) {
+      console.error("[VoidForge Chat] Private room connection failed:", error);
+      status.textContent = "Unavailable";
+      status.dataset.state = "offline";
+      empty.hidden = false;
+      empty.replaceChildren(createElement("strong", "", "Private chat unavailable"), createElement("p", "", "Check the invite, your membership, and the Firestore rules."));
     }
   }
 
