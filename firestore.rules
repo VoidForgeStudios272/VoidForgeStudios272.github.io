@@ -1,10 +1,19 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /rooms/global/messages/{messageId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null
-        && request.resource.data.keys().hasOnly([
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isPrivateMember(roomId) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/rooms/$(roomId))
+        && get(/databases/$(database)/documents/rooms/$(roomId)).data.type == 'private'
+        && get(/databases/$(database)/documents/rooms/$(roomId)).data.participants.hasAny([request.auth.uid]);
+    }
+
+    function validMessage() {
+      return request.resource.data.keys().hasOnly([
           'text', 'senderName', 'senderUid', 'createdAt'
         ])
         && request.resource.data.text is string
@@ -15,6 +24,55 @@ service cloud.firestore {
         && request.resource.data.senderName.size() <= 24
         && request.resource.data.senderUid == request.auth.uid
         && request.resource.data.createdAt == request.time;
+    }
+
+    match /rooms/{roomId} {
+      allow create: if signedIn()
+        && roomId != 'global'
+        && request.resource.data.keys().hasOnly(['type', 'participants', 'createdBy', 'createdAt'])
+        && request.resource.data.type == 'private'
+        && request.resource.data.participants is list
+        && request.resource.data.participants.size() == 1
+        && request.resource.data.participants[0] == request.auth.uid
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.createdAt == request.time;
+
+      allow get, list: if roomId != 'global' && isPrivateMember(roomId);
+
+      // A room can be joined once: only its second participant may be added.
+      allow update: if signedIn()
+        && resource.data.type == 'private'
+        && resource.data.participants is list
+        && resource.data.participants.size() == 1
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participants'])
+        && request.resource.data.participants is list
+        && request.resource.data.participants.size() == 2
+        && request.resource.data.participants.hasAll(resource.data.participants)
+        && request.resource.data.participants.hasAny([request.auth.uid]);
+
+      allow delete: if false;
+
+      match /messages/{messageId} {
+        allow read: if signedIn()
+          && (roomId == 'global' || isPrivateMember(roomId));
+        allow create: if signedIn()
+          && (roomId == 'global' || isPrivateMember(roomId))
+          && validMessage();
+        allow update, delete: if false;
+      }
+    }
+
+    match /invites/{code} {
+      // Invite codes are high-entropy, unguessable document IDs. Listing is disabled.
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['roomId', 'createdBy', 'createdAt'])
+        && request.resource.data.roomId is string
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.createdAt == request.time
+        && exists(/databases/$(database)/documents/rooms/$(request.resource.data.roomId))
+        && get(/databases/$(database)/documents/rooms/$(request.resource.data.roomId)).data.createdBy == request.auth.uid;
       allow update, delete: if false;
     }
   }
