@@ -11,14 +11,16 @@ permissions:
   pages: write
   id-token: write
 
+# A single Pages deployment pipeline prevents simultaneous deployment requests.
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: github-pages
+  cancel-in-progress: false
 
 jobs:
   deploy:
-    name: Deploy to GitHub Pages
+    name: Build and deploy VoidForge
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     environment:
       name: github-pages
@@ -28,14 +30,38 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: among-us/frontend/package-lock.json
+
+      - name: Prepare local Among Us assets and VoidForge paths
+        run: node among-us/prepare-upstream.mjs
+
+      - name: Install Among Us frontend dependencies
+        run: npm ci --prefix among-us/frontend
+
+      - name: Build Among Us frontend
+        run: npm run build --prefix among-us/frontend
+
+      - name: Assemble complete VoidForge site
+        run: |
+          mkdir site
+          rsync -a --exclude='.git' --exclude='site' --exclude='among-us/prepare-upstream.mjs' --exclude='among-us/INTEGRATION-STATUS.md' ./ site/
+          rm -rf site/among-us
+          mkdir -p site/among-us
+          cp -a among-us/frontend/dist/. site/among-us/
+
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload site
+      - name: Upload site artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: .
+          path: site
 
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
