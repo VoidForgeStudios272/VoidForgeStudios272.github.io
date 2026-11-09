@@ -69,11 +69,22 @@
     if (!root) return;
     root.dataset.vfGraphics = current.graphics || "high";
     root.dataset.vfColorMode = current.colorMode || "system";
+    root.dataset.vfFov = String(current.fov ?? 90);
+    root.dataset.vfShadows = current.shadows || "high";
+    root.dataset.vfTargetFps = current.targetFps || "60";
+    root.style.setProperty("--vf-fov", String(current.fov ?? 90) + "deg");
+    root.style.setProperty("--vf-sensitivity", String(current.sensitivity ?? 1));
+    root.style.setProperty("--vf-render-scale", String(Number(current.renderScale ?? 100) / 100));
+    root.classList.toggle("vf-no-antialias", current.antiAliasing === false);
+    root.classList.toggle("vf-no-crosshair", current.crosshair === false);
+    root.classList.toggle("vf-safe-area-guide", !!current.showSafeArea);
     root.classList.toggle("vf-reduce-motion", !!current.reduceMotion);
     root.classList.toggle("vf-no-screen-shake", current.screenShake === false);
     root.classList.toggle("vf-no-particles", current.particles === false);
     root.classList.toggle("vf-high-contrast", !!current.highContrast);
     root.classList.toggle("vf-large-cursor", !!current.largeCursor);
+    root.classList.toggle("vf-developer-mode", !!current.developerMode);
+    root.classList.toggle("vf-debug-info", !!current.showDebugInfo);
     root.style.fontSize = (16 * Number(current.textScale || 100) / 100) + "px";
     root.style.colorScheme = current.colorMode === "system" ? "dark" : current.colorMode;
     applyMediaSettings();
@@ -90,6 +101,14 @@
   }
 
   window.addEventListener("message", receive);
+  window.addEventListener("error", event => {
+    if (!current.developerMode || !current.showConsoleErrors) return;
+    window.parent.postMessage({type:"voidforge:game-error",gameId:current.gameId||"",message:String(event.message||"Unknown error"),source:String(event.filename||""),line:Number(event.lineno||0)},window.location.origin);
+  });
+  window.addEventListener("unhandledrejection", event => {
+    if (!current.developerMode || !current.showConsoleErrors) return;
+    window.parent.postMessage({type:"voidforge:game-error",gameId:current.gameId||"",message:String(event.reason?.message||event.reason||"Unhandled promise rejection")},window.location.origin);
+  });
   if (window.MutationObserver) {
     new MutationObserver(records => {
       records.forEach(record => record.addedNodes.forEach(node => {
@@ -124,6 +143,9 @@
     requestReload() {
       window.parent.postMessage({ type: "voidforge:reload-request", gameId: current.gameId || "" }, window.location.origin);
     },
+    cameraOptions() {
+      return { fov:Number(current.fov ?? 90), sensitivity:Number(current.sensitivity ?? 1), invertY:!!current.invertY, crosshair:current.crosshair!==false };
+    },
     request() { window.parent.postMessage({ type: "voidforge:settings-request" }, window.location.origin); }
   });
 
@@ -140,6 +162,14 @@
     .vf-no-particles .particles, .vf-no-particles canvas.particles { display: none !important; }
     .vf-high-contrast { filter: contrast(1.18); }
     .vf-large-cursor, .vf-large-cursor * { cursor: default; }
+    .vf-safe-area-guide::after {
+      content:""; position:fixed; z-index:2147483000; inset:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);
+      border:1px dashed rgba(80,170,255,.85); pointer-events:none;
+    }
+    .vf-debug-info::before {
+      content:"VOIDFORGE DEV · FOV " attr(data-vf-fov) "°"; position:fixed; z-index:2147483000; left:8px; bottom:8px;
+      padding:5px 8px; border-radius:5px; color:#dceaff; background:rgba(2,8,18,.8); font:11px monospace; pointer-events:none;
+    }
   `;
   (document.head || document.documentElement).appendChild(style);
   window.VoidForgeSettings.request();
