@@ -1761,15 +1761,16 @@
   }
   function updateGameStatsOverlay() {
     if(!gameStatsOverlay) return;
-    const visible=Boolean(studioSettings.showFps||studioSettings.showPerformance||studioSettings.developerMode);
+    const visible=Boolean(studioSettings.showFps||studioSettings.showPerformance||studioSettings.developerMode||studioSettings.showDebugInfo||studioSettings.showNetworkStatus);
     gameStatsOverlay.hidden=!visible;
     if(!visible) return;
     const fps=latestGameFps===null?"FPS —":("FPS "+latestGameFps);
     const size=(studioSettings.showPerformance||studioSettings.showGameResolution)&&latestGameSize?" · "+latestGameSize:"";
     const elapsed=gameSessionStartedAt?Math.max(0,Math.floor((Date.now()-gameSessionStartedAt)/1000)):0;
     const timer=studioSettings.showGameTimer?" · "+String(Math.floor(elapsed/60)).padStart(2,"0")+":"+String(elapsed%60).padStart(2,"0"):"";
-    const debug=studioSettings.developerMode?" · DEV "+String(currentGame?.id||"game"):"";
-    gameStatsOverlay.textContent=fps+size+timer+debug;
+    const debug=studioSettings.developerMode||studioSettings.showDebugInfo?" · DEV "+String(currentGame?.id||"game"):"";
+    const network=studioSettings.showNetworkStatus?" · "+(navigator.onLine?"ONLINE":"OFFLINE"):"";
+    gameStatsOverlay.textContent=fps+size+timer+debug+network;
     gameStatsOverlay.dataset.state=latestGameFps===null?"waiting":"live";
   }
   function setupStudioSettingsBridge() {
@@ -1808,8 +1809,8 @@
       {title:"Display & Graphics",desc:"Choose visual quality and performance overlays.",fields:[["graphics","Graphics quality","select",["low","medium","high","ultra"]],["showFps","Show FPS counter","toggle"],["showPerformance","Performance overlay","toggle"],["textScale","Game UI scale","range",75,150,"%"],["colorMode","Game color mode","select",["system","dark","light"]]]},
       {title:"Gameplay",desc:"Set shared gameplay preferences.",fields:[["difficulty","Default difficulty","select",["easy","normal","hard","adaptive"]],["autosave","Enable autosave when supported","toggle"],["confirmExit","Confirm before leaving a game","toggle"],["controllerVibration","Controller vibration","toggle"],["subtitles","Subtitles when supported","toggle"]]},
       {title:"Accessibility & Experience",desc:"Make games more comfortable to play.",fields:[["reduceMotion","Reduce motion and animations","toggle"],["screenShake","Screen shake effects","toggle"],["particles","Particle effects","toggle"],["language","Preferred language","select",["system","en","de","fr","es"]],["notifications","Game notifications","toggle"],["highContrast","High contrast","toggle"],["largeCursor","Larger cursor","toggle"]]},
-      {title:"Camera & Controls",desc:"Camera and input preferences are shared with games that support them.",fields:[["fov","Field of view (FOV)","range",60,120,"°"],["sensitivity","Look sensitivity","range",0.1,5,"×"],["invertY","Invert vertical look","toggle"],["crosshair","Show crosshair","toggle"]]},
-      {title:"Graphics Advanced",desc:"Fine-tune rendering preferences for compatible games.",fields:[["renderScale","Render scale","range",50,100,"%"],["shadows","Shadow quality","select",["off","low","medium","high"]],["antiAliasing","Anti-aliasing","toggle"],["targetFps","Frame-rate target","select",["30","60","120","unlimited"]]]},
+      {title:"Camera & Controls",desc:"Camera and input preferences are shared with games that support them.",fields:[["fov","Field of view (FOV)","range",60,120,"°",1],["sensitivity","Look sensitivity","range",0.1,5,"×",0.1],["invertY","Invert vertical look","toggle"],["crosshair","Show crosshair","toggle"]]},
+      {title:"Graphics Advanced",desc:"Fine-tune rendering preferences for compatible games.",fields:[["renderScale","Render scale","range",50,100,"%",5],["shadows","Shadow quality","select",["off","low","medium","high"]],["antiAliasing","Anti-aliasing","toggle"],["targetFps","Frame-rate target","select",["30","60","120","unlimited"]]]},
       {title:"Game HUD & Behavior",desc:"Studio overlays work automatically; other options are sent to games that implement them.",fields:[["showGameTimer","Show session timer","toggle"],["showGameResolution","Show game resolution","toggle"],["pauseOnBlur","Request pause when game loses focus","toggle"],["autoReload","Allow games to request automatic reload","toggle"],["showSafeArea","Show safe-area guide","toggle"]]},
       {title:"Developer Mode",desc:"Unlock diagnostics and advanced game debugging options.",fields:[["developerMode","Enable Developer Mode","toggle"],["showDebugInfo","Show debug information","toggle"],["showConsoleErrors","Forward game errors to Studio","toggle"],["showNetworkStatus","Show network status","toggle"]]}
     ];
@@ -1818,11 +1819,11 @@
       head.appendChild(createElement("h2","",group.title)); head.appendChild(createElement("p","",group.desc)); panel.appendChild(head);
       const list=createElement("div","studio-settings-list");
       group.fields.forEach(field=>{
-        const [key,label,type,a,b,suffix]=field,row=createElement("div","studio-setting-row"),copy=createElement("div","studio-setting-copy");
+        const [key,label,type,a,b,suffix,step]=field,row=createElement("div","studio-setting-row"),copy=createElement("div","studio-setting-copy");
         copy.appendChild(createElement("strong","",label));
         if(type==="range"){
           const wrap=createElement("div","studio-range-wrap"),input=createElement("input","studio-range"),out=createElement("output","studio-range-value",String(studioSettings[key])+suffix);
-          input.type="range";input.min=String(a);input.max=String(b);input.value=String(studioSettings[key]);
+          input.type="range";input.min=String(a);input.max=String(b);input.step=step?String(step):"1";input.value=String(studioSettings[key]);
           input.addEventListener("input",()=>{out.textContent=input.value+suffix;updateStudioSetting(key,Number(input.value));});
           appendChildren(wrap,input,out);appendChildren(row,copy,wrap);
         } else if(type==="toggle"){
