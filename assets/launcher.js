@@ -2101,7 +2101,7 @@
     const recentQuery = chatFirebase.query(
       messagesRef,
       chatFirebase.orderBy("createdAt", "desc"),
-      chatFirebase.limit(75)
+      chatFirebase.limit(50)
     );
     stopChatListener();
     chatUnsubscribe = chatFirebase.onSnapshot(recentQuery, snapshot => {
