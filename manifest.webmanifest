@@ -22,7 +22,7 @@
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "./assets/bookmark-icon.svg?v=13",
+      "src": "./assets/bookmark-icon.svg?v=14",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
