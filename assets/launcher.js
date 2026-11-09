@@ -1858,7 +1858,7 @@
       head.appendChild(createElement("h2","",group.title)); head.appendChild(createElement("p","",group.desc)); panel.appendChild(head);
       const list=createElement("div","studio-settings-list");
       group.fields.forEach(field=>{
-        const [key,label,type,a,b,suffix,step]=field,row=createElement("div","studio-setting-row"),copy=createElement("div","studio-setting-copy");
+        const key=field[0],label=field[1],type=field[2],a=field[3],b=field[4],suffix=field[6],step=field[7],row=createElement("div","studio-setting-row"),copy=createElement("div","studio-setting-copy");
         copy.appendChild(createElement("strong","",label));
         if(type==="range"){
           const wrap=createElement("div","studio-range-wrap"),input=createElement("input","studio-range"),out=createElement("output","studio-range-value",String(studioSettings[key])+suffix);
