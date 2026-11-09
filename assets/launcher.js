@@ -1705,7 +1705,10 @@
     language:"system",textScale:100,difficulty:"normal",autosave:true,notifications:true,
     confirmExit:true,controllerVibration:true,subtitles:true,colorMode:"system",
     showGameTimer:false,showGameResolution:false,highContrast:false,largeCursor:false,
-    pauseOnBlur:false,autoReload:false
+    pauseOnBlur:false,autoReload:false,
+    developerMode:false,showDebugInfo:false,showConsoleErrors:false,showNetworkStatus:false,
+    fov:90,sensitivity:1,invertY:false,crosshair:true,renderScale:100,
+    shadows:"high",antiAliasing:true,targetFps:"60",showSafeArea:false
   };
   let studioSettings = readStudioSettings();
   function readStudioSettings() {
@@ -1724,12 +1727,15 @@
     if(!Object.prototype.hasOwnProperty.call(STUDIO_SETTINGS_DEFAULTS,key)) return;
     const base=STUDIO_SETTINGS_DEFAULTS[key];
     if(typeof base==="boolean"&&typeof value!=="boolean") return;
-    if(typeof base==="number") { value=Number(value); if(!Number.isFinite(value)) return; value=Math.max(key==="textScale"?75:0,Math.min(key==="textScale"?150:100,value)); }
+    if(typeof base==="number") { value=Number(value); if(!Number.isFinite(value)) return;
+      const bounds={textScale:[75,150],fov:[60,120],sensitivity:[0.1,5],renderScale:[50,100],masterVolume:[0,100],musicVolume:[0,100],sfxVolume:[0,100]};
+      const range=bounds[key]||[0,100]; value=Math.max(range[0],Math.min(range[1],value)); }
     if(typeof base==="string") {
       if(typeof value!=="string") return;
       const allowed={
         graphics:["low","medium","high","ultra"],language:["system","en","de","fr","es"],
-        difficulty:["easy","normal","hard","adaptive"],colorMode:["system","dark","light"]
+        difficulty:["easy","normal","hard","adaptive"],colorMode:["system","dark","light"],
+        shadows:["off","low","medium","high"],targetFps:["30","60","120","unlimited"]
       };
       if(allowed[key]&&!allowed[key].includes(value)) return;
     }
@@ -1755,14 +1761,15 @@
   }
   function updateGameStatsOverlay() {
     if(!gameStatsOverlay) return;
-    const visible=Boolean(studioSettings.showFps||studioSettings.showPerformance);
+    const visible=Boolean(studioSettings.showFps||studioSettings.showPerformance||studioSettings.developerMode);
     gameStatsOverlay.hidden=!visible;
     if(!visible) return;
     const fps=latestGameFps===null?"FPS —":("FPS "+latestGameFps);
     const size=(studioSettings.showPerformance||studioSettings.showGameResolution)&&latestGameSize?" · "+latestGameSize:"";
     const elapsed=gameSessionStartedAt?Math.max(0,Math.floor((Date.now()-gameSessionStartedAt)/1000)):0;
     const timer=studioSettings.showGameTimer?" · "+String(Math.floor(elapsed/60)).padStart(2,"0")+":"+String(elapsed%60).padStart(2,"0"):"";
-    gameStatsOverlay.textContent=fps+size+timer;
+    const debug=studioSettings.developerMode?" · DEV "+String(currentGame?.id||"game"):"";
+    gameStatsOverlay.textContent=fps+size+timer+debug;
     gameStatsOverlay.dataset.state=latestGameFps===null?"waiting":"live";
   }
   function setupStudioSettingsBridge() {
@@ -1796,7 +1803,10 @@
       {title:"Display & Graphics",desc:"Choose visual quality and performance overlays.",fields:[["graphics","Graphics quality","select",["low","medium","high","ultra"]],["showFps","Show FPS counter","toggle"],["showPerformance","Performance overlay","toggle"],["textScale","Game UI scale","range",75,150,"%"],["colorMode","Game color mode","select",["system","dark","light"]]]},
       {title:"Gameplay",desc:"Set shared gameplay preferences.",fields:[["difficulty","Default difficulty","select",["easy","normal","hard","adaptive"]],["autosave","Enable autosave when supported","toggle"],["confirmExit","Confirm before leaving a game","toggle"],["controllerVibration","Controller vibration","toggle"],["subtitles","Subtitles when supported","toggle"]]},
       {title:"Accessibility & Experience",desc:"Make games more comfortable to play.",fields:[["reduceMotion","Reduce motion and animations","toggle"],["screenShake","Screen shake effects","toggle"],["particles","Particle effects","toggle"],["language","Preferred language","select",["system","en","de","fr","es"]],["notifications","Game notifications","toggle"],["highContrast","High contrast","toggle"],["largeCursor","Larger cursor","toggle"]]},
-      {title:"Game HUD & Behavior",desc:"Studio overlays work automatically; other options are sent to games that implement them.",fields:[["showGameTimer","Show session timer","toggle"],["showGameResolution","Show game resolution","toggle"],["pauseOnBlur","Request pause when game loses focus","toggle"],["autoReload","Allow games to request automatic reload","toggle"]]}
+      {title:"Camera & Controls",desc:"Camera and input preferences are shared with games that support them.",fields:[["fov","Field of view (FOV)","range",60,120,"°"],["sensitivity","Look sensitivity","range",0.1,5,"×"],["invertY","Invert vertical look","toggle"],["crosshair","Show crosshair","toggle"]]},
+      {title:"Graphics Advanced",desc:"Fine-tune rendering preferences for compatible games.",fields:[["renderScale","Render scale","range",50,100,"%"],["shadows","Shadow quality","select",["off","low","medium","high"]],["antiAliasing","Anti-aliasing","toggle"],["targetFps","Frame-rate target","select",["30","60","120","unlimited"]]]},
+      {title:"Game HUD & Behavior",desc:"Studio overlays work automatically; other options are sent to games that implement them.",fields:[["showGameTimer","Show session timer","toggle"],["showGameResolution","Show game resolution","toggle"],["pauseOnBlur","Request pause when game loses focus","toggle"],["autoReload","Allow games to request automatic reload","toggle"],["showSafeArea","Show safe-area guide","toggle"]]},
+      {title:"Developer Mode",desc:"Unlock diagnostics and advanced game debugging options.",fields:[["developerMode","Enable Developer Mode","toggle"],["showDebugInfo","Show debug information","toggle"],["showConsoleErrors","Forward game errors to Studio","toggle"],["showNetworkStatus","Show network status","toggle"]]}
     ];
     groups.forEach(group=>{
       const panel=createElement("section","studio-settings-group"),head=createElement("div","studio-settings-heading");
