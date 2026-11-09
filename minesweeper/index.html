@@ -1,1 +1,28 @@
-<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><title>VoidForge Mines</title><style>body{background:#080612;color:white;text-align:center;font:16px system-ui}.g{display:grid;grid-template-columns:repeat(10,32px);gap:3px;justify-content:center}.g button{height:32px;background:#30284a;color:white;border:0}</style><h1>VoidForge Mines</h1><p>Clear the grid</p><div class=g id=g></div><script>g=document.querySelector('#g'),M=new Set;while(M.size<15)M.add(Math.floor(Math.random()*100));let C=[];for(i=0;i<100;i++){let b=document.createElement('button');b.onclick=()=>o(i);g.append(b);C[i]=b}function n(i){let r=i/10|0,q=i%10,a=[];for(y=-1;y<2;y++)for(z=-1;z<2;z++){R=r+y;Q=q+z;if(R>=0&&R<10&&Q>=0&&Q<10)a.push(R*10+Q)}return a}function o(i){if(C[i].disabled)return;C[i].disabled=1;if(M.has(i)){C[i].textContent='💣';M.forEach(j=>C[j].textContent='💣');return}let z=n(i).filter(j=>M.has(j)).length;C[i].textContent=z||'';if(!z)n(i).forEach(o)}</script>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>VoidForge Mines</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;min-height:100dvh;background:#080612;color:#f6f4ff;text-align:center;font:16px system-ui;padding:24px 12px}
+main{width:min(100%,560px);margin:auto}.meta{color:#a8a1c5}.board{display:grid;gap:4px;justify-content:center;margin:22px auto;width:max-content;max-width:100%}
+.board button{width:clamp(24px,7vw,38px);aspect-ratio:1;border:1px solid #50466f;border-radius:6px;background:#30284a;color:#fff;font-weight:700;touch-action:manipulation}
+.board button:disabled{background:#171326;border-color:#29213d}.board button.mine{background:#762f4d}
+button.action{border:1px solid #65558f;border-radius:10px;background:#282044;color:#fff;padding:10px 16px;font:inherit}
+</style></head><body><main><h1>VoidForge Mines</h1><p class="meta" id="status">Clear the grid without hitting a mine.</p><p id="counter" class="meta"></p><div class="board" id="board"></div><button class="action" id="restart">New game</button></main>
+<script>
+const board=document.getElementById("board"),statusText=document.getElementById("status"),counter=document.getElementById("counter");
+let gridSize=10,mineCount=15,mines=new Set(),cells=[],ended=false,revealed=0;
+function start(){
+  ended=false;revealed=0;mines=new Set();cells=[];board.replaceChildren();
+  const total=gridSize*gridSize,actual=Math.min(mineCount,total-1);
+  while(mines.size<actual)mines.add(Math.floor(Math.random()*total));
+  board.style.gridTemplateColumns="repeat("+gridSize+",clamp(24px,7vw,38px))";
+  for(let i=0;i<total;i++){const cell=document.createElement("button");cell.type="button";cell.setAttribute("aria-label","Hidden cell "+(i+1));cell.addEventListener("click",()=>reveal(i));board.append(cell);cells.push(cell)}
+  statusText.textContent="Clear the grid without hitting a mine.";counter.textContent=actual+" mines · "+gridSize+" × "+gridSize;
+}
+function neighbors(i){const r=Math.floor(i/gridSize),c=i%gridSize,out=[];for(let y=-1;y<=1;y++)for(let x=-1;x<=1;x++){const rr=r+y,cc=c+x;if(rr>=0&&rr<gridSize&&cc>=0&&cc<gridSize&&(x||y))out.push(rr*gridSize+cc)}return out}
+function reveal(i){if(ended||cells[i].disabled)return;const cell=cells[i];cell.disabled=true;if(mines.has(i)){cell.textContent="💣";cell.classList.add("mine");mines.forEach(j=>{cells[j].textContent="💣";cells[j].disabled=true});ended=true;statusText.textContent="Game over — you hit a mine.";return}
+  revealed++;const count=neighbors(i).filter(j=>mines.has(j)).length;cell.textContent=count||"";if(!count)neighbors(i).forEach(reveal);
+  if(revealed===gridSize*gridSize-mines.size){ended=true;statusText.textContent="You cleared the field!";} }
+document.getElementById("restart").addEventListener("click",start);
+window.addEventListener("voidforge:game-settings-change",event=>{const q=event.detail?.settings||{};if(q.gridSize!==undefined)gridSize=Number(q.gridSize);if(q.mineCount!==undefined)mineCount=Number(q.mineCount);start()});
+start();
+</script></body></html>
