@@ -2557,3 +2557,8 @@ button:disabled { cursor: not-allowed; opacity: .6; }
 .studio-settings-group:has([aria-label="Enable Developer Mode"]) { border-color:rgba(87,153,255,.28); }
 .studio-settings-group:has([aria-label="Enable Developer Mode"]) .studio-settings-heading h2 { color:#9dc4ff; }
 .studio-setting-row input[type="range"] { touch-action:pan-y; }
+
+/* Per-game Studio profiles */
+.studio-game-profile > .studio-select { width:100%; margin:8px 0 14px; }
+.studio-game-profile { border-color:rgba(91,155,255,.24); }
+.studio-game-profile .studio-settings-heading h2 { color:#a9caff; }
