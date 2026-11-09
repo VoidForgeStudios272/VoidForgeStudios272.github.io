@@ -1458,6 +1458,7 @@
   }
 
   function renderView(view) {
+    if (String(view).toLowerCase() !== "chat") stopChatListener();
     const viewRoot =
       $("#viewRoot");
 
