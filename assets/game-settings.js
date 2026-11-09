@@ -34,11 +34,19 @@
 
   // Count game animation callbacks rather than the launcher's own display refresh.
   const nativeRAF = window.requestAnimationFrame.bind(window);
-  window.requestAnimationFrame = callback => nativeRAF(timestamp => {
-    frameCount++;
-    callback(timestamp);
-    reportPerformance();
-  });
+  function scheduleGameFrame(callback) {
+    nativeRAF(timestamp => {
+      if (current.pauseOnBlur && !document.hasFocus()) {
+        scheduleGameFrame(callback);
+        reportPerformance();
+        return;
+      }
+      frameCount++;
+      callback(timestamp);
+      reportPerformance();
+    });
+  }
+  window.requestAnimationFrame = callback => scheduleGameFrame(callback);
 
   function applyMediaSettings(root = document) {
     const media = root.querySelectorAll ? root.querySelectorAll("audio,video") : [];
