@@ -29,6 +29,30 @@ function App() {
   const [isLocalPlayerHost, setIsLocalPlayerHost] = useState(false);
   const LocalImposterRef = useRef(false); // TODO remove unwanted states with ref
   const [roleIndicator, setRoleIndicator] = useState(false);
+  const joystickRef = useRef(null);
+  const updateMobileJoystick = (event) => {
+    const pad = joystickRef.current;
+    if (!pad) return;
+    const rect = pad.getBoundingClientRect();
+    const radius = Math.max(1, Math.min(rect.width, rect.height) * 0.34);
+    const dx = event.clientX - (rect.left + rect.width / 2);
+    const dy = event.clientY - (rect.top + rect.height / 2);
+    const length = Math.hypot(dx, dy) || 1;
+    const scale = Math.min(1, radius / length);
+    window.dispatchEvent(new CustomEvent('voidforge:mobile-move', {
+      detail: { x: (dx * scale) / radius, y: (dy * scale) / radius }
+    }));
+  };
+  const stopMobileJoystick = () => {
+    window.dispatchEvent(new CustomEvent('voidforge:mobile-move', {
+      detail: { x: 0, y: 0 }
+    }));
+  };
+  const startMobileJoystick = (event) => {
+    event.preventDefault();
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    updateMobileJoystick(event);
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -200,6 +224,24 @@ function App() {
       {(currentPage === PAGES.GAME || currentPage === PAGES.WAITING) && (
         <div className={styles.gameContainer}>
           <PhaserGame/>
+          {currentPage === PAGES.GAME && (
+            <div className={styles.mobileControls} aria-label="Touch movement controls">
+              <div
+                ref={joystickRef}
+                className={styles.mobileJoystick}
+                role="application"
+                aria-label="Move player"
+                onPointerDown={startMobileJoystick}
+                onPointerMove={(event) => { if (event.buttons) updateMobileJoystick(event); }}
+                onPointerUp={stopMobileJoystick}
+                onPointerCancel={stopMobileJoystick}
+                onLostPointerCapture={stopMobileJoystick}
+              >
+                <span className={styles.mobileStick} />
+              </div>
+              <span className={styles.mobileHint}>MOVE</span>
+            </div>
+          )}
           {
             currentPage === PAGES.WAITING && (
               isLocalPlayerHost
