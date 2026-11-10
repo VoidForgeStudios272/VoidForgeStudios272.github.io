@@ -1,1 +1,27 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>VoidForge Flappy</title><style>body{margin:0;background:#080612;color:white;text-align:center;font:16px system-ui;touch-action:manipulation}canvas{display:block;width:min(94vw,480px);height:auto;margin:auto;background:#0d0920;touch-action:none}button{margin:12px;padding:12px 22px;border:0;border-radius:10px;background:#30284a;color:#fff}</style></head><body><h1>VoidForge Flappy</h1><p>Tap the game to flap</p><canvas id=c width=480 height=640></canvas><button onclick="j()">Flap</button><script>c=document.querySelector('canvas'),x=c.getContext('2d'),y=300,v=0,s=0,P=[],dead=0,G=.35,FLAP=8,PIPE=3;onkeydown=e=>e.code==='Space'&&j();c.onpointerdown=e=>{e.preventDefault();j()};function j(){if(dead)return location.reload();v=-FLAP}function f(){x.clearRect(0,0,480,640);v+=G;y+=v;if(Math.random()<.018)P.push({x:480,g:130+Math.random()*260});x.fillStyle='#fff';x.beginPath();x.arc(100,y,16,0,7);x.fill();P.forEach(p=>{p.x-=PIPE;x.fillRect(p.x,0,55,p.g-70);x.fillRect(p.x,p.g+70,55,640-p.g-70);if(!p.hit&&p.x+55<100){p.hit=1;s++}});x.font='30px system-ui';x.fillText(s,20,40);if(y<0||y>640||P.some(p=>p.x<116&&p.x+55>84&&(y<p.g-70||y>p.g+70))){dead=1;x.fillText('Game over — tap',130,320);return}requestAnimationFrame(f)}f();window.addEventListener('voidforge:game-settings-change',e=>{const q=e.detail?.settings||{};if(q.gravity!==undefined)G=Number(q.gravity);if(q.flapStrength!==undefined)FLAP=Number(q.flapStrength);if(q.pipeSpeed!==undefined)PIPE=Number(q.pipeSpeed)});</script></body></html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>VoidForge Flappy</title><style>body{margin:0;background:#080612;color:white;text-align:center;font:16px system-ui;touch-action:manipulation}canvas{display:block;width:min(94vw,480px);height:auto;margin:auto;background:#0d0920;touch-action:none}button{margin:12px;padding:12px 22px;border:0;border-radius:10px;background:#30284a;color:#fff}</style><style id="voidforge-mobile-compat">
+/* Shared VoidForge mobile compatibility layer */
+:root{color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html{width:100%;min-width:0;min-height:100%;-webkit-text-size-adjust:100%;overscroll-behavior-x:none}
+body{width:100%;min-width:0;max-width:100%;min-height:100svh;overflow-x:hidden;padding-bottom:env(safe-area-inset-bottom)}
+img,svg,video,iframe,canvas{max-width:100%}
+canvas{touch-action:none;-webkit-user-select:none;user-select:none}
+button,[role="button"],input,select,textarea{font:inherit;touch-action:manipulation}
+button,[role="button"]{min-height:44px}
+:focus-visible{outline:2px solid #75baff;outline-offset:3px}
+@media(max-width:700px),(pointer:coarse){
+ body{min-height:100dvh;padding-left:max(6px,env(safe-area-inset-left));padding-right:max(6px,env(safe-area-inset-right))}
+ h1{font-size:clamp(21px,6vw,32px);overflow-wrap:anywhere}
+ main,.app,.shell,.game,.container,.game-container,.gameContainer,.stage,.wrapper,.arena{width:100%;max-width:100%;min-width:0}
+ canvas{max-width:100%;height:auto}
+ button,[role="button"]{min-width:44px;min-height:46px}
+ .controls,.pad,.actions,.mobile,.mobile-controls,#mobile,#mobileControls{max-width:100%;gap:8px;flex-wrap:wrap}
+ .stats,.toolbar,.topbar,.header,.bottom,.bar{max-width:100%;flex-wrap:wrap}
+ input,select,textarea{max-width:100%;min-width:0}
+}
+@media(orientation:landscape) and (max-height:520px){
+ body{min-height:100dvh}
+ .shell,.app,.game{padding-top:6px;padding-bottom:6px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style></head><body><h1>VoidForge Flappy</h1><p>Tap the game to flap</p><canvas id=c width=480 height=640></canvas><button onclick="j()">Flap</button><script>c=document.querySelector('canvas'),x=c.getContext('2d'),y=300,v=0,s=0,P=[],dead=0,G=.35,FLAP=8,PIPE=3;onkeydown=e=>e.code==='Space'&&j();c.onpointerdown=e=>{e.preventDefault();j()};function j(){if(dead)return location.reload();v=-FLAP}function f(){x.clearRect(0,0,480,640);v+=G;y+=v;if(Math.random()<.018)P.push({x:480,g:130+Math.random()*260});x.fillStyle='#fff';x.beginPath();x.arc(100,y,16,0,7);x.fill();P.forEach(p=>{p.x-=PIPE;x.fillRect(p.x,0,55,p.g-70);x.fillRect(p.x,p.g+70,55,640-p.g-70);if(!p.hit&&p.x+55<100){p.hit=1;s++}});x.font='30px system-ui';x.fillText(s,20,40);if(y<0||y>640||P.some(p=>p.x<116&&p.x+55>84&&(y<p.g-70||y>p.g+70))){dead=1;x.fillText('Game over — tap',130,320);return}requestAnimationFrame(f)}f();window.addEventListener('voidforge:game-settings-change',e=>{const q=e.detail?.settings||{};if(q.gravity!==undefined)G=Number(q.gravity);if(q.flapStrength!==undefined)FLAP=Number(q.flapStrength);if(q.pipeSpeed!==undefined)PIPE=Number(q.pipeSpeed)});</script></body></html>
