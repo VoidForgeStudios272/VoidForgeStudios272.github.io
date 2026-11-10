@@ -3009,3 +3009,13 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible {
 .school-attendance .school-saved-list,.school-topic-picker .school-saved-list{max-height:260px;overflow:auto}
 .school-topic-picker output,.school-weighted-grades output{display:block;margin:12px 0;overflow-wrap:anywhere}
 @media(max-width:640px){.school-goal-track{height:12px}.school-study-goals input,.school-topic-picker input,.school-attendance input{width:100%;min-width:0}}
+
+
+/* Game library controls */
+.vf-library-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 16px;padding:12px 14px;border:1px solid rgba(150,160,200,.16);border-radius:16px;background:rgba(22,27,42,.72)}
+.vf-library-count{margin-right:auto;font-size:13px;font-weight:800;color:var(--text-secondary,#aeb6ca)}
+.vf-library-field{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text-secondary,#aeb6ca)}
+.vf-library-field select{max-width:160px;min-width:112px;padding:9px 30px 9px 11px;border:1px solid rgba(150,160,200,.22);border-radius:10px;background:var(--surface-2,#202638);color:var(--text-primary,#f5f6fb);font:inherit}
+.vf-library-clear{padding:9px 13px;border:1px solid rgba(150,160,200,.22);border-radius:10px;background:transparent;color:var(--text-primary,#f5f6fb);font-weight:700;cursor:pointer}
+.vf-library-tools select:focus-visible,.vf-library-clear:focus-visible{outline:2px solid #8b7cff;outline-offset:2px}
+@media(max-width:560px){.vf-library-tools{align-items:stretch;gap:8px}.vf-library-count{width:100%;margin:0}.vf-library-field{flex:1;min-width:0;display:grid;gap:5px}.vf-library-field select{width:100%;max-width:none;min-width:0}.vf-library-clear{align-self:end}}
