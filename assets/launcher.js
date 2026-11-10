@@ -992,9 +992,53 @@
 
     uniqueContainers.forEach(
       (container) => {
+        ensureGameLibraryTools(container);
         renderGameList(container);
       }
     );
+  }
+
+  const VF_RECENT_GAMES_KEY = "voidforgeRecentGamesV1";
+
+  function readRecentGameIds() {
+    try {
+      const value = JSON.parse(localStorage.getItem(VF_RECENT_GAMES_KEY) || "[]");
+      return Array.isArray(value) ? value.map(String).slice(0, 30) : [];
+    } catch { return []; }
+  }
+
+  function ensureGameLibraryTools(container) {
+    if (!container || container.dataset.vfToolsReady === "true") return;
+    const toolbar = document.createElement("div");
+    toolbar.className = "vf-library-tools";
+    const count = document.createElement("span");
+    count.className = "vf-library-count";
+    count.textContent = games.length + " games";
+    const categoryLabel = document.createElement("label");
+    categoryLabel.className = "vf-library-field";
+    categoryLabel.append(document.createTextNode("Category"));
+    const category = document.createElement("select");
+    category.setAttribute("aria-label", "Filter games by category");
+    const all = document.createElement("option"); all.value = ""; all.textContent = "All categories"; category.append(all);
+    const tags = [...new Set(games.flatMap(game => Array.isArray(game.tags) ? game.tags : [game.category]).filter(Boolean).map(String))].sort((a,b)=>a.localeCompare(b));
+    tags.forEach(tag => { const option=document.createElement("option");option.value=tag;option.textContent=tag;category.append(option); });
+    categoryLabel.append(category);
+    const sortLabel = document.createElement("label");
+    sortLabel.className = "vf-library-field";
+    sortLabel.append(document.createTextNode("Sort"));
+    const sort = document.createElement("select");
+    sort.setAttribute("aria-label", "Sort games");
+    [["featured","Featured"],["az","A–Z"],["recent","Recently played"],["newest","Newest first"]].forEach(([value,label])=>{const option=document.createElement("option");option.value=value;option.textContent=label;sort.append(option);});
+    sortLabel.append(sort);
+    const clear = document.createElement("button");
+    clear.type = "button"; clear.className = "vf-library-clear"; clear.textContent = "Reset";
+    clear.addEventListener("click",()=>{category.value="";sort.value="featured";const input=$("#searchInput")||$("#gameSearch")||$('input[type="search"]');if(input)input.value="";renderGameList(container,"");});
+    category.addEventListener("change",()=>renderGameList(container,($("#searchInput")||$("#gameSearch")||$('input[type="search"]'))?.value||""));
+    sort.addEventListener("change",()=>renderGameList(container,($("#searchInput")||$("#gameSearch")||$('input[type="search"]'))?.value||""));
+    toolbar.append(count,categoryLabel,sortLabel,clear);
+    container.parentNode?.insertBefore(toolbar,container);
+    container.dataset.vfToolsReady="true";
+    container._vfLibraryTools={category,sort,count};
   }
 
   function renderGameList(
@@ -1011,31 +1055,20 @@
       .trim()
       .toLowerCase();
 
-    const filteredGames =
-      games.filter((game) => {
-        if (!query) {
-          return true;
-        }
-
-        const searchable = [
-          game.name,
-          game.title,
-          game.subtitle,
-          game.description,
-          game.category,
-          game.platform,
-          ...(Array.isArray(game.tags)
-            ? game.tags
-            : [])
-        ]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
-
-        return searchable.includes(
-          query
-        );
-      });
+    const tools = container._vfLibraryTools || {};
+    const categoryFilter = tools.category?.value || "";
+    const filteredGames = games.filter((game) => {
+      const searchable = [game.name,game.title,game.subtitle,game.description,game.category,game.platform,...(Array.isArray(game.tags)?game.tags:[])].filter(Boolean).join(" ").toLowerCase();
+      const matchesQuery = !query || searchable.includes(query);
+      const tags = [...(Array.isArray(game.tags)?game.tags:[]),game.category].filter(Boolean).map(String);
+      return matchesQuery && (!categoryFilter || tags.includes(categoryFilter));
+    });
+    const sortMode = tools.sort?.value || "featured";
+    const recentIds = readRecentGameIds();
+    if (sortMode === "az") filteredGames.sort((a,b)=>String(a.name||a.title||a.id).localeCompare(String(b.name||b.title||b.id)));
+    else if (sortMode === "newest") filteredGames.reverse();
+    else if (sortMode === "recent") filteredGames.sort((a,b)=>{const ai=recentIds.indexOf(String(a.id)),bi=recentIds.indexOf(String(b.id));return (ai<0?999:ai)-(bi<0?999:bi);});
+    if (tools.count) tools.count.textContent = filteredGames.length + " / " + games.length + " games";
 
     container.replaceChildren();
 
@@ -1105,7 +1138,11 @@
     }
 
     currentGame = game;
+    const recentIds = readRecentGameIds().filter(id => id !== String(game.id));
+    recentIds.unshift(String(game.id));
+    try { localStorage.setItem(VF_RECENT_GAMES_KEY, JSON.stringify(recentIds.slice(0,30))); } catch {}
     latestGameFps = null; latestGameSize = ""; gameSessionStartedAt = Date.now(); ensureGameStatsOverlay();
+    renderGames();
 
     setText(
       gameTitle,
