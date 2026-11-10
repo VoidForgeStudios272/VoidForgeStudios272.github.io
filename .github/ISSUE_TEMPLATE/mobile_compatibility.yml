@@ -1,0 +1,52 @@
+name: Mobile compatibility report
+description: Report touch, layout, orientation, or performance issues on phones and tablets.
+title: "[Mobile]: "
+labels: ["mobile", "compatibility", "needs-triage"]
+body:
+  - type: input
+    id: game
+    attributes:
+      label: Game
+      placeholder: "Among Us, Skybound, Tetris..."
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device model
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+    validations:
+      required: true
+  - type: dropdown
+    id: orientation
+    attributes:
+      label: Screen orientation
+      options: ["Portrait", "Landscape", "Both"]
+    validations:
+      required: true
+  - type: checkboxes
+    id: symptoms
+    attributes:
+      label: What is not working?
+      options:
+        - label: Touch controls do not respond
+        - label: Buttons are too small or overlap
+        - label: Game does not fit the screen
+        - label: Screen rotation breaks the layout
+        - label: Performance or overheating
+        - label: Keyboard or controller input is stuck
+  - type: textarea
+    id: details
+    attributes:
+      label: Steps and details
+    validations:
+      required: true
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Screenshot or recording link
