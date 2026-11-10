@@ -1853,6 +1853,69 @@
     };
     addCard.addEventListener("click",()=>{const q=question.value.trim(),a=answer.value.trim();if(!q||!a){showToast("Enter both a question and an answer.");return;}cards.push({q,a});persist();question.value="";answer.value="";current=cards.length-1;showAnswer=false;draw();});
     flashcards.append(question,answer,addCard,deck);layout.appendChild(flashcards);
+
+    // Homework checklist — saved locally on this device.
+    const homework=createElement("article","school-tool-card school-homework");
+    homework.appendChild(createElement("div","school-tool-kicker","STAY ON TRACK"));
+    homework.appendChild(createElement("h2","","Homework planner"));
+    homework.appendChild(createElement("p","school-tool-description","Add assignments and tick them off when they are finished."));
+    const taskForm=createElement("form","school-homework-form");
+    const taskInput=createElement("input","school-card-input");taskInput.placeholder="e.g. Maths exercises 1–5";taskInput.maxLength=120;taskInput.required=true;taskInput.setAttribute("aria-label","New homework task");
+    const taskAdd=createElement("button","primary-button","Add task");taskAdd.type="submit";
+    taskForm.append(taskInput,taskAdd);
+    const taskList=createElement("div","school-homework-list");
+    let tasks=[];try{const saved=JSON.parse(localStorage.getItem("voidforgeSchoolTasksV1")||"[]");if(Array.isArray(saved))tasks=saved.filter(t=>t&&typeof t.id==="string"&&typeof t.text==="string");}catch{}
+    const saveTasks=()=>{try{localStorage.setItem("voidforgeSchoolTasksV1",JSON.stringify(tasks));}catch{showToast("Homework list could not be saved.");}};
+    const drawTasks=()=>{
+      taskList.replaceChildren();
+      if(!tasks.length){taskList.appendChild(createElement("p","school-tool-description","Your homework list is empty."));return;}
+      tasks.forEach(task=>{
+        const row=createElement("div","school-homework-item"+(task.done?" is-done":""));
+        const check=createElement("input");check.type="checkbox";check.checked=!!task.done;check.setAttribute("aria-label","Mark "+task.text+" as complete");
+        check.addEventListener("change",()=>{task.done=check.checked;saveTasks();drawTasks();});
+        const label=createElement("span","",task.text);
+        const remove=createElement("button","secondary-button","Remove");remove.type="button";remove.setAttribute("aria-label","Remove "+task.text);
+        remove.addEventListener("click",()=>{tasks=tasks.filter(item=>item.id!==task.id);saveTasks();drawTasks();});
+        row.append(check,label,remove);taskList.appendChild(row);
+      });
+      const summary=createElement("p","school-save-status",tasks.filter(t=>t.done).length+" of "+tasks.length+" completed");
+      taskList.appendChild(summary);
+    };
+    taskForm.addEventListener("submit",event=>{event.preventDefault();const value=taskInput.value.trim();if(!value)return;tasks.push({id:"task-"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),text:value,done:false});saveTasks();taskInput.value="";drawTasks();taskInput.focus();});
+    homework.append(taskForm,taskList);drawTasks();layout.appendChild(homework);
+
+    // Grade average calculator.
+    const grades=createElement("article","school-tool-card school-grades");
+    grades.appendChild(createElement("div","school-tool-kicker","CHECK YOUR PROGRESS"));
+    grades.appendChild(createElement("h2","","Grade calculator"));
+    grades.appendChild(createElement("p","school-tool-description","Enter grades separated by commas. This calculates a simple average."));
+    const gradeInput=createElement("input","school-card-input");gradeInput.placeholder="e.g. 2, 1, 3, 2";gradeInput.inputMode="decimal";gradeInput.setAttribute("aria-label","Grades separated by commas");
+    const gradeButton=createElement("button","primary-button","Calculate average");gradeButton.type="button";
+    const gradeResult=createElement("output","school-calculator-result","Your average will appear here.");gradeResult.setAttribute("aria-live","polite");
+    gradeButton.addEventListener("click",()=>{
+      const raw=gradeInput.value.split(",").map(v=>v.trim());
+      if(!gradeInput.value.trim()||raw.some(v=>v===""||!Number.isFinite(Number(v))||Number(v)<=0)){gradeResult.textContent="Enter valid positive grades separated by commas.";return;}
+      const values=raw.map(Number);const average=values.reduce((sum,n)=>sum+n,0)/values.length;
+      gradeResult.textContent="Average: "+Number(average.toFixed(2)).toLocaleString()+" ("+values.length+" grades)";
+    });
+    grades.append(gradeInput,gradeButton,gradeResult);layout.appendChild(grades);
+
+    // Common unit converter.
+    const converter=createElement("article","school-tool-card school-converter");
+    converter.appendChild(createElement("div","school-tool-kicker","QUICK CONVERSION"));
+    converter.appendChild(createElement("h2","","Unit converter"));
+    const conversionInput=createElement("input","school-number-input");conversionInput.type="number";conversionInput.inputMode="decimal";conversionInput.placeholder="Value";conversionInput.setAttribute("aria-label","Value to convert");
+    const conversionType=createElement("select","school-operation");
+    [["km-mi","Kilometres → Miles"],["mi-km","Miles → Kilometres"],["cm-m","Centimetres → Metres"],["m-cm","Metres → Centimetres"],["kg-g","Kilograms → Grams"],["g-kg","Grams → Kilograms"],["c-f","Celsius → Fahrenheit"],["f-c","Fahrenheit → Celsius"],["l-ml","Litres → Millilitres"],["ml-l","Millilitres → Litres"]].forEach(([v,t])=>{const option=createElement("option","",t);option.value=v;conversionType.appendChild(option);});
+    const convertButton=createElement("button","primary-button","Convert");convertButton.type="button";
+    const conversionResult=createElement("output","school-calculator-result","Converted value will appear here.");conversionResult.setAttribute("aria-live","polite");
+    convertButton.addEventListener("click",()=>{
+      if(conversionInput.value.trim()===""||!Number.isFinite(Number(conversionInput.value))){conversionResult.textContent="Enter a valid number.";return;}
+      const n=Number(conversionInput.value);const factors={"km-mi":n*.621371,"mi-km":n/ .621371,"cm-m":n/100,"m-cm":n*100,"kg-g":n*1000,"g-kg":n/1000,"c-f":n*9/5+32,"f-c":(n-32)*5/9,"l-ml":n*1000,"ml-l":n/1000};
+      conversionResult.textContent="= "+Number(factors[conversionType.value].toFixed(6)).toLocaleString();
+    });
+    converter.append(conversionInput,conversionType,convertButton,conversionResult);layout.appendChild(converter);
+
     section.appendChild(layout);root.replaceChildren(section);
   }
 
