@@ -199,5 +199,65 @@
       "Word Game"
     ],
     "description": "Find the player who does not know the secret word. Pass one device, give clues, vote and reveal the imposter."
+  },
+  {
+    "id": "orbit-dodge",
+    "name": "Orbit Dodge",
+    "subtitle": "Neon Arcade Survival",
+    "entry": "orbit-dodge",
+    "version": "1.0.0",
+    "platform": "Browser · Keyboard & Touch",
+    "status": "Available",
+    "tags": [
+      "Arcade",
+      "Action",
+      "Survival"
+    ],
+    "description": "Dodge incoming energy gates, survive as long as possible and beat your high score."
+  },
+  {
+    "id": "word-forge",
+    "name": "Word Forge",
+    "subtitle": "Five-Letter Word Puzzle",
+    "entry": "word-forge",
+    "version": "1.0.0",
+    "platform": "Browser · Keyboard & Touch",
+    "status": "Available",
+    "tags": [
+      "Puzzle",
+      "Word",
+      "Brain Training"
+    ],
+    "description": "Find the hidden five-letter word in six tries using color clues."
+  },
+  {
+    "id": "tile-shift",
+    "name": "Tile Shift",
+    "subtitle": "Sliding Number Puzzle",
+    "entry": "tile-shift",
+    "version": "1.0.0",
+    "platform": "Browser · Keyboard & Touch",
+    "status": "Available",
+    "tags": [
+      "Puzzle",
+      "Logic",
+      "Numbers"
+    ],
+    "description": "Slide numbered tiles into order, track your moves and solve the 15-puzzle."
+  },
+  {
+    "id": "reaction-rush",
+    "name": "Reaction Rush",
+    "subtitle": "Reaction Time Challenge",
+    "entry": "reaction-rush",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Mouse",
+    "status": "Available",
+    "tags": [
+      "Skill",
+      "Arcade",
+      "Reaction"
+    ],
+    "description": "Test your reflexes over five rounds and chase your fastest reaction time."
   }
 ]
