@@ -123,6 +123,15 @@ export class BaseGameScene extends Scene {
         this.sKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
         this.dKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
         this.mKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.M);
+        // Touch joystick input is sent by the React mobile overlay.
+        this.mobileMove = { x: 0, y: 0 };
+        this._onMobileMove = (event) => {
+            const x = Number(event.detail?.x) || 0;
+            const y = Number(event.detail?.y) || 0;
+            this.mobileMove.x = Phaser.Math.Clamp(x, -1, 1);
+            this.mobileMove.y = Phaser.Math.Clamp(y, -1, 1);
+        };
+        window.addEventListener('voidforge:mobile-move', this._onMobileMove, { passive: true });
     }
 
     /**
@@ -345,10 +354,13 @@ export class BaseGameScene extends Scene {
         let vx = 0;
         let vy = 0;
 
-        if (this.wKey.isDown) { vy = -speed; }
-        if (this.sKey.isDown) { vy = speed; }
-        if (this.aKey.isDown) { vx = -speed; this.playerObj.state.d = 'left'; }
-        if (this.dKey.isDown) { vx = speed; this.playerObj.state.d = 'right'; }
+        const mobile = this.mobileMove || { x: 0, y: 0 };
+        vx = (Number(this.dKey.isDown) - Number(this.aKey.isDown) + mobile.x) * speed;
+        vy = (Number(this.sKey.isDown) - Number(this.wKey.isDown) + mobile.y) * speed;
+        vx = Phaser.Math.Clamp(vx, -speed, speed);
+        vy = Phaser.Math.Clamp(vy, -speed, speed);
+        if (vx < 0) this.playerObj.state.d = 'left';
+        else if (vx > 0) this.playerObj.state.d = 'right';
 
         // Normalize diagonal movement
         if (vx !== 0 && vy !== 0) {
@@ -395,6 +407,11 @@ export class BaseGameScene extends Scene {
 
 
     shutdown() {
+        if (this._onMobileMove) {
+            window.removeEventListener('voidforge:mobile-move', this._onMobileMove);
+            this._onMobileMove = null;
+        }
+        this.mobileMove = { x: 0, y: 0 };
         this.cleanupSocketListeners();
     }
 }
