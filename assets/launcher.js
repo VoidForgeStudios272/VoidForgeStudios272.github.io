@@ -2031,7 +2031,7 @@
           const parsed=new DOMParser().parseFromString(svgCode,"image/svg+xml");
           const svg=parsed.documentElement;
           if(svg.localName!=="svg" || parsed.querySelector("parsererror,script,foreignObject,iframe,object,embed")) throw new Error();
-          if([...svg.querySelectorAll("*")].some(node=>[...node.attributes].some(attr=>/^on/i.test(attr.name)||((attr.name==="href"||attr.name==="xlink:href")&&!attr.value.startsWith("#"))||(/url\\s*\\(/i.test(attr.value)&&!/^url\\(#[^)]+\\)$/.test(attr.value.trim()))))) throw new Error();
+          if([...svg.querySelectorAll("*")].some(node=>[...node.attributes].some(attr=>/^on/i.test(attr.name)||((attr.name==="href"||attr.name==="xlink:href")&&!attr.value.startsWith("#"))||(/url\s*\(/i.test(attr.value)&&!/^url\(#[^)]+\)$/.test(attr.value.trim()))))) throw new Error();
           if([...svg.querySelectorAll("style")].some(node=>/@import|https?:|data:/i.test(node.textContent))) throw new Error();
         } catch {showToast("That SVG is invalid or contains unsupported active/external content.");svgInput.focus();return;}
       }
