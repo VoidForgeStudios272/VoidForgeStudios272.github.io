@@ -30,6 +30,7 @@ document.querySelectorAll('[data-key]').forEach(b=>{const k=b.dataset.key;b.addE
 function setScore(v){score=v;scoreEl.textContent=Math.floor(score)}
 function finish(){running=false;ended=true;statusEl.textContent='GAME OVER';if(score>best){best=Math.floor(score);localStorage.setItem('vf3d-'+MODE+'-best',best);bestEl.textContent=best}}
 function setup(){
+ if(player)scene.remove(player);
  clear(objects);clear(enemies);clear(projectiles);clear(coins);scene.children.filter(o=>o.userData.dynamic).forEach(o=>scene.remove(o));
  setScore(0);clock=0;hp=100;wave=0;credits=120;ended=false;paused=false;running=true;makePlayer();
  if(MODE==='race'){player.position.set(0,0,6);for(let i=0;i<8;i++)cube((Math.random()-.5)*8,.65,-i*4-5,1.15,1.3,1.6,0xffa34e,enemies).userData.speed=7+Math.random()*5;camera.position.set(0,11,16)}
@@ -52,7 +53,7 @@ function update(dt){
 }
 function render(){renderer.render(scene,camera)}
 function loop(t){if(!running)return;const dt=Math.min(.04,(t-last)/1000||0);last=t;if(!paused)update(dt);render();requestAnimationFrame(loop)}
-document.querySelector('#start').onclick=setup;document.querySelector('#pause').onclick=()=>{if(!running)return;paused=!paused;statusEl.textContent=paused?'PAUSED':'PLAYING';if(!paused){last=0;requestAnimationFrame(loop)}};
+document.querySelector('#start').onclick=setup;document.querySelector('#pause').onclick=()=>{if(!running)return;paused=!paused;statusEl.textContent=paused?'PAUSED':'PLAYING';if(!paused){last=0}};
 if(MODE==='race')document.querySelector('#hint').textContent='← → steer • Avoid the traffic. Touch pad works on phones.';
 if(MODE==='tower')document.querySelector('#hint').textContent='Move with the pad • ACTION places a turret (40 credits). Stop enemies reaching the base.';
 if(MODE==='platform')document.querySelector('#hint').textContent='Move with the pad • ACTION jumps • Collect all sparks to unlock the exit.';
