@@ -91,18 +91,25 @@
   }
   function applyFakeBrand() {
     const config=readFakeBrand();
-    if (!config.enabled) return;
-    const logo=document.querySelector(".vf-logo"), title=document.querySelector(".vf-title");
-    if (logo && (config.preset==="google" || config.preset==="classroom" || (config.preset==="custom" && config.logoUrl))) {
-      const image=createElement("img"); image.alt=(config.title||"Custom")+" logo";
-      image.src=config.preset==="custom"?config.logoUrl:"data:image/svg+xml;charset=utf-8,"+encodeURIComponent(FAKE_BRAND_PRESETS[config.preset]);
-      image.style.cssText="display:block;width:76%;height:76%;object-fit:contain;position:relative;z-index:3";
-      logo.replaceChildren(image); logo.style.cssText="width:clamp(90px,13vw,142px);height:clamp(90px,13vw,142px);border:0;background:transparent;box-shadow:none;border-radius:0;animation:none";
-      logo.classList.add("vf-fake-logo");
+    const title=config.enabled && typeof config.title==="string" && config.title.trim()
+      ? config.title.trim()
+      : "Teams";
+    document.title=title;
+
+    // Alternate branding is applied to browser-tab metadata only.
+    const icon=document.querySelector('link[rel="icon"]');
+    const shortcutIcon=document.querySelector('link[rel="shortcut icon"]');
+    const appleIcon=document.querySelector('link[rel="apple-touch-icon"]');
+    const fallbackIcon="./assets/bookmark-icon.svg?v=14";
+    let iconUrl=fallbackIcon;
+    if(config.enabled) {
+      if(config.preset==="google" || config.preset==="classroom") {
+        iconUrl="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(FAKE_BRAND_PRESETS[config.preset]);
+      } else if(config.preset==="custom" && typeof config.logoUrl==="string" && config.logoUrl.trim()) {
+        iconUrl=config.logoUrl.trim();
+      }
     }
-    if (title && typeof config.title==="string" && config.title.trim()) title.textContent=config.title.trim();
-    const subtitle=document.querySelector(".vf-subtitle");
-    if (subtitle && config.enabled) subtitle.textContent=" ";
+    [icon,shortcutIcon,appleIcon].filter(Boolean).forEach(link=>link.href=iconUrl);
   }
 
   function triggerPanic() {
@@ -1981,27 +1988,27 @@
     // Optional decoy branding for the console startup screen.
     const fakePanel=createElement("section","studio-settings-group studio-fake-brand-settings");
     const fakeHead=createElement("div","studio-settings-heading");
-    fakeHead.appendChild(createElement("h2","","Fake Logo & Title"));
-    fakeHead.appendChild(createElement("p","","Customize the optional alternate branding shown on the startup screen. Your normal launcher branding stays untouched."));
+    fakeHead.appendChild(createElement("h2","","Browser Tab Branding"));
+    fakeHead.appendChild(createElement("p","","Set the browser tab title and favicon. The visible launcher and startup screen stay unchanged."));
     fakePanel.appendChild(fakeHead);
     const fakeList=createElement("div","studio-settings-list");
     const enabledRow=createElement("div","studio-setting-row"),enabledCopy=createElement("div","studio-setting-copy");
     enabledCopy.appendChild(createElement("strong","","Enable fake branding"));
-    enabledCopy.appendChild(createElement("small","","When enabled, the startup screen uses your selected logo and title."));
+    enabledCopy.appendChild(createElement("small","","When enabled, your selected title and logo appear in the browser tab only."));
     const enabledInput=createElement("input");enabledInput.type="checkbox";enabledInput.checked=!!readFakeBrand().enabled;enabledInput.setAttribute("aria-label","Enable fake branding");
     appendChildren(enabledRow,enabledCopy,enabledInput);fakeList.appendChild(enabledRow);
     const presetRow=createElement("div","studio-setting-row"),presetCopy=createElement("div","studio-setting-copy");
-    presetCopy.appendChild(createElement("strong","","Logo preset"));
+    presetCopy.appendChild(createElement("strong","","Tab icon preset"));
     const presetInput=createElement("select","studio-select");
     [["none","No logo"],["google","Google"],["classroom","Google Classroom"],["custom","Custom image URL"]].forEach(([value,label])=>{const option=createElement("option","",label);option.value=value;presetInput.appendChild(option);});
     const savedBrand=readFakeBrand();presetInput.value=savedBrand.preset||"google";
     appendChildren(presetRow,presetCopy,presetInput);fakeList.appendChild(presetRow);
     const titleRow=createElement("div","studio-setting-row"),titleCopy=createElement("div","studio-setting-copy");
-    titleCopy.appendChild(createElement("strong","","Fake title"));
+    titleCopy.appendChild(createElement("strong","","Tab title"));
     const titleInput=createElement("input","studio-select");titleInput.type="text";titleInput.maxLength=48;titleInput.placeholder="e.g. Google";titleInput.value=savedBrand.title||"Google";titleInput.setAttribute("aria-label","Fake title");
     appendChildren(titleRow,titleCopy,titleInput);fakeList.appendChild(titleRow);
     const urlRow=createElement("div","studio-setting-row"),urlCopy=createElement("div","studio-setting-copy");
-    urlCopy.appendChild(createElement("strong","","Custom logo URL"));
+    urlCopy.appendChild(createElement("strong","","Tab icon URL"));
     const logoUrlInput=createElement("input","studio-select");logoUrlInput.type="url";logoUrlInput.placeholder="https://example.com/logo.png";logoUrlInput.value=savedBrand.logoUrl||"";logoUrlInput.setAttribute("aria-label","Custom logo URL");
     appendChildren(urlRow,urlCopy,logoUrlInput);fakeList.appendChild(urlRow);
     fakePanel.appendChild(fakeList);
@@ -2012,10 +2019,10 @@
       if(preset==="custom"&&logoUrl){try{const parsed=new URL(logoUrl);if(!["https:","http:"].includes(parsed.protocol))throw new Error();}catch{showToast("Enter a valid http or https logo URL.");logoUrlInput.focus();return;}}
       if(preset==="custom"&&!logoUrl){showToast("Add a logo URL for the custom preset.");logoUrlInput.focus();return;}
       const config={enabled:enabledInput.checked,preset,title:titleInput.value.trim()||" ",logoUrl};
-      localStorage.setItem(FAKE_BRAND_KEY,JSON.stringify(config));applyFakeBrand();showToast("Fake branding saved on this device. Reload to refresh the startup screen.");
+      localStorage.setItem(FAKE_BRAND_KEY,JSON.stringify(config));applyFakeBrand();showToast("Browser tab branding saved on this device.");
     });
     const resetFake=createElement("button","icon-button","Reset");resetFake.type="button";
-    resetFake.addEventListener("click",()=>{localStorage.removeItem(FAKE_BRAND_KEY);enabledInput.checked=false;presetInput.value="none";titleInput.value="";logoUrlInput.value="";showToast("Fake branding reset.");});
+    resetFake.addEventListener("click",()=>{localStorage.removeItem(FAKE_BRAND_KEY);enabledInput.checked=false;presetInput.value="none";titleInput.value="";logoUrlInput.value="";applyFakeBrand();showToast("Browser tab branding reset.");});
     appendChildren(fakeActions,saveFake,resetFake);fakePanel.appendChild(fakeActions);content.appendChild(fakePanel);
 
     section.appendChild(content);root.replaceChildren(section);
