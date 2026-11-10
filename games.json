@@ -684,5 +684,355 @@
       "Rhythm"
     ],
     "description": "Tap the beat markers as they arrive."
+  },
+  {
+    "id": "block-breaker",
+    "name": "Block Breaker",
+    "subtitle": "Brick Break",
+    "entry": "block-breaker",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Arcade",
+      "Classic"
+    ],
+    "description": "Clear colorful blocks before time runs out."
+  },
+  {
+    "id": "lunar-lander",
+    "name": "Lunar Lander",
+    "subtitle": "Safe Landing",
+    "entry": "lunar-lander",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Arcade",
+      "Skill"
+    ],
+    "description": "Guide your lander through its final approach."
+  },
+  {
+    "id": "number-rush",
+    "name": "Number Rush",
+    "subtitle": "Number Sprint",
+    "entry": "number-rush",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Puzzle",
+      "Math"
+    ],
+    "description": "Solve quick number challenges under pressure."
+  },
+  {
+    "id": "emoji-match",
+    "name": "Emoji Match",
+    "subtitle": "Emoji Reflex",
+    "entry": "emoji-match",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Puzzle",
+      "Reflex"
+    ],
+    "description": "Tap the emoji shown in the prompt."
+  },
+  {
+    "id": "target-practice",
+    "name": "Target Practice",
+    "subtitle": "Quick Targets",
+    "entry": "target-practice",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Arcade",
+      "Aim"
+    ],
+    "description": "Hit as many targets as you can."
+  },
+  {
+    "id": "word-race",
+    "name": "Word Race",
+    "subtitle": "Word Sprint",
+    "entry": "word-race",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Puzzle",
+      "Word"
+    ],
+    "description": "Unscramble words before the clock runs out."
+  },
+  {
+    "id": "color-match",
+    "name": "Color Match",
+    "subtitle": "Color Reflex",
+    "entry": "color-match",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Puzzle",
+      "Reflex"
+    ],
+    "description": "Match the displayed color without distractions."
+  },
+  {
+    "id": "dodgeball",
+    "name": "Dodgeball",
+    "subtitle": "Survival Dodge",
+    "entry": "dodgeball",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Arcade",
+      "Dodge"
+    ],
+    "description": "Move your player to avoid incoming balls."
+  },
+  {
+    "id": "treasure-hunt",
+    "name": "Treasure Hunt",
+    "subtitle": "Hidden Treasure",
+    "entry": "treasure-hunt",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Adventure",
+      "Puzzle"
+    ],
+    "description": "Explore the board and find hidden treasure."
+  },
+  {
+    "id": "ice-slide",
+    "name": "Ice Slide",
+    "subtitle": "Frozen Maze",
+    "entry": "ice-slide",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Puzzle",
+      "Maze"
+    ],
+    "description": "Navigate the slippery maze and reach the goal."
+  },
+  {
+    "id": "rocket-rescue",
+    "name": "Rocket Rescue",
+    "subtitle": "Beacon Mission",
+    "entry": "rocket-rescue",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Arcade",
+      "Collect"
+    ],
+    "description": "Collect rescue beacons in orbit."
+  },
+  {
+    "id": "tower-climb",
+    "name": "Tower Climb",
+    "subtitle": "Precision Climb",
+    "entry": "tower-climb",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Skill",
+      "Precision"
+    ],
+    "description": "Climb higher by timing your moves."
+  },
+  {
+    "id": "bug-squash",
+    "name": "Bug Squash",
+    "subtitle": "Bug Blitz",
+    "entry": "bug-squash",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Arcade",
+      "Reflex"
+    ],
+    "description": "Tap the bugs before they escape."
+  },
+  {
+    "id": "gem-match",
+    "name": "Gem Match",
+    "subtitle": "Gem Grid",
+    "entry": "gem-match",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Puzzle",
+      "Match"
+    ],
+    "description": "Clear gems in a fast grid challenge."
+  },
+  {
+    "id": "quick-draw",
+    "name": "Quick Draw",
+    "subtitle": "Fast Reaction",
+    "entry": "quick-draw",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Skill",
+      "Reflex"
+    ],
+    "description": "React as soon as the signal appears."
+  },
+  {
+    "id": "logic-lock",
+    "name": "Logic Lock",
+    "subtitle": "Vault Code",
+    "entry": "logic-lock",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Puzzle",
+      "Logic"
+    ],
+    "description": "Crack number challenges to unlock the vault."
+  },
+  {
+    "id": "spelling-bee",
+    "name": "Spelling Bee",
+    "subtitle": "Word Master",
+    "entry": "spelling-bee",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Puzzle",
+      "Words"
+    ],
+    "description": "Spell the displayed word correctly."
+  },
+  {
+    "id": "fraction-frenzy",
+    "name": "Fraction Frenzy",
+    "subtitle": "Math Challenge",
+    "entry": "fraction-frenzy",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Puzzle",
+      "Math"
+    ],
+    "description": "Solve quick number and fraction challenges."
+  },
+  {
+    "id": "memory-pairs",
+    "name": "Memory Pairs",
+    "subtitle": "Sequence Recall",
+    "entry": "memory-pairs",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Puzzle",
+      "Memory"
+    ],
+    "description": "Remember and repeat the tile sequence."
+  },
+  {
+    "id": "shape-shift",
+    "name": "Shape Shift",
+    "subtitle": "Shape Grid",
+    "entry": "shape-shift",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Puzzle",
+      "Pattern"
+    ],
+    "description": "Find matching shapes in the grid."
+  },
+  {
+    "id": "space-invaders-mini",
+    "name": "Space Invaders Mini",
+    "subtitle": "Sector Defense",
+    "entry": "space-invaders-mini",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Arcade",
+      "Space"
+    ],
+    "description": "Defend the sector by hitting targets."
+  },
+  {
+    "id": "pinball-flip",
+    "name": "Pinball Flip",
+    "subtitle": "Pinball Reflex",
+    "entry": "pinball-flip",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Arcade",
+      "Reflex"
+    ],
+    "description": "Keep your pinball challenge going with quick taps."
+  },
+  {
+    "id": "coin-catcher",
+    "name": "Coin Catcher",
+    "subtitle": "Coin Rush",
+    "entry": "coin-catcher",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Arcade",
+      "Collect"
+    ],
+    "description": "Collect coins and avoid hazards."
+  },
+  {
+    "id": "river-crossing",
+    "name": "River Crossing",
+    "subtitle": "Safe Passage",
+    "entry": "river-crossing",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Puzzle",
+      "Maze"
+    ],
+    "description": "Find a safe path to the other side."
+  },
+  {
+    "id": "dungeon-keys",
+    "name": "Dungeon Keys",
+    "subtitle": "Key Quest",
+    "entry": "dungeon-keys",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Adventure",
+      "Maze"
+    ],
+    "description": "Find the key and reach the dungeon exit."
   }
 ]
