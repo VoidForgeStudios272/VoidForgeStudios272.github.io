@@ -61,9 +61,6 @@
 
   const reloadButton = $("#reloadGame");
   const fullscreenButton = $("#gameFullscreen");
-  const minimizeGameButton = $("#gameMinimize");
-  const maximizeGameButton = $("#gameMaximize");
-  const gameToolbar = $(".game-toolbar");
   const gameBookmarkButton = $("#gameBookmark");
   const panicButton = $("#panicButton");
 
@@ -1195,9 +1192,6 @@
     }
 
     currentGame = game;
-    if (gameView) { gameView.classList.remove("window-minimized", "window-maximized"); gameView.style.cssText = ""; }
-    if (minimizeGameButton) { minimizeGameButton.textContent = "−"; minimizeGameButton.title = "Minimize"; minimizeGameButton.setAttribute("aria-label", "Minimize game window"); }
-    if (maximizeGameButton) { maximizeGameButton.textContent = "□"; maximizeGameButton.title = "Maximize"; maximizeGameButton.setAttribute("aria-label", "Maximize"); }
     const recentIds = readRecentGameIds().filter(id => id !== String(game.id));
     recentIds.unshift(String(game.id));
     try { localStorage.setItem(VF_RECENT_GAMES_KEY, JSON.stringify(recentIds.slice(0,30))); } catch {}
@@ -1295,7 +1289,6 @@
 
   function closeGame() {
     currentGame = null;
-    if (gameView) { gameView.classList.remove("window-minimized", "window-maximized"); gameView.style.cssText = ""; }
     latestGameFps = null; latestGameSize = ""; updateGameStatsOverlay();
 
     if (gameFrame) {
@@ -1411,62 +1404,6 @@
           );
         }
       );
-    }
-
-    if (minimizeGameButton) minimizeGameButton.addEventListener("click", () => {
-      if (!gameView) return;
-      gameView.classList.toggle("window-minimized");
-      if (gameView.classList.contains("window-minimized")) {
-        minimizeGameButton.textContent = "↗";
-        minimizeGameButton.title = "Restore game window";
-        minimizeGameButton.setAttribute("aria-label", "Restore game window");
-      } else {
-        minimizeGameButton.textContent = "−";
-        minimizeGameButton.title = "Minimize";
-        minimizeGameButton.setAttribute("aria-label", "Minimize game window");
-      }
-    });
-    if (maximizeGameButton) maximizeGameButton.addEventListener("click", () => {
-      if (!gameView) return;
-      const maximized = gameView.classList.toggle("window-maximized");
-      maximizeGameButton.textContent = maximized ? "❐" : "□";
-      maximizeGameButton.title = maximized ? "Restore size" : "Maximize";
-      maximizeGameButton.setAttribute("aria-label", maximizeGameButton.title);
-    });
-    if (gameToolbar && gameView) {
-      let drag = null;
-      gameToolbar.addEventListener("pointerdown", event => {
-        if (window.matchMedia("(max-width: 720px)").matches || gameView.classList.contains("window-maximized") || event.target.closest("button")) return;
-        const rect = gameView.getBoundingClientRect();
-        drag = { x: event.clientX, y: event.clientY, left: rect.left, top: rect.top };
-        gameToolbar.setPointerCapture(event.pointerId);
-      });
-      gameToolbar.addEventListener("pointermove", event => {
-        if (!drag || gameView.classList.contains("window-minimized")) return;
-        const dx = event.clientX - drag.x, dy = event.clientY - drag.y;
-        const left = Math.max(0, Math.min(window.innerWidth - 180, drag.left + dx));
-        const top = Math.max(0, Math.min(window.innerHeight - 90, drag.top + dy));
-        gameView.style.position = "fixed";
-        gameView.style.inset = "auto";
-        gameView.style.left = left + "px";
-        gameView.style.top = top + "px";
-        gameView.style.right = "auto";
-        gameView.style.bottom = "auto";
-        gameView.style.width = "min(1440px, 94vw)";
-        gameView.style.height = "min(90vh, 980px)";
-        gameView.style.padding = "0";
-        gameView.style.display = "flex";
-        gameView.style.flexDirection = "column";
-        gameView.style.alignItems = "stretch";
-        gameView.style.justifyContent = "flex-start";
-        gameView.style.background = "transparent";
-        gameView.style.backdropFilter = "none";
-        const stage = $("#gameStage");
-        if (stage) { stage.style.width = "100%"; stage.style.height = "auto"; stage.style.flex = "1 1 auto"; }
-      });
-      const stopDrag = () => { drag = null; };
-      gameToolbar.addEventListener("pointerup", stopDrag);
-      gameToolbar.addEventListener("pointercancel", stopDrag);
     }
 
     if (closeButton) {
