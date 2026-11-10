@@ -2984,3 +2984,19 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible {
 .school-grades h2,.school-converter h2{margin-bottom:0}
 .school-grades .school-calculator-result,.school-converter .school-calculator-result{margin-top:2px}
 @media(max-width:480px){.school-homework-form{grid-template-columns:1fr}.school-homework-form .primary-button{width:100%}.school-homework-item{gap:7px;padding:9px}.school-homework-item span{font-size:12px}}
+
+
+/* School timetable, exam planner and focus timer */
+.school-planner-form{display:grid;grid-template-columns:minmax(0,1fr) minmax(100px,.65fr);gap:9px;align-items:center}
+.school-planner-form .primary-button{grid-column:1/-1}
+.school-saved-list{display:grid;gap:8px;margin-top:14px}
+.school-saved-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px;border:1px solid var(--line);border-radius:11px;background:var(--panel-light,rgba(255,255,255,.04))}
+.school-saved-copy{display:grid;gap:4px;min-width:0}
+.school-saved-copy strong{font-size:13px;overflow-wrap:anywhere}
+.school-saved-copy small{color:var(--muted);font-size:11px}
+.school-saved-row .secondary-button{flex:0 0 auto;min-width:34px;min-height:32px;padding:5px 9px}
+.school-focus{display:flex;flex-direction:column;align-items:stretch;gap:12px}
+.school-timer-display{padding:20px 12px;border:1px solid var(--line);border-radius:16px;background:var(--panel-light,rgba(255,255,255,.05));font-size:clamp(38px,6vw,58px);font-weight:800;letter-spacing:-.06em;text-align:center;font-variant-numeric:tabular-nums}
+.school-timer-actions{display:flex;gap:9px}
+.school-timer-actions button{flex:1}
+@media(max-width:480px){.school-planner-form{grid-template-columns:1fr}.school-planner-form .primary-button{grid-column:auto}.school-saved-row{padding:9px}.school-timer-display{font-size:44px}}
