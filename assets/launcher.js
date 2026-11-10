@@ -112,6 +112,23 @@
     const fallbackIcon="./assets/bookmark-icon.svg?v=16";
     let iconUrl=fallbackIcon;
     let appleSource=fallbackIcon;
+    const isRasterIcon=url=>/\.(png|jpe?g|webp)(?:[?#]|$)/i.test(String(url||""));
+    function getAppleIconUrl(url) {
+      const value=String(url||"").trim();
+      if(isRasterIcon(value)) return value;
+      // Wikimedia's SVGs are excellent browser icons, but iPad Home Screen
+      // icons need a raster image. Use Wikimedia's own PNG thumbnail so
+      // Safari never has to rasterize a cross-origin SVG through canvas.
+      try {
+        const parsed=new URL(value,window.location.href);
+        const match=parsed.pathname.match(/^\/wikipedia\/commons\/([0-9a-f])\/([0-9a-f]{2})\/(.+\.svg)$/i);
+        if(parsed.hostname==="upload.wikimedia.org" && match) {
+          const file=match[3];
+          return "https://thumb.wikimedia.org/wikipedia/commons/thumb/"+match[1]+"/"+match[2]+"/"+file+"/180px-"+file+".png";
+        }
+      } catch {}
+      return value;
+    }
     if(config.enabled) {
       if(config.preset==="google" || config.preset==="classroom") {
         iconUrl="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(FAKE_BRAND_PRESETS[config.preset]);
@@ -120,22 +137,23 @@
         iconUrl="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(config.svgCode.trim());
         appleSource=iconUrl;
       } else if(config.preset==="custom" && typeof config.logoUrl==="string" && config.logoUrl.trim()) {
-        iconUrl=config.logoUrl.trim();
-        appleSource=/\\.(png|jpe?g|webp)(?:[?#]|$)/i.test(iconUrl) ? iconUrl : fallbackIcon;
+        iconUrl=config.logoUrl.trim().replace(/\\\\&/g,"&").replace(/\\\\_/g,"_");
+        appleSource=getAppleIconUrl(iconUrl);
       }
     }
     [icon,shortcutIcon].filter(Boolean).forEach(link=>link.href=iconUrl);
     if(appleIcon) {
-      // A direct PNG/JPEG/WebP URL can be used without canvas conversion.
-      if(appleSource===iconUrl && /\\.(png|jpe?g|webp)(?:[?#]|$)/i.test(appleSource)) {
+      if(isRasterIcon(appleSource)) {
         appleIcon.href=appleSource;
-        appleIcon.type="image/png";
+        appleIcon.type=appleSource.toLowerCase().includes(".jpg")||appleSource.toLowerCase().includes(".jpeg") ? "image/jpeg" : "image/png";
         appleIcon.sizes="180x180";
       } else {
         appleIcon.href=fallbackIcon;
         appleIcon.type="image/svg+xml";
         appleIcon.sizes="any";
         const touchImage=new Image();
+        // CORS-enabled rasterization works for remote SVGs that permit it.
+        if(/^https?:/i.test(appleSource)) touchImage.crossOrigin="anonymous";
         touchImage.onload=()=>{
           try {
             const canvas=document.createElement("canvas");
@@ -2450,7 +2468,8 @@
     const titleInput=createElement("input","studio-select");titleInput.type="text";titleInput.maxLength=48;titleInput.placeholder="e.g. Google";titleInput.value=savedBrand.title||"Google";titleInput.setAttribute("aria-label","Fake title");
     appendChildren(titleRow,titleCopy,titleInput);fakeList.appendChild(titleRow);
     const urlRow=createElement("div","studio-setting-row"),urlCopy=createElement("div","studio-setting-copy");
-    urlCopy.appendChild(createElement("strong","","App icon URL (PNG recommended)"));
+    urlCopy.appendChild(createElement("strong","","App icon URL (PNG or SVG)"));
+    urlCopy.appendChild(createElement("small","","SVG files work as browser icons. Wikimedia SVG links are automatically paired with a PNG thumbnail for iPad Home Screen icons."));
     const logoUrlInput=createElement("input","studio-select");logoUrlInput.type="url";logoUrlInput.placeholder="https://example.com/logo.png";logoUrlInput.value=savedBrand.logoUrl||"";logoUrlInput.setAttribute("aria-label","Custom logo URL");
     appendChildren(urlRow,urlCopy,logoUrlInput);fakeList.appendChild(urlRow);
     const svgRow=createElement("div","studio-setting-row"),svgCopy=createElement("div","studio-setting-copy");
