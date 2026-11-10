@@ -334,5 +334,355 @@
       "Survival"
     ],
     "description": "Fight waves of AI rivals in a fast top-down arena battle. Offline single-player."
+  },
+  {
+    "id": "starfall",
+    "name": "Starfall",
+    "subtitle": "Cosmic Catch",
+    "entry": "starfall",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Arcade",
+      "Collect"
+    ],
+    "description": "Collect falling stars and avoid dark sparks."
+  },
+  {
+    "id": "driftline",
+    "name": "Driftline",
+    "subtitle": "Neon Traffic",
+    "entry": "driftline",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Racing",
+      "Dodge"
+    ],
+    "description": "Steer through traffic and survive the road."
+  },
+  {
+    "id": "color-cascade",
+    "name": "Color Cascade",
+    "subtitle": "Color Reflex",
+    "entry": "color-cascade",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Puzzle",
+      "Reflex"
+    ],
+    "description": "Tap the color named before time runs out."
+  },
+  {
+    "id": "orbit-pilot",
+    "name": "Orbit Pilot",
+    "subtitle": "Space Survival",
+    "entry": "orbit-pilot",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Arcade",
+      "Survival"
+    ],
+    "description": "Pilot through a field of hazards."
+  },
+  {
+    "id": "dungeon-dash",
+    "name": "Dungeon Dash",
+    "subtitle": "Relic Run",
+    "entry": "dungeon-dash",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Adventure",
+      "Action"
+    ],
+    "description": "Collect relics while avoiding monsters."
+  },
+  {
+    "id": "bubble-pop",
+    "name": "Bubble Pop",
+    "subtitle": "Bubble Burst",
+    "entry": "bubble-pop",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Arcade",
+      "Casual"
+    ],
+    "description": "Pop as many bubbles as possible."
+  },
+  {
+    "id": "sudoku-lite",
+    "name": "Sudoku Lite",
+    "subtitle": "4×4 Number Grid",
+    "entry": "sudoku-lite",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Puzzle",
+      "Numbers"
+    ],
+    "description": "Cycle numbers in a compact number puzzle."
+  },
+  {
+    "id": "chess-arena",
+    "name": "Chess Arena",
+    "subtitle": "Mini Chess Puzzle",
+    "entry": "chess-arena",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Strategy",
+      "Board"
+    ],
+    "description": "Capture marked squares in a compact board challenge."
+  },
+  {
+    "id": "checkers",
+    "name": "Checkers",
+    "subtitle": "Classic Board Game",
+    "entry": "checkers",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Strategy",
+      "Board"
+    ],
+    "description": "Clear the board in a quick checker challenge."
+  },
+  {
+    "id": "connect-four",
+    "name": "Connect Four",
+    "subtitle": "Four in a Row",
+    "entry": "connect-four",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Strategy",
+      "Board"
+    ],
+    "description": "Connect four matching tokens in a row."
+  },
+  {
+    "id": "word-scramble",
+    "name": "Word Scramble",
+    "subtitle": "Letter Puzzle",
+    "entry": "word-scramble",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Puzzle",
+      "Word"
+    ],
+    "description": "Unscramble the hidden word."
+  },
+  {
+    "id": "typing-blitz",
+    "name": "Typing Blitz",
+    "subtitle": "Speed Typing",
+    "entry": "typing-blitz",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Skill",
+      "Typing"
+    ],
+    "description": "Type displayed words accurately and quickly."
+  },
+  {
+    "id": "math-blaster",
+    "name": "Math Blaster",
+    "subtitle": "Quick Maths",
+    "entry": "math-blaster",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Puzzle",
+      "Math"
+    ],
+    "description": "Solve equations to charge your blaster."
+  },
+  {
+    "id": "pattern-memory",
+    "name": "Pattern Memory",
+    "subtitle": "Sequence Recall",
+    "entry": "pattern-memory",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Puzzle",
+      "Memory"
+    ],
+    "description": "Repeat the glowing tile sequence."
+  },
+  {
+    "id": "maze-runner",
+    "name": "Maze Runner",
+    "subtitle": "Find the Exit",
+    "entry": "maze-runner",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Adventure",
+      "Maze"
+    ],
+    "description": "Navigate the maze and reach the exit."
+  },
+  {
+    "id": "laser-defender",
+    "name": "Laser Defender",
+    "subtitle": "Target Defense",
+    "entry": "laser-defender",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Arcade",
+      "Action"
+    ],
+    "description": "Tap incoming targets before they reach you."
+  },
+  {
+    "id": "fruit-slicer",
+    "name": "Fruit Slicer",
+    "subtitle": "Fruit Tap",
+    "entry": "fruit-slicer",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Arcade",
+      "Casual"
+    ],
+    "description": "Tap fruit targets quickly before time runs out."
+  },
+  {
+    "id": "stack-tower",
+    "name": "Stack Tower",
+    "subtitle": "Precision Stack",
+    "entry": "stack-tower",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Skill",
+      "Precision"
+    ],
+    "description": "Stop the moving block as close to center as possible."
+  },
+  {
+    "id": "gravity-flip",
+    "name": "Gravity Flip",
+    "subtitle": "Lane Switch",
+    "entry": "gravity-flip",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Arcade",
+      "Dodge"
+    ],
+    "description": "Move between lanes to dodge incoming obstacles."
+  },
+  {
+    "id": "submarine-rescue",
+    "name": "Submarine Rescue",
+    "subtitle": "Deep Sea Mission",
+    "entry": "submarine-rescue",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Adventure",
+      "Survival"
+    ],
+    "description": "Collect air bubbles and avoid underwater mines."
+  },
+  {
+    "id": "cosmic-miner",
+    "name": "Cosmic Miner",
+    "subtitle": "Crystal Hunt",
+    "entry": "cosmic-miner",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Arcade",
+      "Collect"
+    ],
+    "description": "Collect crystals while avoiding asteroids."
+  },
+  {
+    "id": "traffic-weave",
+    "name": "Traffic Weave",
+    "subtitle": "Road Runner",
+    "entry": "traffic-weave",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Racing",
+      "Dodge"
+    ],
+    "description": "Navigate through busy lanes without a collision."
+  },
+  {
+    "id": "pixel-farm",
+    "name": "Pixel Farm",
+    "subtitle": "Harvest Rush",
+    "entry": "pixel-farm",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Casual",
+      "Clicker"
+    ],
+    "description": "Harvest crops before time runs out."
+  },
+  {
+    "id": "card-duel",
+    "name": "Card Duel",
+    "subtitle": "Twenty-One",
+    "entry": "card-duel",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Card",
+      "Strategy"
+    ],
+    "description": "Draw cards and get close to 21."
+  },
+  {
+    "id": "rhythm-tap",
+    "name": "Rhythm Tap",
+    "subtitle": "Beat Markers",
+    "entry": "rhythm-tap",
+    "version": "1.0.0",
+    "platform": "Browser · Touch & Keyboard",
+    "status": "Available",
+    "tags": [
+      "Music",
+      "Rhythm"
+    ],
+    "description": "Tap the beat markers as they arrive."
   }
 ]
