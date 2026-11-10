@@ -39,11 +39,15 @@ function App() {
     const dy = event.clientY - (rect.top + rect.height / 2);
     const length = Math.hypot(dx, dy) || 1;
     const scale = Math.min(1, radius / length);
+    const knob = pad.querySelector('[class*="mobileStick"]');
+    if (knob) knob.style.transform = `translate(${dx * scale}px, ${dy * scale}px)`;
     window.dispatchEvent(new CustomEvent('voidforge:mobile-move', {
       detail: { x: (dx * scale) / radius, y: (dy * scale) / radius }
     }));
   };
   const stopMobileJoystick = () => {
+    const knob = joystickRef.current?.querySelector('[class*="mobileStick"]');
+    if (knob) knob.style.transform = 'translate(0, 0)';
     window.dispatchEvent(new CustomEvent('voidforge:mobile-move', {
       detail: { x: 0, y: 0 }
     }));
@@ -224,7 +228,7 @@ function App() {
       {(currentPage === PAGES.GAME || currentPage === PAGES.WAITING) && (
         <div className={styles.gameContainer}>
           <PhaserGame/>
-          {currentPage === PAGES.GAME && (
+          {(currentPage === PAGES.GAME || currentPage === PAGES.WAITING) && (
             <div className={styles.mobileControls} aria-label="Touch movement controls">
               <div
                 ref={joystickRef}
