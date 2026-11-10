@@ -105,6 +105,8 @@
     if(config.enabled) {
       if(config.preset==="google" || config.preset==="classroom") {
         iconUrl="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(FAKE_BRAND_PRESETS[config.preset]);
+      } else if(config.preset==="svg" && typeof config.svgCode==="string" && config.svgCode.trim()) {
+        iconUrl="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(config.svgCode.trim());
       } else if(config.preset==="custom" && typeof config.logoUrl==="string" && config.logoUrl.trim()) {
         iconUrl=config.logoUrl.trim();
       }
@@ -2000,7 +2002,7 @@
     const presetRow=createElement("div","studio-setting-row"),presetCopy=createElement("div","studio-setting-copy");
     presetCopy.appendChild(createElement("strong","","Tab icon preset"));
     const presetInput=createElement("select","studio-select");
-    [["none","No logo"],["google","Google"],["classroom","Google Classroom"],["custom","Custom image URL"]].forEach(([value,label])=>{const option=createElement("option","",label);option.value=value;presetInput.appendChild(option);});
+    [["none","Default icon"],["google","Google"],["classroom","Google Classroom"],["custom","Custom image URL"],["svg","Paste SVG code"]].forEach(([value,label])=>{const option=createElement("option","",label);option.value=value;presetInput.appendChild(option);});
     const savedBrand=readFakeBrand();presetInput.value=savedBrand.preset||"google";
     appendChildren(presetRow,presetCopy,presetInput);fakeList.appendChild(presetRow);
     const titleRow=createElement("div","studio-setting-row"),titleCopy=createElement("div","studio-setting-copy");
@@ -2011,18 +2013,33 @@
     urlCopy.appendChild(createElement("strong","","Tab icon URL"));
     const logoUrlInput=createElement("input","studio-select");logoUrlInput.type="url";logoUrlInput.placeholder="https://example.com/logo.png";logoUrlInput.value=savedBrand.logoUrl||"";logoUrlInput.setAttribute("aria-label","Custom logo URL");
     appendChildren(urlRow,urlCopy,logoUrlInput);fakeList.appendChild(urlRow);
+    const svgRow=createElement("div","studio-setting-row"),svgCopy=createElement("div","studio-setting-copy");
+    svgCopy.appendChild(createElement("strong","","Custom SVG markup"));
+    svgCopy.appendChild(createElement("small","","Paste a complete SVG element. Scripts, embedded HTML, event handlers, and external references are rejected."));
+    const svgInput=createElement("textarea","studio-select");svgInput.rows=7;svgInput.placeholder='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">…</svg>';svgInput.value=savedBrand.svgCode||"";svgInput.setAttribute("aria-label","Custom SVG code");
+    appendChildren(svgRow,svgCopy,svgInput);fakeList.appendChild(svgRow);
     fakePanel.appendChild(fakeList);
     const fakeActions=createElement("div","profile-card-actions");
     const saveFake=createElement("button","secondary-button","Save fake branding");saveFake.type="button";
     saveFake.addEventListener("click",()=>{
-      const preset=presetInput.value,logoUrl=logoUrlInput.value.trim();
+      const preset=presetInput.value,logoUrl=logoUrlInput.value.trim(),svgCode=svgInput.value.trim();
       if(preset==="custom"&&logoUrl){try{const parsed=new URL(logoUrl);if(!["https:","http:"].includes(parsed.protocol))throw new Error();}catch{showToast("Enter a valid http or https logo URL.");logoUrlInput.focus();return;}}
       if(preset==="custom"&&!logoUrl){showToast("Add a logo URL for the custom preset.");logoUrlInput.focus();return;}
-      const config={enabled:enabledInput.checked,preset,title:titleInput.value.trim()||" ",logoUrl};
+      if(preset==="svg"){
+        if(!svgCode){showToast("Paste your SVG code first.");svgInput.focus();return;}
+        try {
+          const parsed=new DOMParser().parseFromString(svgCode,"image/svg+xml");
+          const svg=parsed.documentElement;
+          if(svg.localName!=="svg" || parsed.querySelector("parsererror,script,foreignObject,iframe,object,embed")) throw new Error();
+          if([...svg.querySelectorAll("*")].some(node=>[...node.attributes].some(attr=>/^on/i.test(attr.name)||((attr.name==="href"||attr.name==="xlink:href")&&!attr.value.startsWith("#"))||(/url\\s*\\(/i.test(attr.value)&&!/^url\\(#[^)]+\\)$/.test(attr.value.trim()))))) throw new Error();
+          if([...svg.querySelectorAll("style")].some(node=>/@import|https?:|data:/i.test(node.textContent))) throw new Error();
+        } catch {showToast("That SVG is invalid or contains unsupported active/external content.");svgInput.focus();return;}
+      }
+      const config={enabled:enabledInput.checked,preset,title:titleInput.value.trim()||" ",logoUrl,svgCode};
       localStorage.setItem(FAKE_BRAND_KEY,JSON.stringify(config));applyFakeBrand();showToast("Browser tab branding saved on this device.");
     });
     const resetFake=createElement("button","icon-button","Reset");resetFake.type="button";
-    resetFake.addEventListener("click",()=>{localStorage.removeItem(FAKE_BRAND_KEY);enabledInput.checked=false;presetInput.value="none";titleInput.value="";logoUrlInput.value="";applyFakeBrand();showToast("Browser tab branding reset.");});
+    resetFake.addEventListener("click",()=>{localStorage.removeItem(FAKE_BRAND_KEY);enabledInput.checked=false;presetInput.value="none";titleInput.value="";logoUrlInput.value="";svgInput.value="";applyFakeBrand();showToast("Browser tab branding reset.");});
     appendChildren(fakeActions,saveFake,resetFake);fakePanel.appendChild(fakeActions);content.appendChild(fakePanel);
 
     section.appendChild(content);root.replaceChildren(section);
