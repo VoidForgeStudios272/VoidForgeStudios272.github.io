@@ -1,0 +1,56 @@
+name: Bug report
+description: Report a reproducible problem in VoidForge Studios or one of its games.
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks for helping improve VoidForge. Please search existing issues before submitting."
+  - type: input
+    id: game
+    attributes:
+      label: Game or area
+      description: Which game, page, or system is affected?
+      placeholder: "Among Us, Minecraft, launcher..."
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device and browser
+      placeholder: "iPhone 15 / Safari, Windows 11 / Chrome..."
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options: ["Desktop", "Mobile phone", "Tablet", "Other"]
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. Open ...\n2. Select ...\n3. ..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console errors or screenshots
+      description: Paste relevant errors. Do not include passwords or private tokens.
+    validations:
+      required: false
