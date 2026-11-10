@@ -1,0 +1,26 @@
+name: Game or feature request
+description: Suggest a new game, gameplay mechanic, or improvement.
+title: "[Request]: "
+labels: ["enhancement", "game-request"]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Request type
+      options: ["New game", "Gameplay feature", "Controls", "Accessibility", "Performance", "Other"]
+    validations:
+      required: true
+  - type: input
+    id: game
+    attributes:
+      label: Related game (if any)
+  - type: textarea
+    id: idea
+    attributes:
+      label: Describe your idea
+      validations:
+        required: true
+  - type: textarea
+    id: value
+    attributes:
+      label: Why would this improve VoidForge?
