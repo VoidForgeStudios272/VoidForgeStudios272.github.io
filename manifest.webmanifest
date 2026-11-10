@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "Microsoft Teams",
+  "name": "Teams",
   "short_name": "Teams",
-  "description": "Microsoft Teams — chat, meet, call, and collaborate anywhere.",
+  "description": "Teams",
   "lang": "en",
   "start_url": "./",
   "scope": "./",
