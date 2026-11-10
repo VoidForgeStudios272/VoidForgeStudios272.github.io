@@ -95,6 +95,14 @@
       ? config.title.trim()
       : "Teams";
     document.title=title;
+    // iPadOS reads this Apple-specific title for Home Screen web apps.
+    let appleTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+    if (!appleTitle) {
+      appleTitle = document.createElement("meta");
+      appleTitle.name = "apple-mobile-web-app-title";
+      document.head.appendChild(appleTitle);
+    }
+    appleTitle.content = title;
 
     // Alternate branding is applied to browser-tab metadata only.
     const icon=document.querySelector('link[rel="icon"]');
