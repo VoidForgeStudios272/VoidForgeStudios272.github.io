@@ -2090,7 +2090,7 @@
         } catch {showToast("That SVG is invalid or contains unsupported active/external content.");svgInput.focus();return;}
       }
       const config={enabled:enabledInput.checked,preset,title:titleInput.value.trim()||" ",logoUrl,svgCode};
-      localStorage.setItem(FAKE_BRAND_KEY,JSON.stringify(config));applyFakeBrand();showToast("App and browser branding saved. Re-add the Home Screen shortcut to refresh it.");
+      localStorage.setItem(FAKE_BRAND_KEY,JSON.stringify(config));applyFakeBrand();showToast("Branding saved. Wait a moment for the iPad icon to update, then re-add the Home Screen shortcut.");
     });
     const resetFake=createElement("button","icon-button","Reset");resetFake.type="button";
     resetFake.addEventListener("click",()=>{localStorage.removeItem(FAKE_BRAND_KEY);enabledInput.checked=false;presetInput.value="none";titleInput.value="";logoUrlInput.value="";svgInput.value="";applyFakeBrand();showToast("App and browser branding reset.");});
