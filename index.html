@@ -1045,6 +1045,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           Game info
         </button>
 
+        <div class="game-shader-wrap">
+          <button class="toolbar-button" id="gameShaders" type="button" aria-haspopup="true" aria-expanded="false">
+            <span aria-hidden="true">✦</span> Shaders
+          </button>
+          <section class="game-shader-panel" id="gameShaderPanel" aria-label="Game shader settings" hidden>
+            <div class="shader-panel-heading"><strong>Visual shaders</strong><span id="shaderGameName">This game</span></div>
+            <label class="shader-field" for="shaderPreset">Shader quality
+              <select id="shaderPreset">
+                <option value="off">Off · Native</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high" selected>High</option>
+                <option value="ultra">Ultra</option>
+              </select>
+            </label>
+            <label class="shader-check"><input id="shaderScanlines" type="checkbox"> CRT scanlines</label>
+            <label class="shader-check"><input id="shaderVibrance" type="checkbox"> Extra color vibrance</label>
+            <p class="shader-note">Saved separately for each game on this device. Higher settings may reduce performance.</p>
+            <button class="shader-reset" id="shaderReset" type="button">Reset this game's shaders</button>
+          </section>
+        </div>
+
 
         <button
           class="toolbar-button"

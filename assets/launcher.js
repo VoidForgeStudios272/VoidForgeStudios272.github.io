@@ -64,6 +64,98 @@
   const gameBookmarkButton = $("#gameBookmark");
   const panicButton = $("#panicButton");
 
+  const shaderButton = $("#gameShaders");
+  const shaderPanel = $("#gameShaderPanel");
+  const shaderPreset = $("#shaderPreset");
+  const shaderScanlines = $("#shaderScanlines");
+  const shaderVibrance = $("#shaderVibrance");
+  const shaderGameName = $("#shaderGameName");
+  const shaderReset = $("#shaderReset");
+  const GAME_SHADER_KEY = "voidforgeGameShadersV1";
+  const SHADER_PRESETS = {
+    off: "",
+    low: "contrast(1.035) saturate(1.06)",
+    medium: "contrast(1.08) saturate(1.14) brightness(1.01)",
+    high: "contrast(1.13) saturate(1.24) brightness(1.015)",
+    ultra: "contrast(1.19) saturate(1.36) brightness(1.025)"
+  };
+  let gameShaderProfiles = readGameShaderProfiles();
+  function readGameShaderProfiles() {
+    try {
+      const value = JSON.parse(localStorage.getItem(GAME_SHADER_KEY) || "{}");
+      return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+    } catch { return {}; }
+  }
+  function saveGameShaderProfiles() {
+    try { localStorage.setItem(GAME_SHADER_KEY, JSON.stringify(gameShaderProfiles)); }
+    catch (error) { console.warn("[VoidForge] Shader preferences could not be saved:", error); }
+  }
+  function getCurrentShaderProfile() {
+    const id = String(currentGame?.id || "");
+    const saved = gameShaderProfiles[id] || {};
+    return {
+      preset: Object.prototype.hasOwnProperty.call(SHADER_PRESETS, saved.preset) ? saved.preset : "high",
+      scanlines: saved.scanlines === true,
+      vibrance: saved.vibrance === true
+    };
+  }
+  function applyGameShaders() {
+    if (!gameFrame || !currentGame) return;
+    const profile = getCurrentShaderProfile();
+    const filters = [];
+    if (SHADER_PRESETS[profile.preset]) filters.push(SHADER_PRESETS[profile.preset]);
+    if (profile.vibrance) filters.push("saturate(1.18)");
+    gameFrame.style.filter = filters.join(" ") || "none";
+    gameView?.classList.toggle("vf-shader-scanlines", profile.scanlines);
+    if (shaderPreset) shaderPreset.value = profile.preset;
+    if (shaderScanlines) shaderScanlines.checked = profile.scanlines;
+    if (shaderVibrance) shaderVibrance.checked = profile.vibrance;
+    if (shaderGameName) shaderGameName.textContent = currentGame.name || currentGame.title || currentGame.id || "This game";
+    if (gameFrame.contentWindow) {
+      try { gameFrame.contentWindow.postMessage({type:"voidforge:shader-settings",gameId:String(currentGame.id),settings:profile},window.location.origin); } catch {}
+    }
+  }
+  function updateGameShader(key, value) {
+    if (!currentGame) return;
+    const id = String(currentGame.id);
+    const profile = getCurrentShaderProfile();
+    if (key === "preset" && !Object.prototype.hasOwnProperty.call(SHADER_PRESETS, value)) return;
+    profile[key] = value;
+    gameShaderProfiles[id] = profile;
+    saveGameShaderProfiles();
+    applyGameShaders();
+  }
+  function setupGameShaderControls() {
+    if (!shaderButton || !shaderPanel) return;
+    shaderButton.addEventListener("click", () => {
+      const opening = shaderPanel.hidden;
+      shaderPanel.hidden = !opening;
+      shaderButton.setAttribute("aria-expanded", String(opening));
+      if (opening) applyGameShaders();
+    });
+    shaderPreset?.addEventListener("change", () => updateGameShader("preset", shaderPreset.value));
+    shaderScanlines?.addEventListener("change", () => updateGameShader("scanlines", shaderScanlines.checked));
+    shaderVibrance?.addEventListener("change", () => updateGameShader("vibrance", shaderVibrance.checked));
+    shaderReset?.addEventListener("click", () => {
+      if (!currentGame) return;
+      delete gameShaderProfiles[String(currentGame.id)];
+      saveGameShaderProfiles();
+      applyGameShaders();
+    });
+    document.addEventListener("pointerdown", event => {
+      if (shaderPanel.hidden || shaderPanel.contains(event.target) || shaderButton.contains(event.target)) return;
+      shaderPanel.hidden = true;
+      shaderButton.setAttribute("aria-expanded", "false");
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && shaderPanel && !shaderPanel.hidden) {
+        shaderPanel.hidden = true;
+        shaderButton.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
+
+
   const closeButton =
     $("#gameClose") ||
     $("#gameCloseButton") ||
@@ -1192,6 +1284,9 @@
     }
 
     currentGame = game;
+    applyGameShaders();
+    if (shaderPanel) shaderPanel.hidden = true;
+    if (shaderButton) shaderButton.setAttribute("aria-expanded", "false");
     const recentIds = readRecentGameIds().filter(id => id !== String(game.id));
     recentIds.unshift(String(game.id));
     try { localStorage.setItem(VF_RECENT_GAMES_KEY, JSON.stringify(recentIds.slice(0,30))); } catch {}
@@ -1289,6 +1384,10 @@
 
   function closeGame() {
     currentGame = null;
+    if (gameFrame) gameFrame.style.filter = "";
+    gameView?.classList.remove("vf-shader-scanlines");
+    if (shaderPanel) shaderPanel.hidden = true;
+    if (shaderButton) shaderButton.setAttribute("aria-expanded", "false");
     latestGameFps = null; latestGameSize = ""; updateGameStatsOverlay();
 
     if (gameFrame) {
@@ -1360,6 +1459,7 @@
   ========================================================= */
 
   function setupGameEvents() {
+    setupGameShaderControls();
     setupStudioSettingsBridge();
     if (gameFrame) {
       gameFrame.addEventListener(
@@ -1367,6 +1467,7 @@
         () => {
           if (currentGame && gameFrame.contentWindow) {
             latestGameFps=null; latestGameSize=""; gameSessionStartedAt=Date.now(); updateGameStatsOverlay();
+            applyGameShaders();
             try {
               const gameDocument = gameFrame.contentDocument;
               if (gameDocument && !gameDocument.querySelector("[data-voidforge-settings-bridge]")) {
@@ -2239,7 +2340,7 @@
   }
   function broadcastStudioSettings() {
     if(!gameFrame?.contentWindow||!currentGame) return;
-    gameFrame.contentWindow.postMessage({type:"voidforge:settings",version:1,gameId:String(currentGame.id),settings:{...studioSettings},gameSettings:currentGame?{...(studioGameProfiles[currentGame.id]||{})}:{}} ,window.location.origin);
+    gameFrame.contentWindow.postMessage({type:"voidforge:settings",version:1,gameId:String(currentGame.id),settings:{...studioSettings,shaderPreset:getCurrentShaderProfile().preset,shaderScanlines:getCurrentShaderProfile().scanlines,shaderVibrance:getCurrentShaderProfile().vibrance},gameSettings:currentGame?{...(studioGameProfiles[currentGame.id]||{})}:{}} ,window.location.origin);
   }
   function updateStudioSetting(key,value) {
     if(!Object.prototype.hasOwnProperty.call(STUDIO_SETTINGS_DEFAULTS,key)) return;
