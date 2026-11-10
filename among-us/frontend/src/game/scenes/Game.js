@@ -47,7 +47,7 @@ export class Game extends BaseGameScene {
             this.meetingZone.visible = false;
         }
         this.meetingBtn = this.add.image(220, 410, 'meeting')
-            .setScale(0.7)
+            .setScale(window.matchMedia('(pointer: coarse)').matches ? 1.05 : 0.7)
             .setDepth(1000)
             .setScrollFactor(0)
             .setInteractive()
