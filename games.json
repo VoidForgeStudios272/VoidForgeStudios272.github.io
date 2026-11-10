@@ -259,5 +259,80 @@
       "Reaction"
     ],
     "description": "Test your reflexes over five rounds and chase your fastest reaction time."
+  },
+  {
+    "id": "neon-racer",
+    "name": "Neon Racer",
+    "subtitle": "Neon Racer • VoidForge Arcade",
+    "entry": "neon-racer",
+    "version": "1.0.0",
+    "platform": "Browser · Keyboard & Touch",
+    "status": "Available",
+    "tags": [
+      "Racing",
+      "Arcade",
+      "Driving"
+    ],
+    "description": "A neon top-down racer. Dodge traffic, control your speed and beat your distance record."
+  },
+  {
+    "id": "forge-defense",
+    "name": "Forge Defense",
+    "subtitle": "Forge Defense • VoidForge Arcade",
+    "entry": "forge-defense",
+    "version": "1.0.0",
+    "platform": "Browser · Keyboard & Touch",
+    "status": "Available",
+    "tags": [
+      "Strategy",
+      "Tower Defense",
+      "Action"
+    ],
+    "description": "Build turrets, earn credits and hold the line against endless incoming waves."
+  },
+  {
+    "id": "skybound",
+    "name": "Skybound",
+    "subtitle": "Skybound • VoidForge Arcade",
+    "entry": "skybound",
+    "version": "1.0.0",
+    "platform": "Browser · Keyboard & Touch",
+    "status": "Available",
+    "tags": [
+      "Platformer",
+      "Adventure",
+      "Action"
+    ],
+    "description": "Jump across platforms, collect energy sparks and reach the exit."
+  },
+  {
+    "id": "last-light",
+    "name": "Last Light",
+    "subtitle": "Last Light • VoidForge Arcade",
+    "entry": "last-light",
+    "version": "1.0.0",
+    "platform": "Browser · Keyboard & Touch",
+    "status": "Available",
+    "tags": [
+      "Horror",
+      "Survival",
+      "Arcade"
+    ],
+    "description": "Explore a dark maze, collect all the sparks and keep your battery charged while shadows hunt you."
+  },
+  {
+    "id": "arena-clash",
+    "name": "Arena Clash",
+    "subtitle": "Arena Clash • VoidForge Arcade",
+    "entry": "arena-clash",
+    "version": "1.0.0",
+    "platform": "Browser · Keyboard & Touch",
+    "status": "Available",
+    "tags": [
+      "Action",
+      "Battle Arena",
+      "Survival"
+    ],
+    "description": "Fight waves of AI rivals in a fast top-down arena battle. Offline single-player."
   }
 ]
