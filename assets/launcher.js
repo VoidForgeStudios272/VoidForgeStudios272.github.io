@@ -1917,7 +1917,43 @@
     info.appendChild(createElement("p","","Games in the VoidForge player can request these preferences and listen for live changes. Preferences are stored locally in this browser; unsupported games simply ignore settings they do not use."));
     const reset=createElement("button","secondary-button","Reset all Studio settings");reset.type="button";
     reset.addEventListener("click",()=>{studioSettings={...STUDIO_SETTINGS_DEFAULTS};persistStudioSettings();localStorage.removeItem(GAME_PROFILE_KEY);studioGameProfiles=readGameProfiles();persistGameProfiles();renderSettingsView(root);broadcastStudioSettings();showToast("All Studio and game-specific settings restored to defaults.");});
-    info.appendChild(reset);content.appendChild(info);section.appendChild(content);root.replaceChildren(section);
+    info.appendChild(reset);content.appendChild(info);
+
+    // Advanced panic shortcut: configured locally and only active while a game is open.
+    const panicPanel=createElement("section","studio-settings-group studio-panic-settings");
+    const panicHead=createElement("div","studio-settings-heading");
+    panicHead.appendChild(createElement("h2","","Advanced Panic System"));
+    panicHead.appendChild(createElement("p","","Quickly leave a game using a custom destination and optional keyboard shortcut. Settings stay on this device."));
+    panicPanel.appendChild(panicHead);
+    const panicList=createElement("div","studio-settings-list");
+    const panicUrlRow=createElement("div","studio-setting-row"),panicUrlCopy=createElement("div","studio-setting-copy");
+    panicUrlCopy.appendChild(createElement("strong","","Panic destination URL"));
+    panicUrlCopy.appendChild(createElement("small","","Use a trusted page such as a dashboard or another site."));
+    const panicUrlInput=createElement("input","studio-select");panicUrlInput.type="url";panicUrlInput.autocomplete="url";panicUrlInput.placeholder="https://example.com";panicUrlInput.value=getPanicUrl();panicUrlInput.setAttribute("aria-label","Panic destination URL");
+    appendChildren(panicUrlRow,panicUrlCopy,panicUrlInput);panicList.appendChild(panicUrlRow);
+    const panicKeyRow=createElement("div","studio-setting-row"),panicKeyCopy=createElement("div","studio-setting-copy");
+    panicKeyCopy.appendChild(createElement("strong","","Panic keyboard shortcut"));
+    panicKeyCopy.appendChild(createElement("small","","Optional single key, for example Q. It only works while a game is open."));
+    const panicKeyInput=createElement("input","studio-select");panicKeyInput.type="text";panicKeyInput.maxLength=1;panicKeyInput.autocomplete="off";panicKeyInput.placeholder="Off";panicKeyInput.value=getPanicKey();panicKeyInput.setAttribute("aria-label","Panic keyboard shortcut");
+    panicKeyInput.addEventListener("input",()=>{panicKeyInput.value=panicKeyInput.value.slice(-1).toLowerCase().replace(/[^a-z0-9]/g,"");});
+    appendChildren(panicKeyRow,panicKeyCopy,panicKeyInput);panicList.appendChild(panicKeyRow);
+    panicPanel.appendChild(panicList);
+    const panicActions=createElement("div","profile-card-actions");
+    const savePanic=createElement("button","secondary-button","Save panic settings");savePanic.type="button";
+    savePanic.addEventListener("click",()=>{
+      const url=panicUrlInput.value.trim();
+      if(url){try{const parsed=new URL(url,window.location.href);if(!["http:","https:"].includes(parsed.protocol))throw new Error("Invalid URL");localStorage.setItem(PANIC_URL_KEY,parsed.href);}catch{showToast("Enter a valid http or https panic URL.");panicUrlInput.focus();return;}}
+      else localStorage.removeItem(PANIC_URL_KEY);
+      const key=panicKeyInput.value.trim().toLowerCase();
+      if(key)localStorage.setItem(PANIC_KEY_KEY,key);else localStorage.removeItem(PANIC_KEY_KEY);
+      showToast("Advanced panic settings saved on this device.");
+    });
+    const clearPanic=createElement("button","icon-button","Clear");clearPanic.type="button";
+    clearPanic.addEventListener("click",()=>{localStorage.removeItem(PANIC_URL_KEY);localStorage.removeItem(PANIC_KEY_KEY);panicUrlInput.value="";panicKeyInput.value="";showToast("Panic shortcut settings cleared.");});
+    appendChildren(panicActions,savePanic,clearPanic);panicPanel.appendChild(panicActions);
+    content.appendChild(panicPanel);
+
+    section.appendChild(content);root.replaceChildren(section);
   }
 
   /* =========================================================
