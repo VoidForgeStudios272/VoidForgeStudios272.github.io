@@ -2003,6 +2003,60 @@
     timerReset.addEventListener("click",()=>{stopTimer();remaining=25*60*1000;timerStatus.textContent="Timer reset.";paintTimer();});
     timerActions.append(timerStart,timerReset);focus.append(timerDisplay,timerActions,timerStatus);layout.appendChild(focus);
 
+
+    // Attendance tracker.
+    const attendance=createElement("article","school-tool-card school-attendance");
+    attendance.append(createElement("div","school-tool-kicker","CLASS RECORD"),createElement("h2","","Attendance tracker"),createElement("p","school-tool-description","Record attended and missed lessons for each subject."));
+    const attendanceForm=createElement("form","school-planner-form");
+    const attendanceSubject=createElement("input","school-card-input");attendanceSubject.placeholder="Subject";attendanceSubject.required=true;attendanceSubject.maxLength=50;attendanceSubject.setAttribute("aria-label","Attendance subject");
+    const attendanceState=createElement("select","school-operation");[["present","Present"],["absent","Absent"],["late","Late"]].forEach(([v,t])=>{const o=createElement("option","",t);o.value=v;attendanceState.appendChild(o);});
+    const attendanceAdd=createElement("button","primary-button","Record");attendanceAdd.type="submit";attendanceForm.append(attendanceSubject,attendanceState,attendanceAdd);
+    const attendanceList=createElement("div","school-saved-list");
+    let attendanceRows=[];try{const v=JSON.parse(localStorage.getItem("voidforgeSchoolAttendanceV1")||"[]");if(Array.isArray(v))attendanceRows=v.filter(x=>x&&typeof x.id==="string"&&typeof x.subject==="string"&&["present","absent","late"].includes(x.state));}catch{}
+    const saveAttendance=()=>{try{localStorage.setItem("voidforgeSchoolAttendanceV1",JSON.stringify(attendanceRows));}catch{showToast("Attendance could not be saved.");}};
+    const drawAttendance=()=>{attendanceList.replaceChildren();if(!attendanceRows.length){attendanceList.appendChild(createElement("p","school-tool-description","No attendance records yet."));return;}const counts=attendanceRows.reduce((a,x)=>(a[x.state]++,a),{present:0,absent:0,late:0});attendanceList.appendChild(createElement("p","school-save-status",counts.present+" present · "+counts.absent+" absent · "+counts.late+" late"));attendanceRows.slice().reverse().forEach(item=>{const row=createElement("div","school-saved-row");const info=createElement("div","school-saved-copy");info.append(createElement("strong","",item.subject),createElement("small","",item.state.charAt(0).toUpperCase()+item.state.slice(1)+" · "+new Date(item.date).toLocaleDateString()));const del=createElement("button","secondary-button","×");del.type="button";del.setAttribute("aria-label","Delete attendance record");del.addEventListener("click",()=>{attendanceRows=attendanceRows.filter(x=>x.id!==item.id);saveAttendance();drawAttendance();});row.append(info,del);attendanceList.appendChild(row);});};
+    attendanceForm.addEventListener("submit",e=>{e.preventDefault();const subject=attendanceSubject.value.trim();if(!subject)return;attendanceRows.push({id:"att-"+Date.now()+Math.random().toString(36).slice(2,5),subject,state:attendanceState.value,date:new Date().toISOString()});saveAttendance();attendanceSubject.value="";drawAttendance();});attendance.append(attendanceForm,attendanceList);drawAttendance();layout.appendChild(attendance);
+
+    // Weighted grade calculator.
+    const weighted=createElement("article","school-tool-card school-weighted-grades");
+    weighted.append(createElement("div","school-tool-kicker","WEIGHTED RESULTS"),createElement("h2","","Weighted grade calculator"),createElement("p","school-tool-description","Enter grades and their weights as grade:weight, separated by commas (for example 2:50, 1:50)."));
+    const weightedInput=createElement("input","school-card-input");weightedInput.placeholder="2:50, 1:50";weightedInput.setAttribute("aria-label","Grades and weights");
+    const weightedButton=createElement("button","primary-button","Calculate weighted average");weightedButton.type="button";
+    const weightedResult=createElement("output","school-calculator-result","Your weighted average will appear here.");weightedResult.setAttribute("aria-live","polite");
+    weightedButton.addEventListener("click",()=>{const parts=weightedInput.value.split(",").map(x=>x.trim());if(!weightedInput.value.trim()){weightedResult.textContent="Enter at least one grade and weight.";return;}let sum=0,weights=0;for(const part of parts){const m=part.match(/^(\d+(?:[.,]\d+)?)\s*:\s*(\d+(?:[.,]\d+)?)$/);if(!m){weightedResult.textContent="Use grade:weight pairs, e.g. 2:50, 1:50.";return;}const grade=Number(m[1].replace(",",".")),weight=Number(m[2].replace(",","."));if(!Number.isFinite(grade)||!Number.isFinite(weight)||grade<=0||weight<=0){weightedResult.textContent="Grades and weights must be positive numbers.";return;}sum+=grade*weight;weights+=weight;}weightedResult.textContent="Weighted average: "+(sum/weights).toFixed(2)+" · Total weight: "+weights;});
+    weighted.append(weightedInput,weightedButton,weightedResult);layout.appendChild(weighted);
+
+    // Weekly study goal.
+    const goals=createElement("article","school-tool-card school-study-goals");
+    goals.append(createElement("div","school-tool-kicker","BUILD A ROUTINE"),createElement("h2","","Weekly study goal"),createElement("p","school-tool-description","Set a weekly target and log your focused study minutes."));
+    const goalInput=createElement("input","school-card-input");goalInput.type="number";goalInput.min="1";goalInput.max="100";goalInput.placeholder="Weekly target in hours";goalInput.setAttribute("aria-label","Weekly study target in hours");
+    const goalSave=createElement("button","secondary-button","Save target");goalSave.type="button";
+    const minutesInput=createElement("input","school-card-input");minutesInput.type="number";minutesInput.min="1";minutesInput.max="1440";minutesInput.placeholder="Minutes studied";minutesInput.setAttribute("aria-label","Minutes studied");
+    const logMinutes=createElement("button","primary-button","Log study time");logMinutes.type="button";
+    const goalProgress=createElement("div","school-saved-list");let goalData={target:5,minutes:0,week:""};
+    try{const saved=JSON.parse(localStorage.getItem("voidforgeSchoolGoalV1")||"null");if(saved&&typeof saved==="object")goalData={...goalData,...saved};}catch{}
+    const weekKey=(()=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.toISOString().slice(0,10);})();
+    if(goalData.week!==weekKey)goalData={target:goalData.target||5,minutes:0,week:weekKey};
+    goalInput.value=goalData.target;
+    const saveGoal=()=>{try{localStorage.setItem("voidforgeSchoolGoalV1",JSON.stringify(goalData));}catch{showToast("Study goal could not be saved.");}};
+    const drawGoal=()=>{goalProgress.replaceChildren();const targetMinutes=Math.max(1,Number(goalData.target)||5)*60;const pct=Math.min(100,Math.round(goalData.minutes/targetMinutes*100));goalProgress.append(createElement("p","school-save-status",Math.floor(goalData.minutes/60)+"h "+(goalData.minutes%60)+"m / "+goalData.target+"h · "+pct+"%"));const track=createElement("div","school-goal-track");const fill=createElement("div","school-goal-fill");fill.style.width=pct+"%";track.appendChild(fill);goalProgress.appendChild(track);};
+    goalSave.addEventListener("click",()=>{const n=Number(goalInput.value);if(!Number.isFinite(n)||n<1||n>100){showToast("Choose a weekly goal from 1 to 100 hours.");return;}goalData.target=n;saveGoal();drawGoal();});
+    logMinutes.addEventListener("click",()=>{const n=Number(minutesInput.value);if(!Number.isInteger(n)||n<1||n>1440){showToast("Enter study time from 1 to 1440 minutes.");return;}goalData.minutes+=n;minutesInput.value="";saveGoal();drawGoal();});goals.append(goalInput,goalSave,minutesInput,logMinutes,goalProgress);drawGoal();layout.appendChild(goals);
+
+    // Random revision topic picker.
+    const picker=createElement("article","school-tool-card school-topic-picker");
+    picker.append(createElement("div","school-tool-kicker","BEAT PROCRASTINATION"),createElement("h2","","Random study picker"),createElement("p","school-tool-description","Add topics and let the picker choose what to revise next."));
+    const topicInput=createElement("input","school-card-input");topicInput.placeholder="Add a subject or topic";topicInput.maxLength=70;topicInput.setAttribute("aria-label","Study topic");
+    const topicAdd=createElement("button","primary-button","Add topic");topicAdd.type="button";
+    const pickButton=createElement("button","secondary-button","Pick for me");pickButton.type="button";
+    const picked=createElement("output","school-calculator-result","Your next topic will appear here.");picked.setAttribute("aria-live","polite");
+    const topicList=createElement("div","school-saved-list");let topics=[];try{const saved=JSON.parse(localStorage.getItem("voidforgeSchoolTopicsV1")||"[]");if(Array.isArray(saved))topics=saved.filter(x=>typeof x==="string");}catch{}
+    const saveTopics=()=>{try{localStorage.setItem("voidforgeSchoolTopicsV1",JSON.stringify(topics));}catch{showToast("Topics could not be saved.");}};
+    const drawTopics=()=>{topicList.replaceChildren();topics.forEach((topic,index)=>{const row=createElement("div","school-saved-row");row.appendChild(createElement("span","",topic));const del=createElement("button","secondary-button","×");del.type="button";del.setAttribute("aria-label","Remove "+topic);del.addEventListener("click",()=>{topics.splice(index,1);saveTopics();drawTopics();});row.appendChild(del);topicList.appendChild(row);});};
+    topicAdd.addEventListener("click",()=>{const v=topicInput.value.trim();if(!v)return;if(topics.length>=100){showToast("You can save up to 100 topics.");return;}topics.push(v);topicInput.value="";saveTopics();drawTopics();});
+    pickButton.addEventListener("click",()=>{if(!topics.length){picked.textContent="Add some topics first.";return;}picked.textContent="Next up: "+topics[Math.floor(Math.random()*topics.length)];});
+    picker.append(topicInput,topicAdd,pickButton,picked,topicList);drawTopics();layout.appendChild(picker);
+
     section.appendChild(layout);root.replaceChildren(section);
   }
 
