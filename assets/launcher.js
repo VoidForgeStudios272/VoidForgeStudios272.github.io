@@ -758,6 +758,25 @@
       );
     }
 
+    const favoriteButton=document.createElement("button");
+    favoriteButton.type="button";
+    favoriteButton.className="vf-game-favorite";
+    favoriteButton.textContent=readFavoriteGameIds().has(String(game.id))?"★":"☆";
+    favoriteButton.setAttribute("aria-label",(favoriteButton.textContent==="★"?"Remove from":"Add to")+" favorites: "+String(title));
+    favoriteButton.setAttribute("aria-pressed",String(favoriteButton.textContent==="★"));
+    favoriteButton.addEventListener("click",event=>{
+      event.stopPropagation();
+      const favorites=readFavoriteGameIds();
+      if(favorites.has(String(game.id)))favorites.delete(String(game.id));else favorites.add(String(game.id));
+      saveFavoriteGameIds(favorites);
+      favoriteButton.textContent=favorites.has(String(game.id))?"★":"☆";
+      favoriteButton.setAttribute("aria-pressed",String(favorites.has(String(game.id))));
+      favoriteButton.setAttribute("aria-label",(favorites.has(String(game.id))?"Remove from":"Add to")+" favorites: "+String(title));
+      const search=($("#searchInput")||$("#gameSearch")||$('input[type="search"]'))?.value||"";
+      renderGameList(card.closest("#gamesGrid,#gameGrid,#libraryGrid,.games-grid,.game-grid")||card.parentElement,search);
+    });
+    imageWrapper.appendChild(favoriteButton);
+
     /* -------------------------------------------------------
        CONTENT
     ------------------------------------------------------- */
@@ -998,6 +1017,14 @@
     );
   }
 
+  const VF_FAVORITE_GAMES_KEY = "voidforgeFavoriteGamesV1";
+  function readFavoriteGameIds() {
+    try { const value=JSON.parse(localStorage.getItem(VF_FAVORITE_GAMES_KEY)||"[]");return new Set(Array.isArray(value)?value.map(String):[]); }
+    catch { return new Set(); }
+  }
+  function saveFavoriteGameIds(ids) {
+    try { localStorage.setItem(VF_FAVORITE_GAMES_KEY,JSON.stringify([...ids])); } catch {}
+  }
   const VF_RECENT_GAMES_KEY = "voidforgeRecentGamesV1";
 
   function readRecentGameIds() {
@@ -1030,12 +1057,20 @@
     sort.setAttribute("aria-label", "Sort games");
     [["featured","Featured"],["az","A–Z"],["recent","Recently played"],["newest","Newest first"]].forEach(([value,label])=>{const option=document.createElement("option");option.value=value;option.textContent=label;sort.append(option);});
     sortLabel.append(sort);
+    const favoriteLabel=document.createElement("label");
+    favoriteLabel.className="vf-library-favorites";
+    const favoriteOnly=document.createElement("input");
+    favoriteOnly.type="checkbox";
+    favoriteOnly.checked=container.dataset.vfFavoritesOnly==="true";
+    favoriteOnly.setAttribute("aria-label","Show favorites only");
+    favoriteOnly.addEventListener("change",()=>{container.dataset.vfFavoritesOnly=String(favoriteOnly.checked);renderGameList(container,(($("#searchInput")||$("#gameSearch")||$('input[type="search"]'))?.value)||"");});
+    favoriteLabel.append(favoriteOnly,document.createTextNode("Favorites only"));
     const clear = document.createElement("button");
     clear.type = "button"; clear.className = "vf-library-clear"; clear.textContent = "Reset";
     clear.addEventListener("click",()=>{category.value="";sort.value="featured";const input=$("#searchInput")||$("#gameSearch")||$('input[type="search"]');if(input)input.value="";renderGameList(container,"");});
     category.addEventListener("change",()=>renderGameList(container,($("#searchInput")||$("#gameSearch")||$('input[type="search"]'))?.value||""));
     sort.addEventListener("change",()=>renderGameList(container,($("#searchInput")||$("#gameSearch")||$('input[type="search"]'))?.value||""));
-    toolbar.append(count,categoryLabel,sortLabel,clear);
+    toolbar.append(count,categoryLabel,sortLabel,favoriteLabel,clear);
     container.parentNode?.insertBefore(toolbar,container);
     container.dataset.vfToolsReady="true";
     container._vfLibraryTools={category,sort,count};
@@ -1061,7 +1096,8 @@
       const searchable = [game.name,game.title,game.subtitle,game.description,game.category,game.platform,...(Array.isArray(game.tags)?game.tags:[])].filter(Boolean).join(" ").toLowerCase();
       const matchesQuery = !query || searchable.includes(query);
       const tags = [...(Array.isArray(game.tags)?game.tags:[]),game.category].filter(Boolean).map(String);
-      return matchesQuery && (!categoryFilter || tags.includes(categoryFilter));
+      const isFavorite=readFavoriteGameIds().has(String(game.id));
+      return matchesQuery && (!categoryFilter || tags.includes(categoryFilter)) && (container.dataset.vfFavoritesOnly!=="true" || isFavorite);
     });
     const sortMode = tools.sort?.value || "featured";
     const recentIds = readRecentGameIds();
