@@ -112,6 +112,45 @@
       }
     }
     [icon,shortcutIcon,appleIcon].filter(Boolean).forEach(link=>link.href=iconUrl);
+
+    // Sync fake branding with browser bookmarks and installable app shortcuts.
+    let ogTitle = document.querySelector('meta[property="og:title"]');
+    if (!ogTitle) {
+      ogTitle = document.createElement("meta");
+      ogTitle.setAttribute("property", "og:title");
+      document.head.appendChild(ogTitle);
+    }
+    ogTitle.content = title;
+
+    const manifestLink = document.querySelector('link[rel="manifest"]');
+    if (manifestLink) {
+      try {
+        const manifest = {
+          id: "./",
+          name: title,
+          short_name: title.slice(0, 24),
+          description: "Stay connected and collaborate in one place.",
+          start_url: "./",
+          scope: "./",
+          display: "standalone",
+          background_color: "#080612",
+          theme_color: "#080612",
+          icons: [{
+            src: iconUrl,
+            sizes: "any",
+            type: iconUrl.startsWith("data:image/svg+xml") || iconUrl.endsWith(".svg") ? "image/svg+xml" : "image/png",
+            purpose: "any"
+          }]
+        };
+        if (window.__voidforgeBrandManifestUrl) URL.revokeObjectURL(window.__voidforgeBrandManifestUrl);
+        window.__voidforgeBrandManifestUrl = URL.createObjectURL(
+          new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" })
+        );
+        manifestLink.href = window.__voidforgeBrandManifestUrl;
+      } catch (error) {
+        console.warn("Could not update bookmark/install metadata:", error);
+      }
+    }
   }
 
   function triggerPanic() {
