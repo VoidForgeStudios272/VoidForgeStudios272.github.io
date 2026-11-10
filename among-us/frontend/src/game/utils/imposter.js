@@ -38,7 +38,7 @@ export function handleImposter(scene) {
 
     // Create kill button UI
     scene.killBtn = scene.add.image(820, 410, 'kill')
-        .setScale(0.7)
+        .setScale(window.matchMedia('(pointer: coarse)').matches ? 1.05 : 0.7)
         .setDepth(1000)
         .setScrollFactor(0)
         .setInteractive()
