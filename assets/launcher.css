@@ -3019,3 +3019,10 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible {
 .vf-library-clear{padding:9px 13px;border:1px solid rgba(150,160,200,.22);border-radius:10px;background:transparent;color:var(--text-primary,#f5f6fb);font-weight:700;cursor:pointer}
 .vf-library-tools select:focus-visible,.vf-library-clear:focus-visible{outline:2px solid #8b7cff;outline-offset:2px}
 @media(max-width:560px){.vf-library-tools{align-items:stretch;gap:8px}.vf-library-count{width:100%;margin:0}.vf-library-field{flex:1;min-width:0;display:grid;gap:5px}.vf-library-field select{width:100%;max-width:none;min-width:0}.vf-library-clear{align-self:end}}
+
+.vf-library-favorites{display:flex;align-items:center;gap:7px;color:var(--text-secondary,#aeb6ca);font-size:12px;white-space:nowrap}
+.vf-library-favorites input{accent-color:#8874ff;width:16px;height:16px}
+.game-card-image{position:relative}
+.vf-game-favorite{position:absolute;right:10px;top:10px;z-index:2;width:36px;height:36px;border:1px solid rgba(255,255,255,.24);border-radius:12px;background:rgba(10,13,22,.78);color:#ffd66e;font-size:23px;line-height:1;cursor:pointer;backdrop-filter:blur(8px)}
+.vf-game-favorite:hover{transform:scale(1.07)}
+.vf-game-favorite:focus-visible{outline:2px solid #9b8cff;outline-offset:2px}
