@@ -100,7 +100,7 @@
     const icon=document.querySelector('link[rel="icon"]');
     const shortcutIcon=document.querySelector('link[rel="shortcut icon"]');
     const appleIcon=document.querySelector('link[rel="apple-touch-icon"]');
-    const fallbackIcon="./assets/bookmark-icon.svg?v=14";
+    const fallbackIcon="./assets/bookmark-icon.svg?v=15";
     let iconUrl=fallbackIcon;
     if(config.enabled) {
       if(config.preset==="google" || config.preset==="classroom") {
