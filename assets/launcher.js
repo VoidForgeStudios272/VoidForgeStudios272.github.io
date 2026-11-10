@@ -80,6 +80,31 @@
     return (localStorage.getItem(PANIC_KEY_KEY) || "").trim().toLowerCase();
   }
 
+  const FAKE_BRAND_KEY = "voidforgeFakeBrandV1";
+  const FAKE_BRAND_PRESETS = {
+    google: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-3 0 262 262"><path fill="#4285F4" d="M255.878 133.451c0-10.734-.871-18.567-2.756-26.69H130.55v48.448h71.947c-1.45 12.04-9.283 30.172-26.69 42.356l-.244 1.622 38.755 30.023 2.685.268c24.659-22.774 38.875-56.282 38.875-96.027"/><path fill="#34A853" d="M130.55 261.1c35.248 0 64.839-11.605 86.453-31.622l-41.196-31.913c-11.024 7.688-25.82 13.055-45.257 13.055-34.523 0-63.824-22.773-74.269-54.25l-1.531.13-40.298 31.187-.527 1.465C35.393 231.798 79.49 261.1 130.55 261.1"/><path fill="#FBBC05" d="M56.281 156.37c-2.756-8.123-4.351-16.827-4.351-25.82 0-8.994 1.595-17.697 4.206-25.82l-.073-1.73L15.26 71.312l-1.335.635C5.077 89.644 0 109.517 0 130.55s5.077 40.905 13.925 58.602l42.356-32.782"/><path fill="#EB4335" d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0 79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251"/></svg>',
+    classroom: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 578.9 500"><path fill="#0F9D58" d="M52.6 52.6h473.7v394.7H52.6V52.6z"/><path fill="#57BB8A" d="M394.7 263.2c16.4 0 29.6-13.3 29.6-29.6S411 204 394.7 204s-29.6 13.3-29.6 29.6 13.3 29.6 29.6 29.6zm0 19.7c-31.7 0-65.8 16.8-65.8 37.6v21.6h131.6v-21.6c0-20.8-34.1-37.6-65.8-37.6zm-210.5-19.7c16.4 0 29.6-13.3 29.6-29.6S200.5 204 184.2 204s-29.6 13.3-29.6 29.6 13.3 29.6 29.6 29.6zm0 19.7c-31.7 0-65.8 16.8-65.8 37.6v21.6H250v-21.6c0-20.8-34.1-37.6-65.8-37.6z"/><path fill="#F7F7F7" d="M289.5 236.8c21.8 0 39.5-17.7 39.4-39.5 0-21.8-17.7-39.5-39.5-39.4-21.8 0-39.4 17.7-39.4 39.5s17.7 39.4 39.5 39.4zm0 26.4c-44.4 0-92.1 23.6-92.1 52.6v26.3h184.2v-26.3c0-29.1-47.7-52.6-92.1-52.6z"/><path fill="#F1F1F1" d="M342.1 421.1h118.4v26.3H342.1v-26.3z"/><path fill="#F4B400" d="M539.5 0h-500C17.7 0 0 17.7 0 39.5v421.1C0 482.3 17.7 500 39.5 500h500c21.8 0 39.5-17.7 39.5-39.5v-421C578.9 17.7 561.3 0 539.5 0zm-13.2 447.4H52.6V52.6h473.7v394.8z"/></svg>'
+  };
+  function readFakeBrand() {
+    try { const value=JSON.parse(localStorage.getItem(FAKE_BRAND_KEY)||"{}"); return value&&typeof value==="object"?value:{}; }
+    catch { return {}; }
+  }
+  function applyFakeBrand() {
+    const config=readFakeBrand();
+    if (!config.enabled) return;
+    const logo=document.querySelector(".vf-logo"), title=document.querySelector(".vf-title");
+    if (logo && (config.preset==="google" || config.preset==="classroom" || (config.preset==="custom" && config.logoUrl))) {
+      const image=createElement("img"); image.alt=(config.title||"Custom")+" logo";
+      image.src=config.preset==="custom"?config.logoUrl:"data:image/svg+xml;charset=utf-8,"+encodeURIComponent(FAKE_BRAND_PRESETS[config.preset]);
+      image.style.cssText="display:block;width:76%;height:76%;object-fit:contain;position:relative;z-index:3";
+      logo.replaceChildren(image); logo.style.cssText="width:clamp(90px,13vw,142px);height:clamp(90px,13vw,142px);border:0;background:transparent;box-shadow:none;border-radius:0;animation:none";
+      logo.classList.add("vf-fake-logo");
+    }
+    if (title && typeof config.title==="string" && config.title.trim()) title.textContent=config.title.trim();
+    const subtitle=document.querySelector(".vf-subtitle");
+    if (subtitle && config.enabled) subtitle.textContent=" ";
+  }
+
   function triggerPanic() {
     const url = getPanicUrl();
     if (!url) {
@@ -1953,6 +1978,46 @@
     appendChildren(panicActions,savePanic,clearPanic);panicPanel.appendChild(panicActions);
     content.appendChild(panicPanel);
 
+    // Optional decoy branding for the console startup screen.
+    const fakePanel=createElement("section","studio-settings-group studio-fake-brand-settings");
+    const fakeHead=createElement("div","studio-settings-heading");
+    fakeHead.appendChild(createElement("h2","","Fake Logo & Title"));
+    fakeHead.appendChild(createElement("p","","Customize the optional alternate branding shown on the startup screen. Your normal launcher branding stays untouched."));
+    fakePanel.appendChild(fakeHead);
+    const fakeList=createElement("div","studio-settings-list");
+    const enabledRow=createElement("div","studio-setting-row"),enabledCopy=createElement("div","studio-setting-copy");
+    enabledCopy.appendChild(createElement("strong","","Enable fake branding"));
+    enabledCopy.appendChild(createElement("small","","When enabled, the startup screen uses your selected logo and title."));
+    const enabledInput=createElement("input");enabledInput.type="checkbox";enabledInput.checked=!!readFakeBrand().enabled;enabledInput.setAttribute("aria-label","Enable fake branding");
+    appendChildren(enabledRow,enabledCopy,enabledInput);fakeList.appendChild(enabledRow);
+    const presetRow=createElement("div","studio-setting-row"),presetCopy=createElement("div","studio-setting-copy");
+    presetCopy.appendChild(createElement("strong","","Logo preset"));
+    const presetInput=createElement("select","studio-select");
+    [["none","No logo"],["google","Google"],["classroom","Google Classroom"],["custom","Custom image URL"]].forEach(([value,label])=>{const option=createElement("option","",label);option.value=value;presetInput.appendChild(option);});
+    const savedBrand=readFakeBrand();presetInput.value=savedBrand.preset||"google";
+    appendChildren(presetRow,presetCopy,presetInput);fakeList.appendChild(presetRow);
+    const titleRow=createElement("div","studio-setting-row"),titleCopy=createElement("div","studio-setting-copy");
+    titleCopy.appendChild(createElement("strong","","Fake title"));
+    const titleInput=createElement("input","studio-select");titleInput.type="text";titleInput.maxLength=48;titleInput.placeholder="e.g. Google";titleInput.value=savedBrand.title||"Google";titleInput.setAttribute("aria-label","Fake title");
+    appendChildren(titleRow,titleCopy,titleInput);fakeList.appendChild(titleRow);
+    const urlRow=createElement("div","studio-setting-row"),urlCopy=createElement("div","studio-setting-copy");
+    urlCopy.appendChild(createElement("strong","","Custom logo URL"));
+    const logoUrlInput=createElement("input","studio-select");logoUrlInput.type="url";logoUrlInput.placeholder="https://example.com/logo.png";logoUrlInput.value=savedBrand.logoUrl||"";logoUrlInput.setAttribute("aria-label","Custom logo URL");
+    appendChildren(urlRow,urlCopy,logoUrlInput);fakeList.appendChild(urlRow);
+    fakePanel.appendChild(fakeList);
+    const fakeActions=createElement("div","profile-card-actions");
+    const saveFake=createElement("button","secondary-button","Save fake branding");saveFake.type="button";
+    saveFake.addEventListener("click",()=>{
+      const preset=presetInput.value,logoUrl=logoUrlInput.value.trim();
+      if(preset==="custom"&&logoUrl){try{const parsed=new URL(logoUrl);if(!["https:","http:"].includes(parsed.protocol))throw new Error();}catch{showToast("Enter a valid http or https logo URL.");logoUrlInput.focus();return;}}
+      if(preset==="custom"&&!logoUrl){showToast("Add a logo URL for the custom preset.");logoUrlInput.focus();return;}
+      const config={enabled:enabledInput.checked,preset,title:titleInput.value.trim()||" ",logoUrl};
+      localStorage.setItem(FAKE_BRAND_KEY,JSON.stringify(config));applyFakeBrand();showToast("Fake branding saved on this device. Reload to refresh the startup screen.");
+    });
+    const resetFake=createElement("button","icon-button","Reset");resetFake.type="button";
+    resetFake.addEventListener("click",()=>{localStorage.removeItem(FAKE_BRAND_KEY);enabledInput.checked=false;presetInput.value="none";titleInput.value="";logoUrlInput.value="";showToast("Fake branding reset.");});
+    appendChildren(fakeActions,saveFake,resetFake);fakePanel.appendChild(fakeActions);content.appendChild(fakePanel);
+
     section.appendChild(content);root.replaceChildren(section);
   }
 
@@ -2839,6 +2904,7 @@
     setupLauncherFullscreen();
     setupMobileMenu();
     setupConnectionStatus();
+    applyFakeBrand();
 
     /*
      * FIX: renderView() was previously only ever triggered by a
