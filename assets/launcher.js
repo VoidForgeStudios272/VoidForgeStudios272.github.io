@@ -1588,6 +1588,10 @@
         );
         break;
 
+      case "school":
+        renderSchoolView(viewRoot);
+        break;
+
       case "updates":
         renderUpdatesView(
           viewRoot
@@ -1780,6 +1784,76 @@
     root.replaceChildren(
       section
     );
+  }
+
+  /* =========================================================
+     SCHOOL TOOLS
+  ========================================================= */
+
+  const SCHOOL_NOTES_KEY = "voidforgeSchoolNotesV1";
+  const SCHOOL_CARDS_KEY = "voidforgeSchoolCardsV1";
+
+  function renderSchoolView(root) {
+    const section=createLauncherView("school-view");
+    section.appendChild(createViewHeading("School","A focused space for homework, calculations and revision."));
+    const layout=createElement("div","school-tools-grid");
+
+    const calculator=createElement("article","school-tool-card school-calculator");
+    calculator.appendChild(createElement("div","school-tool-kicker","QUICK TOOL"));
+    calculator.appendChild(createElement("h2","","Calculator"));
+    const calcForm=createElement("div","school-calculator-form");
+    const first=createElement("input","school-number-input"); first.type="number"; first.inputMode="decimal"; first.placeholder="First number"; first.setAttribute("aria-label","First number");
+    const operation=createElement("select","school-operation");
+    [["add","+ Add"],["subtract","− Subtract"],["multiply","× Multiply"],["divide","÷ Divide"],["percent","% Percent of"]].forEach(([v,t])=>{const o=createElement("option","",t);o.value=v;operation.appendChild(o);});
+    const second=createElement("input","school-number-input"); second.type="number"; second.inputMode="decimal"; second.placeholder="Second number"; second.setAttribute("aria-label","Second number");
+    const result=createElement("output","school-calculator-result","Result will appear here"); result.setAttribute("aria-live","polite");
+    const calculate=createElement("button","primary-button","Calculate"); calculate.type="button";
+    calculate.addEventListener("click",()=>{
+      const a=Number(first.value),b=Number(second.value);
+      if(first.value.trim()===""||second.value.trim()===""||!Number.isFinite(a)||!Number.isFinite(b)){result.textContent="Enter two valid numbers.";return;}
+      let value;
+      switch(operation.value){case "add":value=a+b;break;case "subtract":value=a-b;break;case "multiply":value=a*b;break;case "divide":if(b===0){result.textContent="Division by zero is not possible.";return;}value=a/b;break;case "percent":value=a*b/100;break;default:return;}
+      result.textContent="= "+Number(value.toPrecision(12)).toLocaleString(undefined,{maximumFractionDigits:10});
+    });
+    calcForm.append(first,operation,second,calculate,result); calculator.appendChild(calcForm);
+    layout.appendChild(calculator);
+
+    const notes=createElement("article","school-tool-card school-notes");
+    notes.appendChild(createElement("div","school-tool-kicker","YOUR WORKSPACE"));
+    notes.appendChild(createElement("h2","","Study notes"));
+    const noteHint=createElement("p","school-tool-description","Write down homework, reminders or lesson notes. They are saved on this device.");
+    const noteArea=createElement("textarea","school-notes-input"); noteArea.placeholder="Start writing your notes…"; noteArea.rows=9; noteArea.setAttribute("aria-label","Study notes");
+    try{noteArea.value=localStorage.getItem(SCHOOL_NOTES_KEY)||"";}catch{}
+    const noteStatus=createElement("p","school-save-status","Saved locally");
+    noteArea.addEventListener("input",()=>{try{localStorage.setItem(SCHOOL_NOTES_KEY,noteArea.value);noteStatus.textContent="Saved";}catch{noteStatus.textContent="Could not save on this device";}});
+    notes.append(noteHint,noteArea,noteStatus);layout.appendChild(notes);
+
+    const flashcards=createElement("article","school-tool-card school-flashcards");
+    flashcards.appendChild(createElement("div","school-tool-kicker","REVISION"));
+    flashcards.appendChild(createElement("h2","","Flashcards"));
+    flashcards.appendChild(createElement("p","school-tool-description","Create a small deck and test what you remember."));
+    const question=createElement("input","school-card-input");question.placeholder="Question or term";question.setAttribute("aria-label","Flashcard question");
+    const answer=createElement("textarea","school-card-input");answer.placeholder="Answer or definition";answer.rows=2;answer.setAttribute("aria-label","Flashcard answer");
+    const addCard=createElement("button","primary-button","Add flashcard");addCard.type="button";
+    const deck=createElement("div","school-card-deck");
+    let cards=[];try{const saved=JSON.parse(localStorage.getItem(SCHOOL_CARDS_KEY)||"[]");if(Array.isArray(saved))cards=saved.filter(x=>x&&typeof x.q==="string"&&typeof x.a==="string");}catch{}
+    let current=0,showAnswer=false;
+    const persist=()=>{try{localStorage.setItem(SCHOOL_CARDS_KEY,JSON.stringify(cards));}catch{}};
+    const draw=()=>{
+      deck.replaceChildren();
+      if(!cards.length){deck.appendChild(createElement("p","school-tool-description","No flashcards yet."));return;}
+      current=Math.min(current,cards.length-1);
+      const card=createElement("button","school-study-card",showAnswer?cards[current].a:cards[current].q);card.type="button";card.setAttribute("aria-label","Flip flashcard");card.addEventListener("click",()=>{showAnswer=!showAnswer;draw();});
+      const controls=createElement("div","school-card-controls");
+      const prev=createElement("button","secondary-button","Previous");prev.type="button";prev.disabled=current===0;prev.addEventListener("click",()=>{current--;showAnswer=false;draw();});
+      const count=createElement("span","school-card-count",(current+1)+" / "+cards.length);
+      const next=createElement("button","secondary-button","Next");next.type="button";next.disabled=current===cards.length-1;next.addEventListener("click",()=>{current++;showAnswer=false;draw();});
+      const remove=createElement("button","secondary-button","Delete");remove.type="button";remove.addEventListener("click",()=>{cards.splice(current,1);persist();showAnswer=false;draw();});
+      controls.append(prev,count,next,remove);deck.append(card,controls);
+    };
+    addCard.addEventListener("click",()=>{const q=question.value.trim(),a=answer.value.trim();if(!q||!a){showToast("Enter both a question and an answer.");return;}cards.push({q,a});persist();question.value="";answer.value="";current=cards.length-1;showAnswer=false;draw();});
+    flashcards.append(question,answer,addCard,deck);layout.appendChild(flashcards);
+    section.appendChild(layout);root.replaceChildren(section);
   }
 
   /* =========================================================
