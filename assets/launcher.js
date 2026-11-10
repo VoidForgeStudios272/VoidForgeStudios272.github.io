@@ -104,38 +104,57 @@
     }
     appleTitle.content = title;
 
-    // iPad Home Screen icons must be PNGs; Safari ignores SVG/data-SVG touch icons.
+    // iPadOS expects a raster Apple touch icon. Convert our SVG presets to PNG
+    // before Safari reads the page metadata for Add to Home Screen.
     const icon=document.querySelector('link[rel="icon"]');
     const shortcutIcon=document.querySelector('link[rel="shortcut icon"]');
     const appleIcon=document.querySelector('link[rel="apple-touch-icon"]');
     const fallbackIcon="./assets/bookmark-icon.svg?v=16";
-    const pngIcons={
-      teams:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAADIUlEQVR42u3dTzIDQRTAYVFuoirlBg5CNhZW5ApWVlauoKwsslE5iBswVc7CivInSonu6ddvvm+N9KR+edMhZmbnx08vO5DErqcAQYOgQdAgaAQNggZBg6BB0AgaBA2CBkGDoBE0CBoEDYIGQSNoEDQIGgQNgkbQIGhoYc9TwCYXV/Nfv+b6cgi37pmLNfKXiKPHLWj+FXK0sO2hxRz655nQhAmvxbQ2ocXc/eN0NaFv7ucK3NJyMYSIbMxJHTZoIZcPu+X+dqyo94Sc39tz+vyY/1h3xTwNrWMe6+zgTaGYU0UdJmjTGROabqbzWFM6RNCmMyY0CNp2I/u2Q9CY0CBoEDQIGkGDoEHQm2z6IDqY0HyyfxBzXTU/7B8maFMaExoiB21K59921P7fwnATerkYhM3WXMYgsY+DofUVjcaYzl0EnekF1PrMM4XLGHhTOOLZwNlG0HQ4JVs+rqBFnerxBC3qVGcEt6SYeNQ13ii2vOi5CS3sNDGb0BSb1lHusSJoNkbZ612wBE03sdpDMzmCRtAgaBA0CBpBg6BB0CBoEDRT5LMcE3N0Mv7/Na5Xg6DpO+KfHr923IIWcpM11QrbHlrMqdZnQgs51bQ2ocWcat2CJhVBm86p1i9oMac6DkFjy4HpHPV4BE0qfg/Nu7vbh62/9/Ts0JaDONuN/8Rc4vtLHZegKRZjyagFTYgIW0ctaFIRNIIGQYOgQdAIGgQNggZBg6ARNAgaBA2CBkEjaBA0CBoEDYJG0CBoEDQIGgSNoEHQIGgQNAgaQYOgQdAgaBA0xW/H1vr2boKmWIQR7lUoaIrEGOXGm+4k27H1aih6880oUa5XgwkNgkbQxNt2OB5BY0JjSsc/DkF/sFwM3f783qMutX5BY8thSseb/j1P6ZLrnp0fP73I+Lub+3lXMX9V8g8uPb0ATejKEbaIuYdpXWt9JnTFSd0q5sjTuvYLTdAVwo4ScpS4xzxbCJpU7KERNAgaBA2CRtAgaBA0CBoEjaBB0CBoEDQIGkGDoEHQIGgQNIIGQYOgQdAgaAQNggZBg6BB0AgaBA2Chq29Aj9V8DmFNggUAAAAAElFTkSuQmCC",
-      google:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAAE0ElEQVR42u3dPY7cZBjAca8V0SAhIcEJ9gI00MNyBKSUe45wgHAOOpCoqEkokZKGC3ACikgrpUGRhmrRaMls5sN+/Xz8/lWaKB77t09eez321W63201SkWa7QEBLQEtAS0ALaAloCWgJaAloAS0BLQEtAS0BLaAloCWgJaAloAW0BLQEtAS0BLSAloCWgJaAloBW0Z7YBct18/zt2X/3xfcf24ELdOX50GPhgg50O8RwA10SMOBAt4AMNtAlIYMNdEnIYANdEjLYDUF3gNwZdhvQHSF3hD3D7H8noB1E+8OSw4GzBDGhYbafeoOGuff+mh0cVdpvs4OiSvtvdjBUaT/ODoLu++nl19Pf334FNMw1MN+XGfUMs/YxZ0c9wwzzoTKinmGG+bGyoZ5hhrkSas/lWKFT7pHY4of0FMzZSnNzUtTpvMYNPmt+1kswf/7bK6CX6Mufv/vvz5/89WNJxCNwLzGZo6MOD3of89aot7zd8lLYSy4zIqNOuYa+u74dijrCfcP323AO7Mpr5lQT+n3TeeS0jnwD/LGw18IcdUqnv5fj7vq2HeZjt6/TZA4/oY+ZzmtN60xfTTo0qUdgjjilS12HvnRtnfE7du9bW3eczKEn9DnT+dJpXeELozfP3w7HHG1Kl32MwSlr6yrffvawxoCgl5jOp6CuhmD0xIx2n0f5B83cXd8ehF11omX4FXUL0EtO50uWIMo7pVu91m1/Wldfb3ad0mFArzmdu548jUQdZUq3e/Hm66e/tPq83Sa1N8kKaNPZlAY6yPpZtdfRbSZ01+ncbUpbQwvobMuN7tN55JTeetnhMQYrF+7b6t/8vv6/sfeZR1/zt+SQJYeTQQEtAS0BLQEtoCWgJaAloCWgBXTy3PwEtAT0ubl5SCa0BLSAdmIooKVt86CZlYv2cPURTzba8jl6m0/oEVc6LDt6YLbkkDW0k0PTGegAyw6tX4RnULdacnSd0l2mszW0gDalTWegg62ju6AeiTnKO1zaLjmqo+42mUOCdrUjZ5HesNX6pLDqlO46nUOCHj2lq6EejTna+w9dtpum6d2Lj8p8jk+f/dn6WIYEPXJK//HZryVQ72//KNQR307bekLfY95HkQ32oW3uOqnDgl57Sj/EnHEJ8qHtXBN11HeHt5zQj2HOgvrY7es2qa92u90u8gYufRXiGMwPe3LzT/oT2Dc/fFF+Oreb0OdgjrK2vnQbukzq8BN6qSl9LuatJ/bSP0iXTurI0zkN6EtRL4l5BO61/zc4F3V0zKlAn4t6TcxLIN9qKXMq6gyYp6n4Ywy2wLwl0lPX1EueKDopPKNTrk1vhTlTx54oZpnO6UAfixrm5VBnwpwS9IdQw7wc6myY04I+hBrm5VBnxJwa9EPUMC+HOivmaUp22S7zVYUsRfo1f7sJXeUg2I9AQ23/1QYNtf1WDjTU9tfsIMFcqRJXOR7LFZBeP/Czgwcz0A6i/WDJYQkCMtBggwx0d9idl1jtQVeC7VwB6BKwQQa6BGyQgU4NHGCg0+OGGOiU0MEFWvpfXkkhoCWgJaAloAW0BLQEtAS0BLSAloCWgJaAloAW0BLQEtAS0BLQAloCWgJaAloCWkBLQEtAS0BLe/0LKi9Gb3qE6dgAAAAASUVORK5CYII=",
-      classroom:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAAEO0lEQVR42u3dzW3bQBRFYZtQAS4idQRIF/HWi8AlBV5463QRwHWkCHegrLQRYkFiyHk/852tDYp6c3T5OCSH98fj8XgHNGFRAhAaIDRAaIDQIDRAaIDQAKEBQoPQAKEBQgOEBggNQgOEBggNEBogNAgNEBogNLANhww78fD6aCSa8PH0Fvr591ELzZCY3C2EJjKx2/TQZJ6TkeM+JKGJjFFpvZAZndLatB1asVT+NUJKDxOazIjwQ8sBLYd0RlZPJDQkNDCN0NoNRPoioSGhAUIDhAYIDUIDhAYIDRAaIDRAaIDRAaIDRAaIDRAaIDQIDRAaIDQAKEBQoPQA6m2YGD0w7PVHt6NGl8JDQkNELpw25HlcF+l7YgcVwkNCT1TSmfbP/W6TJqlwDLe8J9Znk71arkUmCRUr3Y9dJaiVDlZVa8CJ4XRxal2wUe9kvbQ0X1ih1edVa3XlC/e3GOwOr+vr1K9vEkWrWi94DlAaIDQIPTgfgj6ZwkNCQ0QWtuBhJ5IaEhoKY2sfiwVdxpk1nJAyyGlUc2HzW9OuoQbl4hcPqGlNUaO+9CEltZEbis0uUncVmigZA8NEBogNAgNEBogNEBogNAgNEBogNAAoQFCg9AAoQFCA4QGCA1CA4QGCA0QGjjjLxDUE/8/0THCAAAAAElFTkSuQmCC"
-    };
     let iconUrl=fallbackIcon;
-    let appleIconUrl=pngIcons.teams;
+    let appleSource=fallbackIcon;
     if(config.enabled) {
-      if(config.preset==="google") {
-        iconUrl="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(FAKE_BRAND_PRESETS.google);
-        appleIconUrl=pngIcons.google;
-      } else if(config.preset==="classroom") {
-        iconUrl="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(FAKE_BRAND_PRESETS.classroom);
-        appleIconUrl=pngIcons.classroom;
+      if(config.preset==="google" || config.preset==="classroom") {
+        iconUrl="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(FAKE_BRAND_PRESETS[config.preset]);
+        appleSource=iconUrl;
       } else if(config.preset==="svg" && typeof config.svgCode==="string" && config.svgCode.trim()) {
         iconUrl="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(config.svgCode.trim());
-        // iPadOS needs a PNG touch icon; use the PNG fallback for pasted SVGs.
+        appleSource=iconUrl;
       } else if(config.preset==="custom" && typeof config.logoUrl==="string" && config.logoUrl.trim()) {
         iconUrl=config.logoUrl.trim();
-        if (/\\.(png|jpe?g|webp)(?:[?#]|$)/i.test(iconUrl)) appleIconUrl=iconUrl;
+        appleSource=/\\.(png|jpe?g|webp)(?:[?#]|$)/i.test(iconUrl) ? iconUrl : fallbackIcon;
       }
     }
     [icon,shortcutIcon].filter(Boolean).forEach(link=>link.href=iconUrl);
     if(appleIcon) {
-      appleIcon.href=appleIconUrl;
-      appleIcon.type="image/png";
-      appleIcon.sizes="180x180";
+      // A direct PNG/JPEG/WebP URL can be used without canvas conversion.
+      if(appleSource===iconUrl && /\\.(png|jpe?g|webp)(?:[?#]|$)/i.test(appleSource)) {
+        appleIcon.href=appleSource;
+        appleIcon.type="image/png";
+        appleIcon.sizes="180x180";
+      } else {
+        appleIcon.href=fallbackIcon;
+        appleIcon.type="image/svg+xml";
+        appleIcon.sizes="any";
+        const touchImage=new Image();
+        touchImage.onload=()=>{
+          try {
+            const canvas=document.createElement("canvas");
+            canvas.width=180;
+            canvas.height=180;
+            const context=canvas.getContext("2d");
+            if(!context) return;
+            context.clearRect(0,0,180,180);
+            context.drawImage(touchImage,0,0,180,180);
+            appleIcon.href=canvas.toDataURL("image/png");
+            appleIcon.type="image/png";
+            appleIcon.sizes="180x180";
+          } catch(error) {
+            console.warn("Could not prepare the iPad Home Screen icon:",error);
+          }
+        };
+        touchImage.onerror=()=>console.warn("Could not load the selected Home Screen icon.");
+        touchImage.src=appleSource;
+      }
     }
 
     // Keep the real, static manifest URL. iPadOS Safari uses Apple touch-icon
