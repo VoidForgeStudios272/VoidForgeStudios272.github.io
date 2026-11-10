@@ -2945,3 +2945,28 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible {
   .sidebar .nav-item,
   .sidebar .nav-item .nav-icon { transition: none !important; }
 }
+
+
+/* =========================================================
+   SCHOOL TOOLS
+========================================================= */
+.school-tools-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+.school-tool-card{min-width:0;padding:24px;border:1px solid var(--line);border-radius:20px;background:var(--panel,rgba(255,255,255,.035));box-shadow:0 12px 36px rgba(0,0,0,.12)}
+.school-tool-card h2{margin:7px 0 12px;font-size:23px;letter-spacing:-.03em}
+.school-tool-kicker{color:var(--accent);font-size:10px;font-weight:800;letter-spacing:.15em}
+.school-tool-description{color:var(--muted);font-size:13px;line-height:1.55}
+.school-calculator-form{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.school-number-input,.school-operation,.school-card-input,.school-notes-input{width:100%;min-width:0;border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--panel-light,rgba(255,255,255,.05));color:var(--text);font:inherit}
+.school-operation{grid-column:1/-1}
+.school-calculator-form .primary-button{grid-column:1/-1}
+.school-calculator-result{grid-column:1/-1;display:block;min-height:48px;padding:14px;border-radius:12px;background:var(--panel-light,rgba(255,255,255,.05));font-size:16px;font-weight:700;overflow-wrap:anywhere}
+.school-notes{grid-row:span 2}
+.school-notes-input{resize:vertical;min-height:190px;line-height:1.6}
+.school-save-status{margin:8px 0 0;color:var(--muted);font-size:11px}
+.school-flashcards{grid-column:1}
+.school-card-input{margin:0 0 9px}
+.school-card-deck{margin-top:15px}
+.school-study-card{width:100%;min-height:125px;padding:22px;border:1px solid var(--line);border-radius:16px;background:var(--panel-light,rgba(255,255,255,.06));color:var(--text);font-size:18px;font-weight:650;white-space:pre-wrap;overflow-wrap:anywhere}
+.school-card-controls{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:10px}
+.school-card-count{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+@media(max-width:760px){.school-tools-grid{grid-template-columns:1fr}.school-notes,.school-flashcards{grid-column:auto;grid-row:auto}.school-tool-card{padding:18px}}
