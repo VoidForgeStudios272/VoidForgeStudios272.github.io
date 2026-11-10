@@ -770,23 +770,61 @@ h1 {
 .game-view {
   position: fixed;
   z-index: 30;
-
   inset: 0;
-
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
-
-  background: #07060d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5vh 3vw;
+  background: rgba(3, 5, 12, .72);
+  backdrop-filter: blur(14px);
 }
-
 .game-view[hidden] {
   display: none !important;
 }
 
-.game-view:not([hidden]) {
-  display: flex;
-  flex-direction: column;
+.game-view:not([hidden]) { display: flex; }
+.game-view .game-toolbar,
+.game-view .game-stage {
+  width: min(1440px, 94vw);
+}
+.game-view .game-toolbar {
+  flex: 0 0 64px;
+  border: 1px solid rgba(255,255,255,.13);
+  border-bottom: 0;
+  border-radius: 16px 16px 0 0;
+  cursor: grab;
+  user-select: none;
+}
+.game-view .game-toolbar:active { cursor: grabbing; }
+.game-view .game-stage {
+  height: min(82vh, 900px);
+  flex: 0 1 min(82vh, 900px);
+  min-height: 220px;
+  border: 1px solid rgba(255,255,255,.13);
+  border-top: 0;
+  border-radius: 0 0 16px 16px;
+  box-shadow: 0 28px 90px rgba(0,0,0,.55);
+  resize: both;
+  overflow: hidden;
+}
+.game-view.window-maximized { padding: 0; }
+.game-view.window-maximized .game-toolbar,
+.game-view.window-maximized .game-stage { width: 100vw; max-width: none; }
+.game-view.window-maximized .game-toolbar { border-radius: 0; }
+.game-view.window-maximized .game-stage { height: calc(100dvh - 64px); flex: 1 1 auto; border-radius: 0; }
+.game-view.window-minimized .game-stage { display: none; }
+.game-view.window-minimized { align-items: flex-end; padding: 0 16px 16px; background: transparent; backdrop-filter: none; pointer-events: none; }
+.game-view.window-minimized .game-toolbar { pointer-events: auto; width: min(520px, calc(100vw - 32px)); border: 1px solid rgba(255,255,255,.16); border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,.5); }
+.game-view.window-minimized .game-toolbar-info { cursor: default; }
+.window-control { min-width: 36px; padding: 7px 10px; font-size: 17px; line-height: 1; }
+.game-view.window-maximized .game-toolbar { cursor: default; }
+@media (max-width: 720px) {
+  .game-view { padding: 0; background: #07060d; backdrop-filter: none; }
+  .game-view .game-toolbar { width: 100%; height: auto; min-height: 58px; flex-basis: auto; flex-wrap: wrap; gap: 8px; padding: 9px 10px; border-radius: 0; }
+  .game-view .game-toolbar > div:last-child { flex: 1 1 100%; overflow-x: auto; justify-content: flex-start; padding-bottom: 2px; }
+  .game-view .game-stage { width: 100%; height: auto; flex: 1 1 auto; min-height: 0; resize: none; border-radius: 0; }
+  .game-view.window-minimized { padding: 0 10px 10px; background: transparent; }
+  .game-view.window-minimized .game-toolbar { width: 100%; flex-basis: auto; }
 }
 
 /* =========================
