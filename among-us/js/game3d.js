@@ -24,7 +24,7 @@ export async function start3DGame(mapId, options={}) {
   const sceneColor=map.sky;
   try {
     renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});
-    renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.8));renderer.setSize(view.clientWidth,view.clientHeight);
+    renderer.setPixelRatio(Math.min(devicePixelRatio||1,matchMedia('(max-width: 700px), (pointer: coarse)').matches?1.25:1.6));renderer.setSize(view.clientWidth,view.clientHeight);
     renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
     renderer.outputColorSpace=THREE.SRGBColorSpace;
     scene=new THREE.Scene();scene.background=new THREE.Color(sceneColor);scene.fog=new THREE.Fog(sceneColor,38,95);
@@ -119,7 +119,7 @@ export async function start3DGame(mapId, options={}) {
     window.addEventListener("keydown",keydown);window.addEventListener("keyup",keyup);
     host.querySelectorAll("[data-move]").forEach(btn=>{
       const dir=btn.dataset.move;
-      const down=e=>{e.preventDefault();touch.add(dir);};const up=e=>{e.preventDefault();touch.delete(dir);};
+      const down=e=>{e.preventDefault();try{btn.setPointerCapture(e.pointerId);}catch{}touch.add(dir);};const up=e=>{e.preventDefault();touch.delete(dir);};
       btn.addEventListener("pointerdown",down);btn.addEventListener("pointerup",up);btn.addEventListener("pointercancel",up);btn.addEventListener("pointerleave",up);
     });
     host.querySelector(".vf3d-use").addEventListener("click",attemptUse);
