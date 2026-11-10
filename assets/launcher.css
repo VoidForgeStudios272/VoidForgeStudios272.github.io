@@ -2970,3 +2970,17 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible {
 .school-card-controls{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:10px}
 .school-card-count{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
 @media(max-width:760px){.school-tools-grid{grid-template-columns:1fr}.school-notes,.school-flashcards{grid-column:auto;grid-row:auto}.school-tool-card{padding:18px}}
+
+
+/* Additional School tools */
+.school-homework-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:center}
+.school-homework-list{display:grid;gap:8px;margin-top:14px}
+.school-homework-item{display:grid;grid-template-columns:20px minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 11px;border:1px solid var(--line);border-radius:11px;background:var(--panel-light,rgba(255,255,255,.04))}
+.school-homework-item input{width:17px;height:17px;accent-color:var(--accent);cursor:pointer}
+.school-homework-item span{min-width:0;overflow-wrap:anywhere;font-size:13px}
+.school-homework-item.is-done span{color:var(--muted);text-decoration:line-through}
+.school-homework-item .secondary-button{min-height:32px;padding:6px 9px;font-size:11px}
+.school-grades,.school-converter{display:flex;flex-direction:column;align-items:stretch;gap:10px}
+.school-grades h2,.school-converter h2{margin-bottom:0}
+.school-grades .school-calculator-result,.school-converter .school-calculator-result{margin-top:2px}
+@media(max-width:480px){.school-homework-form{grid-template-columns:1fr}.school-homework-form .primary-button{width:100%}.school-homework-item{gap:7px;padding:9px}.school-homework-item span{font-size:12px}}
