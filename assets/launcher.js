@@ -1353,8 +1353,11 @@
               const gameDocument = gameFrame.contentDocument;
               if (gameDocument && !gameDocument.querySelector("[data-voidforge-settings-bridge]")) {
                 const bridgeScript = gameDocument.createElement("script");
-                bridgeScript.src = new URL("/assets/game-settings.js", window.location.origin).href;
+                // Resolve from the launcher page so GitHub Pages project paths are preserved.
+                bridgeScript.src = new URL("assets/game-settings.js", window.location.href).href;
                 bridgeScript.dataset.voidforgeSettingsBridge = "true";
+                bridgeScript.onload = () => broadcastStudioSettings();
+                bridgeScript.onerror = () => console.warn("[VoidForge] Could not load the game settings API:", bridgeScript.src);
                 (gameDocument.head || gameDocument.documentElement).appendChild(bridgeScript);
               }
             } catch (error) {
@@ -2147,7 +2150,26 @@
     pauseOnBlur:false,autoReload:false,
     developerMode:false,showDebugInfo:false,showConsoleErrors:false,showNetworkStatus:false,
     fov:90,sensitivity:1,invertY:false,renderScale:100,
-    shadows:"high",antiAliasing:true,targetFps:"60",showSafeArea:false
+    shadows:"high",antiAliasing:true,targetFps:"60",showSafeArea:false,
+    audioBalance:0,audioDucking:true,spatialAudio:false,muteWhenUnfocused:false,masterLimiter:true,
+    displayBrightness:100,displayContrast:100,displaySaturation:100,uiDensity:"comfortable",hudOpacity:100,fullscreenOnLaunch:false,screenOrientation:"auto",
+    showHints:true,showLoadingTips:true,autoRestart:false,pauseWhenHidden:true,confirmRestart:true,quickStart:false,dynamicDifficulty:false,
+    colorBlindMode:"off",dyslexiaFriendlyFont:false,textSpacing:100,subtitleSize:100,reduceFlashes:true,monoAudio:false,holdToConfirm:false,
+    touchControls:true,leftHandedControls:false,touchButtonSize:100,controllerDeadzone:12,aimAssist:false,tapToInteract:true,
+    showScore:true,showBestScore:true,showControlHints:true,compactHud:false,hideCursor:false,crosshairStyle:"default",
+    rememberLastGame:true,saveGameProgress:true,localTelemetry:false,clearDataOnExit:false,reduceDataUsage:false,cacheAssets:true,
+    apiDiagnostics:false,verboseLogs:false,showHitboxes:false,showFrameGraph:false,disableGameCache:false,
+    liquidGlass:false
+  };
+  const STUDIO_SETTING_HELP = {
+    masterVolume:"Sets the overall volume for game audio.",musicVolume:"Controls background music separately from effects.",sfxVolume:"Controls clicks, impacts and other game sound effects.",muted:"Turns off all game audio.",audioBalance:"Moves sound toward the left or right speaker when supported.",audioDucking:"Temporarily lowers music when an important sound plays.",spatialAudio:"Lets compatible games position sounds around you.",muteWhenUnfocused:"Mutes game audio while you are using another tab or app.",masterLimiter:"Helps prevent sudden loud volume spikes.",
+    graphics:"Balances visual detail and game performance.",displayBrightness:"Brightens or darkens the game view.",displayContrast:"Makes light and dark areas more distinct.",displaySaturation:"Controls how vivid game colors appear.",uiDensity:"Choose tighter or more open spacing in game menus.",hudOpacity:"Changes how transparent supported game overlays look.",fullscreenOnLaunch:"Requests fullscreen when a game and browser allow it.",screenOrientation:"Tells compatible games which screen layout you prefer.",showFps:"Displays the frames-per-second counter when a game reports it.",showPerformance:"Shows available performance details.",textScale:"Changes the size of game interface text.",colorMode:"Selects the preferred light or dark game theme.",
+    difficulty:"Sets the starting difficulty for games that read this preference.",autosave:"Allows compatible games to save progress automatically.",showHints:"Displays tips in games that provide hints.",showLoadingTips:"Shows helpful messages while supported games are starting.",autoRestart:"Restarts a round automatically when supported.",confirmExit:"Helps prevent accidental exits.",confirmRestart:"Asks before starting a round over.",quickStart:"Skips extra start screens in compatible games.",dynamicDifficulty:"Allows supported games to adjust challenge based on play.",controllerVibration:"Allows supported controllers to vibrate.",subtitles:"Displays spoken dialogue as text when available.",pauseWhenHidden:"Requests a pause when the game is not visible.",
+    reduceMotion:"Reduces animations and transitions.",screenShake:"Turns supported camera-shake effects on or off.",particles:"Controls decorative particle effects in compatible games.",language:"Sets the preferred language when a game offers it.",notifications:"Allows games to send browser notifications.",highContrast:"Improves separation between text and backgrounds.",largeCursor:"Makes the pointer easier to see.",colorBlindMode:"Provides a color-vision mode to games that support it.",dyslexiaFriendlyFont:"Requests a clearer reading font where available.",textSpacing:"Adjusts letter and word spacing in compatible interfaces.",subtitleSize:"Changes subtitle text size when supported.",reduceFlashes:"Reduces flashing effects in compatible games.",monoAudio:"Requests mono sound output where supported.",holdToConfirm:"Helps avoid accidental activation of important actions.",
+    fov:"Controls how wide the camera view appears in compatible 3D games.",sensitivity:"Changes how quickly the camera responds to mouse or touch movement.",invertY:"Reverses up-and-down camera movement.",touchControls:"Shows touch buttons on supported mobile games.",leftHandedControls:"Moves supported touch controls to the opposite side.",touchButtonSize:"Makes on-screen controls larger or smaller.",controllerDeadzone:"Sets how far a stick must move before input is detected.",aimAssist:"Requests aiming help in games that implement it.",tapToInteract:"Lets you tap objects or buttons to interact on touchscreens.",
+    showGameTimer:"Shows how long the current game session has lasted.",showGameResolution:"Shows the game's reported screen size.",showScore:"Shows the current score when the game provides one.",showBestScore:"Shows your best saved score when available.",showControlHints:"Displays available keyboard or touch controls.",compactHud:"Uses a tighter layout for supported game overlays.",hideCursor:"Hides the pointer while a game is active where possible.",crosshairStyle:"Chooses the reticle style in games that expose one.",showSafeArea:"Draws a guide around screen edges for mobile layouts.",pauseOnBlur:"Requests a pause when the game window loses focus.",autoReload:"Allows a game to request a reload from the launcher.",
+    rememberLastGame:"Remembers which game you opened most recently on this device.",saveGameProgress:"Allows game progress to be stored in this browser.",localTelemetry:"Enables optional local diagnostics; it does not upload data to a server.",clearDataOnExit:"Clears temporary game data when you leave a game.",reduceDataUsage:"Asks compatible games to prefer smaller downloads.",cacheAssets:"Allows game files to be cached for faster loading.",disableGameCache:"Forces fresh game files to be requested on the next load.",
+    developerMode:"Enables extra development features.",showDebugInfo:"Shows additional game and launcher details.",showConsoleErrors:"Forwards JavaScript errors from the active game.",showNetworkStatus:"Displays whether the browser is online.",apiDiagnostics:"Shows whether the active game connected to the VoidForge settings API.",verboseLogs:"Enables more detailed debugging messages.",showHitboxes:"Shows collision areas in games that expose them.",showFrameGraph:"Shows frame timing information when a game reports it.",liquidGlass:"Applies an experimental translucent glass appearance to the launcher. You can turn it off at any time."
   };
   let studioSettings = readStudioSettings();
   const GAME_PROFILE_KEY = "voidforgeGameProfilesV1";
@@ -2206,18 +2228,20 @@
     const base=STUDIO_SETTINGS_DEFAULTS[key];
     if(typeof base==="boolean"&&typeof value!=="boolean") return;
     if(typeof base==="number") { value=Number(value); if(!Number.isFinite(value)) return;
-      const bounds={textScale:[75,150],fov:[60,120],sensitivity:[0.1,5],renderScale:[50,100],masterVolume:[0,100],musicVolume:[0,100],sfxVolume:[0,100]};
+      const bounds={textScale:[75,150],fov:[60,120],sensitivity:[0.1,5],renderScale:[50,100],masterVolume:[0,100],musicVolume:[0,100],sfxVolume:[0,100],audioBalance:[-100,100],displayBrightness:[50,150],displayContrast:[75,150],displaySaturation:[0,150],hudOpacity:[20,100],textSpacing:[80,150],subtitleSize:[75,175],touchButtonSize:[75,150],controllerDeadzone:[0,40]};
       const range=bounds[key]||[0,100]; value=Math.max(range[0],Math.min(range[1],value)); }
     if(typeof base==="string") {
       if(typeof value!=="string") return;
       const allowed={
         graphics:["low","medium","high","ultra"],language:["system","en","de","fr","es"],
         difficulty:["easy","normal","hard","adaptive"],colorMode:["system","dark","light"],
-        shadows:["off","low","medium","high"],targetFps:["30","60","120","unlimited"]
+        shadows:["off","low","medium","high"],targetFps:["30","60","120","unlimited"],
+        uiDensity:["compact","comfortable","spacious"],screenOrientation:["auto","landscape","portrait"],
+        colorBlindMode:["off","protanopia","deuteranopia","tritanopia"],crosshairStyle:["default","dot","circle","cross","off"]
       };
       if(allowed[key]&&!allowed[key].includes(value)) return;
     }
-    studioSettings[key]=value; persistStudioSettings(); broadcastStudioSettings(); updateGameStatsOverlay();
+    studioSettings[key]=value; persistStudioSettings(); broadcastStudioSettings(); updateGameStatsOverlay(); applyStudioAppearanceSettings();
     window.dispatchEvent(new CustomEvent("voidforge:settings-change",{detail:{...studioSettings,key,value}}));
   }
   let gameStatsOverlay = null;
@@ -2251,7 +2275,16 @@
     gameStatsOverlay.textContent=fps+size+timer+debug+network;
     gameStatsOverlay.dataset.state=latestGameFps===null?"waiting":"live";
   }
+  function applyStudioAppearanceSettings() {
+    const root=document.documentElement;
+    const enabled=!!studioSettings.liquidGlass;
+    root.classList.toggle("vf-liquid-glass",enabled);
+    document.body?.classList.toggle("vf-liquid-glass",enabled);
+    root.style.setProperty("--vf-hud-opacity",String(Number(studioSettings.hudOpacity??100)/100));
+    root.style.setProperty("--vf-touch-scale",String(Number(studioSettings.touchButtonSize??100)/100));
+  }
   function setupStudioSettingsBridge() {
+    applyStudioAppearanceSettings();
     ensureGameStatsOverlay();
     window.addEventListener("message",event=>{
       if(!gameFrame?.contentWindow||event.source!==gameFrame.contentWindow) return;
@@ -2283,22 +2316,24 @@
     const content=createElement("div","settings-content");
     content.appendChild(createElement("p","settings-intro","Adjust your console experience once. Supported games receive these preferences automatically when they launch and whenever you change them."));
     const groups=[
-      {title:"Audio",desc:"Control game sound levels.",fields:[["masterVolume","Master volume","range",0,100,"%"],["musicVolume","Music volume","range",0,100,"%"],["sfxVolume","Sound effects","range",0,100,"%"],["muted","Mute all game audio","toggle"]]},
-      {title:"Display & Graphics",desc:"Choose visual quality and performance overlays.",fields:[["graphics","Graphics quality","select",["low","medium","high","ultra"]],["showFps","Show FPS counter","toggle"],["showPerformance","Performance overlay","toggle"],["textScale","Game UI scale","range",75,150,"%"],["colorMode","Game color mode","select",["system","dark","light"]]]},
-      {title:"Gameplay",desc:"Set shared gameplay preferences.",fields:[["difficulty","Default difficulty","select",["easy","normal","hard","adaptive"]],["autosave","Enable autosave when supported","toggle"],["confirmExit","Confirm before leaving a game","toggle"],["controllerVibration","Controller vibration","toggle"],["subtitles","Subtitles when supported","toggle"]]},
-      {title:"Accessibility & Experience",desc:"Make games more comfortable to play.",fields:[["reduceMotion","Reduce motion and animations","toggle"],["screenShake","Screen shake effects","toggle"],["particles","Particle effects","toggle"],["language","Preferred language","select",["system","en","de","fr","es"]],["notifications","Game notifications","toggle"],["highContrast","High contrast","toggle"],["largeCursor","Larger cursor","toggle"]]},
-      {title:"Camera & Controls",desc:"Camera and input preferences are shared with games that support them.",fields:[["fov","Field of view (FOV)","range",60,120,"°",1],["sensitivity","Look sensitivity","range",0.1,5,"×",0.1],["invertY","Invert vertical look","toggle"],]},
-      {title:"Graphics Advanced",desc:"Fine-tune rendering preferences for compatible games.",fields:[["renderScale","Render scale","range",50,100,"%",5],["shadows","Shadow quality","select",["off","low","medium","high"]],["antiAliasing","Anti-aliasing","toggle"],["targetFps","Frame-rate target","select",["30","60","120","unlimited"]]]},
-      {title:"Game HUD & Behavior",desc:"Studio overlays work automatically; other options are sent to games that implement them.",fields:[["showGameTimer","Show session timer","toggle"],["showGameResolution","Show game resolution","toggle"],["pauseOnBlur","Request pause when game loses focus","toggle"],["autoReload","Allow games to request automatic reload","toggle"],["showSafeArea","Show safe-area guide","toggle"]]},
-      {title:"Developer Mode",desc:"Unlock diagnostics and advanced game debugging options.",fields:[["developerMode","Enable Developer Mode","toggle"],["showDebugInfo","Show debug information","toggle"],["showConsoleErrors","Forward game errors to Studio","toggle"],["showNetworkStatus","Show network status","toggle"]]}
+      {title:"Sound",desc:"Set overall volume and how game audio behaves.",fields:[["masterVolume","Master volume","range",0,100,"%"],["musicVolume","Background music volume","range",0,100,"%"],["sfxVolume","Sound effects volume","range",0,100,"%"],["muted","Mute all game audio","toggle"],["audioBalance","Left / right audio balance","range",-100,100,"",1],["audioDucking","Lower music during important sounds","toggle"],["spatialAudio","Enable spatial audio when supported","toggle"],["muteWhenUnfocused","Mute games when this tab is in the background","toggle"],["masterLimiter","Prevent sudden loud audio peaks","toggle"]]},
+      {title:"Display & Graphics",desc:"Choose image quality and tune how the game looks on your screen.",fields:[["graphics","Graphics quality","select",["low","medium","high","ultra"]],["displayBrightness","Game brightness","range",50,150,"%"],["displayContrast","Game contrast","range",75,150,"%"],["displaySaturation","Game color intensity","range",0,150,"%"],["uiDensity","Interface spacing","select",["compact","comfortable","spacious"]],["hudOpacity","HUD transparency","range",20,100,"%"],["fullscreenOnLaunch","Open games in fullscreen when possible","toggle"],["screenOrientation","Preferred screen orientation","select",["auto","landscape","portrait"]],["showFps","Show FPS counter","toggle"],["showPerformance","Show performance information","toggle"],["textScale","Game text size","range",75,150,"%"],["colorMode","Game color theme","select",["system","dark","light"]]]},
+      {title:"Gameplay",desc:"Choose helpful defaults. A game uses an option when it supports that feature.",fields:[["difficulty","Default difficulty","select",["easy","normal","hard","adaptive"]],["autosave","Save progress automatically when supported","toggle"],["showHints","Show hints and helpful tips","toggle"],["showLoadingTips","Show tips while a game is loading","toggle"],["autoRestart","Restart a game automatically after a round","toggle"],["confirmExit","Ask before leaving a game","toggle"],["confirmRestart","Ask before starting a round over","toggle"],["quickStart","Skip the title screen when possible","toggle"],["dynamicDifficulty","Let supported games adjust difficulty over time","toggle"],["controllerVibration","Allow controller vibration","toggle"],["subtitles","Show subtitles when available","toggle"],["pauseWhenHidden","Pause games when the tab is hidden","toggle"]]},
+      {title:"Accessibility",desc:"Make text, motion, color and input easier to use.",fields:[["reduceMotion","Reduce animations and movement","toggle"],["screenShake","Allow screen-shake effects","toggle"],["particles","Show decorative particle effects","toggle"],["language","Preferred game language","select",["system","en","de","fr","es"]],["notifications","Allow game notifications","toggle"],["highContrast","Increase contrast for better readability","toggle"],["largeCursor","Use a larger pointer","toggle"],["colorBlindMode","Color-vision assistance","select",["off","protanopia","deuteranopia","tritanopia"]],["dyslexiaFriendlyFont","Use a dyslexia-friendly font when supported","toggle"],["textSpacing","Text spacing","range",80,150,"%"],["subtitleSize","Subtitle size","range",75,175,"%"],["reduceFlashes","Reduce flashing and rapid brightness changes","toggle"],["monoAudio","Use mono audio when supported","toggle"],["holdToConfirm","Require a short hold for important actions","toggle"]]},
+      {title:"Camera & Controls",desc:"Adjust camera movement and touch or controller input.",fields:[["fov","Field of view","range",60,120,"°",1],["sensitivity","Look sensitivity","range",0.1,5,"×",0.1],["invertY","Invert vertical camera movement","toggle"],["touchControls","Show touch controls on phones and tablets","toggle"],["leftHandedControls","Move touch controls for left-handed play","toggle"],["touchButtonSize","Touch button size","range",75,150,"%"],["controllerDeadzone","Controller stick dead zone","range",0,40,"%",1],["aimAssist","Enable aim assistance when supported","toggle"],["tapToInteract","Use a tap to interact on touchscreens","toggle"]]},
+      {title:"HUD & Game Screen",desc:"Choose which game information and visual helpers stay on screen.",fields:[["showGameTimer","Show the session timer","toggle"],["showGameResolution","Show game resolution","toggle"],["showScore","Show the current score when available","toggle"],["showBestScore","Show your best score when available","toggle"],["showControlHints","Show keyboard and touch hints","toggle"],["compactHud","Use a smaller, more compact game HUD","toggle"],["hideCursor","Hide the pointer while playing","toggle"],["crosshairStyle","Crosshair appearance","select",["default","dot","circle","cross","off"]],["showSafeArea","Show the screen safe-area guide","toggle"],["pauseOnBlur","Ask games to pause when they lose focus","toggle"],["autoReload","Allow games to request a reload","toggle"]]},
+      {title:"Privacy, Saves & Storage",desc:"Control local progress, optional diagnostics and downloaded game files.",fields:[["rememberLastGame","Remember the last game you opened","toggle"],["saveGameProgress","Allow games to save progress in this browser","toggle"],["localTelemetry","Allow anonymous local diagnostics","toggle"],["clearDataOnExit","Clear temporary game data when leaving","toggle"],["reduceDataUsage","Prefer lighter downloads when supported","toggle"],["cacheAssets","Cache game files for faster repeat visits","toggle"],["disableGameCache","Always load the latest game files instead of using cache","toggle"]]},
+      {title:"Developer Tools",desc:"Extra diagnostics for testing games. These options do not change online game servers.",fields:[["developerMode","Enable Developer Mode","toggle"],["showDebugInfo","Show developer information","toggle"],["showConsoleErrors","Send game errors to the Studio console","toggle"],["showNetworkStatus","Show online / offline status","toggle"],["apiDiagnostics","Show settings API connection diagnostics","toggle"],["verboseLogs","Show more detailed game logs","toggle"],["showHitboxes","Show collision boxes when a game supports them","toggle"],["showFrameGraph","Show a frame-time graph when available","toggle"]]},
+      {title:"Experimental Appearance · Beta",desc:"Try the new translucent Liquid Glass look. This preview is experimental and may affect readability or performance on some devices.",fields:[["liquidGlass","Enable Liquid Glass style (Beta)","toggle"]]}
     ];
     groups.forEach(group=>{
       const panel=createElement("section","studio-settings-group"),head=createElement("div","studio-settings-heading");
       head.appendChild(createElement("h2","",group.title)); head.appendChild(createElement("p","",group.desc)); panel.appendChild(head);
       const list=createElement("div","studio-settings-list");
       group.fields.forEach(field=>{
-        const key=field[0],label=field[1],type=field[2],a=field[3],b=field[4],suffix=field[6],step=field[7],row=createElement("div","studio-setting-row"),copy=createElement("div","studio-setting-copy");
+        const key=field[0],label=field[1],type=field[2],a=field[3],b=field[4],suffix=field[5],step=field[6],row=createElement("div","studio-setting-row"),copy=createElement("div","studio-setting-copy");
         copy.appendChild(createElement("strong","",label));
+        if(STUDIO_SETTING_HELP[key]) copy.appendChild(createElement("small","studio-setting-help",STUDIO_SETTING_HELP[key]));
         if(type==="range"){
           const wrap=createElement("div","studio-range-wrap"),input=createElement("input","studio-range"),out=createElement("output","studio-range-value",String(studioSettings[key])+suffix);
           input.type="range";input.min=String(a);input.max=String(b);input.step=step?String(step):"1";input.value=String(studioSettings[key]);
