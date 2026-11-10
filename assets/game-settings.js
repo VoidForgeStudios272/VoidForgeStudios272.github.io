@@ -57,7 +57,8 @@
       const src = (element.currentSrc || element.src || "").toLowerCase();
       const kind = element.dataset.audioType || (/(music|bgm|soundtrack|theme)/.test(src) ? "music" : "sfx");
       const level = kind === "music" ? current.musicVolume : current.sfxVolume;
-      const master = current.muted ? 0 : (Number(current.masterVolume ?? 100) / 100);
+      const backgroundMuted = !!current.muteWhenUnfocused && document.hidden;
+      const master = current.muted || backgroundMuted ? 0 : (Number(current.masterVolume ?? 100) / 100);
       const channel = Number(level ?? 100) / 100;
       const base = mediaBaseVolumes.get(element);
       element.volume = Math.max(0, Math.min(1, base * master * channel));
@@ -73,6 +74,17 @@
     root.dataset.vfFov = String(current.fov ?? 90);
     root.dataset.vfShadows = current.shadows || "high";
     root.dataset.vfTargetFps = current.targetFps || "60";
+    root.dataset.vfDifficulty = current.difficulty || "normal";
+    root.dataset.vfLanguage = current.language || "system";
+    root.dataset.vfUiDensity = current.uiDensity || "comfortable";
+    root.dataset.vfOrientation = current.screenOrientation || "auto";
+    root.dataset.vfColorBlindMode = current.colorBlindMode || "off";
+    root.dataset.vfCrosshair = current.crosshairStyle || "default";
+    root.dataset.vfHudOpacity = String(current.hudOpacity ?? 100);
+    root.dataset.vfDisplayBrightness = String(current.displayBrightness ?? 100);
+    root.dataset.vfDisplayContrast = String(current.displayContrast ?? 100);
+    root.dataset.vfDisplaySaturation = String(current.displaySaturation ?? 100);
+    root.dataset.vfControllerDeadzone = String(current.controllerDeadzone ?? 12);
     root.dataset.vfInvertY = current.invertY ? "true" : "false";
     root.dataset.vfRenderScale = String(current.renderScale ?? 100);
     root.dataset.vfAntiAliasing = current.antiAliasing === false ? "false" : "true";
@@ -87,6 +99,17 @@
     root.classList.toggle("vf-high-contrast", !!current.highContrast);
     root.classList.toggle("vf-large-cursor", !!current.largeCursor);
     root.classList.toggle("vf-developer-mode", !!current.developerMode);
+    root.classList.toggle("vf-left-handed", !!current.leftHandedControls);
+    root.classList.toggle("vf-dyslexia-font", !!current.dyslexiaFriendlyFont);
+    root.classList.toggle("vf-reduce-flashes", !!current.reduceFlashes);
+    root.classList.toggle("vf-hide-cursor", !!current.hideCursor);
+    root.classList.toggle("vf-compact-hud", !!current.compactHud);
+    root.classList.toggle("vf-liquid-glass", !!current.liquidGlass);
+    root.style.setProperty("--vf-hud-opacity", String(Number(current.hudOpacity ?? 100) / 100));
+    root.style.setProperty("--vf-touch-scale", String(Number(current.touchButtonSize ?? 100) / 100));
+    root.style.setProperty("--vf-text-spacing", String(Number(current.textSpacing ?? 100) / 100));
+    root.style.setProperty("--vf-subtitle-scale", String(Number(current.subtitleSize ?? 100) / 100));
+    root.style.setProperty("--vf-display-filter", "brightness(" + Number(current.displayBrightness ?? 100) / 100 + ") contrast(" + Number(current.displayContrast ?? 100) / 100 + ") saturate(" + Number(current.displaySaturation ?? 100) / 100 + ")");
     root.classList.toggle("vf-debug-info", !!current.showDebugInfo);
     root.style.fontSize = (16 * Number(current.textScale || 100) / 100) + "px";
     root.style.colorScheme = current.colorMode === "system" ? "dark" : current.colorMode;
@@ -106,6 +129,7 @@
   }
 
   window.addEventListener("message", receive);
+  document.addEventListener("visibilitychange", applyMediaSettings);
   window.addEventListener("error", event => {
     if (!current.developerMode || !current.showConsoleErrors) return;
     window.parent.postMessage({type:"voidforge:game-error",gameId:current.gameId||"",message:String(event.message||"Unknown error"),source:String(event.filename||""),line:Number(event.lineno||0)},window.location.origin);
@@ -126,6 +150,8 @@
   }
 
   window.VoidForgeSettings = Object.freeze({
+    version: 2,
+    get connected() { return !!current.gameId; },
     get(key) { return key ? current[key] : { ...current }; },
     onChange(callback) {
       if (typeof callback !== "function") return () => {};
@@ -175,6 +201,16 @@
     .vf-no-particles .particles, .vf-no-particles canvas.particles { display: none !important; }
     .vf-high-contrast { filter: contrast(1.18); }
     .vf-large-cursor, .vf-large-cursor * { cursor: default; }
+    .vf-hide-cursor, .vf-hide-cursor * { cursor: none !important; }
+    .vf-dyslexia-font { font-family: "Atkinson Hyperlegible", "Trebuchet MS", system-ui, sans-serif; }
+    .vf-dyslexia-font p, .vf-dyslexia-font li, .vf-dyslexia-font label { letter-spacing: .025em; line-height: 1.55; }
+    .vf-reduce-flashes *, .vf-reduce-flashes *::before, .vf-reduce-flashes *::after { animation-duration: .8s !important; }
+    .vf-compact-hud [data-vf-hud], .vf-compact-hud .game-hud, .vf-compact-hud .hud { gap: 5px !important; padding: 6px !important; }
+    [data-vf-hud], .game-hud, .hud { opacity: var(--vf-hud-opacity, 1); }
+    [data-vf-touch-control], .touch-control, .mobile-control { font-size: calc(1em * var(--vf-touch-scale, 1)); }
+    [data-vf-display-adjust], canvas[data-vf-adjust], video[data-vf-adjust] { filter: var(--vf-display-filter, none); }
+    .vf-left-handed [data-control-side="left"] { order: 2; }
+    .vf-left-handed [data-control-side="right"] { order: 1; }
     .vf-safe-area-guide::after {
       content:""; position:fixed; z-index:2147483000; inset:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);
       border:1px dashed rgba(80,170,255,.85); pointer-events:none;
