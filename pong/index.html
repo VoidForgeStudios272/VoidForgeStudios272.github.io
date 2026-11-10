@@ -1,1 +1,27 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>VoidForge Pong</title><style>body{margin:0;background:#080612;color:white;text-align:center;font:16px system-ui;touch-action:manipulation}canvas{display:block;width:min(94vw,800px);height:auto;margin:auto;background:#0d0920;border:1px solid #40365f;touch-action:none}small{color:#aaa}</style></head><body><h1>VoidForge Pong</h1><p>Touch left/right side to move each paddle</p><canvas id=c width=800 height=450></canvas><small>Desktop: W/S and ↑/↓</small><script>c=document.querySelector('canvas'),x=c.getContext('2d'),a=175,b=175,X=400,Y=225,V=5,W=3,A=0,B=0,PS=6,k={};onkeydown=e=>k[e.key]=1;onkeyup=e=>k[e.key]=0;c.onpointermove=e=>{const r=c.getBoundingClientRect(),px=(e.clientX-r.left)/r.width*800,py=(e.clientY-r.top)/r.height*450;if(e.pointerType!=='mouse'){if(px<400)a=py-50;else b=py-50}};function f(){x.clearRect(0,0,800,450);x.fillStyle='#fff';x.fillRect(20,a,12,100);x.fillRect(768,b,12,100);x.beginPath();x.arc(X,Y,9,0,7);x.fill();x.font='40px system-ui';x.fillText(A,330,50);x.fillText(B,450,50);a=Math.max(0,Math.min(350,a+(k.w?-PS:k.s?PS:0)));b=Math.max(0,Math.min(350,b+(k.ArrowUp?-PS:k.ArrowDown?PS:0)));X+=V;Y+=W;if(Y<9||Y>441)W=-W;if(X<32&&Y>a&&Y<a+100)V=Math.abs(V)*1.02;if(X>759&&Y>b&&Y<b+100)V=-Math.abs(V)*1.02;if(X<0){B++;X=400}if(X>800){A++;X=400}requestAnimationFrame(f)}f();window.addEventListener('voidforge:game-settings-change',e=>{const q=e.detail?.settings||{};if(q.ballSpeed!==undefined){V=Math.sign(V||1)*Number(q.ballSpeed);W=Math.sign(W||1)*Number(q.ballSpeed)*.6}if(q.paddleSpeed!==undefined)PS=Number(q.paddleSpeed)});</script></body></html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>VoidForge Pong</title><style>body{margin:0;background:#080612;color:white;text-align:center;font:16px system-ui;touch-action:manipulation}canvas{display:block;width:min(94vw,800px);height:auto;margin:auto;background:#0d0920;border:1px solid #40365f;touch-action:none}small{color:#aaa}</style><style id="voidforge-mobile-compat">
+/* Shared VoidForge mobile compatibility layer */
+:root{color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html{width:100%;min-width:0;min-height:100%;-webkit-text-size-adjust:100%;overscroll-behavior-x:none}
+body{width:100%;min-width:0;max-width:100%;min-height:100svh;overflow-x:hidden;padding-bottom:env(safe-area-inset-bottom)}
+img,svg,video,iframe,canvas{max-width:100%}
+canvas{touch-action:none;-webkit-user-select:none;user-select:none}
+button,[role="button"],input,select,textarea{font:inherit;touch-action:manipulation}
+button,[role="button"]{min-height:44px}
+:focus-visible{outline:2px solid #75baff;outline-offset:3px}
+@media(max-width:700px),(pointer:coarse){
+ body{min-height:100dvh;padding-left:max(6px,env(safe-area-inset-left));padding-right:max(6px,env(safe-area-inset-right))}
+ h1{font-size:clamp(21px,6vw,32px);overflow-wrap:anywhere}
+ main,.app,.shell,.game,.container,.game-container,.gameContainer,.stage,.wrapper,.arena{width:100%;max-width:100%;min-width:0}
+ canvas{max-width:100%;height:auto}
+ button,[role="button"]{min-width:44px;min-height:46px}
+ .controls,.pad,.actions,.mobile,.mobile-controls,#mobile,#mobileControls{max-width:100%;gap:8px;flex-wrap:wrap}
+ .stats,.toolbar,.topbar,.header,.bottom,.bar{max-width:100%;flex-wrap:wrap}
+ input,select,textarea{max-width:100%;min-width:0}
+}
+@media(orientation:landscape) and (max-height:520px){
+ body{min-height:100dvh}
+ .shell,.app,.game{padding-top:6px;padding-bottom:6px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style></head><body><h1>VoidForge Pong</h1><p>Touch left/right side to move each paddle</p><canvas id=c width=800 height=450></canvas><small>Desktop: W/S and ↑/↓</small><script>c=document.querySelector('canvas'),x=c.getContext('2d'),a=175,b=175,X=400,Y=225,V=5,W=3,A=0,B=0,PS=6,k={};onkeydown=e=>k[e.key]=1;onkeyup=e=>k[e.key]=0;c.onpointermove=e=>{const r=c.getBoundingClientRect(),px=(e.clientX-r.left)/r.width*800,py=(e.clientY-r.top)/r.height*450;if(e.pointerType!=='mouse'){if(px<400)a=py-50;else b=py-50}};function f(){x.clearRect(0,0,800,450);x.fillStyle='#fff';x.fillRect(20,a,12,100);x.fillRect(768,b,12,100);x.beginPath();x.arc(X,Y,9,0,7);x.fill();x.font='40px system-ui';x.fillText(A,330,50);x.fillText(B,450,50);a=Math.max(0,Math.min(350,a+(k.w?-PS:k.s?PS:0)));b=Math.max(0,Math.min(350,b+(k.ArrowUp?-PS:k.ArrowDown?PS:0)));X+=V;Y+=W;if(Y<9||Y>441)W=-W;if(X<32&&Y>a&&Y<a+100)V=Math.abs(V)*1.02;if(X>759&&Y>b&&Y<b+100)V=-Math.abs(V)*1.02;if(X<0){B++;X=400}if(X>800){A++;X=400}requestAnimationFrame(f)}f();window.addEventListener('voidforge:game-settings-change',e=>{const q=e.detail?.settings||{};if(q.ballSpeed!==undefined){V=Math.sign(V||1)*Number(q.ballSpeed);W=Math.sign(W||1)*Number(q.ballSpeed)*.6}if(q.paddleSpeed!==undefined)PS=Number(q.paddleSpeed)});</script></body></html>
