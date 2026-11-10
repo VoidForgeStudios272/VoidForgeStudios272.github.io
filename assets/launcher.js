@@ -1916,6 +1916,93 @@
     });
     converter.append(conversionInput,conversionType,convertButton,conversionResult);layout.appendChild(converter);
 
+
+    // Weekly timetable.
+    const timetable=createElement("article","school-tool-card school-timetable");
+    timetable.append(createElement("div","school-tool-kicker","PLAN YOUR WEEK"),createElement("h2","","Timetable"),createElement("p","school-tool-description","Save your lessons with a weekday and start time."));
+    const timetableForm=createElement("form","school-planner-form");
+    const subjectInput=createElement("input","school-card-input");subjectInput.placeholder="Subject / lesson";subjectInput.maxLength=60;subjectInput.required=true;subjectInput.setAttribute("aria-label","Subject");
+    const daySelect=createElement("select","school-operation");daySelect.setAttribute("aria-label","Weekday");
+    [["1","Monday"],["2","Tuesday"],["3","Wednesday"],["4","Thursday"],["5","Friday"],["6","Saturday"],["0","Sunday"]].forEach(([v,t])=>{const o=createElement("option","",t);o.value=v;daySelect.appendChild(o);});
+    const timeInput=createElement("input","school-card-input");timeInput.type="time";timeInput.required=true;timeInput.setAttribute("aria-label","Lesson start time");
+    const lessonAdd=createElement("button","primary-button","Add lesson");lessonAdd.type="submit";
+    timetableForm.append(subjectInput,daySelect,timeInput,lessonAdd);
+    const lessonList=createElement("div","school-saved-list");
+    let lessons=[];try{const saved=JSON.parse(localStorage.getItem("voidforgeSchoolTimetableV1")||"[]");if(Array.isArray(saved))lessons=saved.filter(x=>x&&typeof x.id==="string"&&typeof x.subject==="string"&&typeof x.day==="string"&&typeof x.time==="string");}catch{}
+    const saveLessons=()=>{try{localStorage.setItem("voidforgeSchoolTimetableV1",JSON.stringify(lessons));}catch{showToast("Timetable could not be saved.");}};
+    const drawLessons=()=>{
+      lessonList.replaceChildren();
+      if(!lessons.length){lessonList.appendChild(createElement("p","school-tool-description","No lessons added yet."));return;}
+      const dayNames=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+      [...lessons].sort((a,b)=>Number(a.day)-Number(b.day)||a.time.localeCompare(b.time)).forEach(lesson=>{
+        const row=createElement("div","school-saved-row");
+        const info=createElement("div","school-saved-copy");
+        info.append(createElement("strong","",lesson.subject),createElement("small","",dayNames[Number(lesson.day)]+" · "+lesson.time));
+        const remove=createElement("button","secondary-button","×");remove.type="button";remove.setAttribute("aria-label","Remove "+lesson.subject);
+        remove.addEventListener("click",()=>{lessons=lessons.filter(x=>x.id!==lesson.id);saveLessons();drawLessons();});
+        row.append(info,remove);lessonList.appendChild(row);
+      });
+    };
+    timetableForm.addEventListener("submit",event=>{event.preventDefault();const subject=subjectInput.value.trim();if(!subject||!timeInput.value)return;lessons.push({id:"lesson-"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),subject,day:daySelect.value,time:timeInput.value});saveLessons();subjectInput.value="";drawLessons();});
+    timetable.append(timetableForm,lessonList);drawLessons();layout.appendChild(timetable);
+
+    // Exam and deadline tracker.
+    const exams=createElement("article","school-tool-card school-exams");
+    exams.append(createElement("div","school-tool-kicker","IMPORTANT DATES"),createElement("h2","","Exam planner"),createElement("p","school-tool-description","Keep upcoming tests and deadlines in one place."));
+    const examForm=createElement("form","school-planner-form");
+    const examName=createElement("input","school-card-input");examName.placeholder="Exam / deadline";examName.maxLength=70;examName.required=true;examName.setAttribute("aria-label","Exam or deadline name");
+    const examDate=createElement("input","school-card-input");examDate.type="date";examDate.required=true;examDate.min=new Date().toISOString().slice(0,10);examDate.setAttribute("aria-label","Exam date");
+    const examAdd=createElement("button","primary-button","Add date");examAdd.type="submit";
+    examForm.append(examName,examDate,examAdd);
+    const examList=createElement("div","school-saved-list");
+    let examItems=[];try{const saved=JSON.parse(localStorage.getItem("voidforgeSchoolExamsV1")||"[]");if(Array.isArray(saved))examItems=saved.filter(x=>x&&typeof x.id==="string"&&typeof x.name==="string"&&typeof x.date==="string");}catch{}
+    const saveExams=()=>{try{localStorage.setItem("voidforgeSchoolExamsV1",JSON.stringify(examItems));}catch{showToast("Exam planner could not be saved.");}};
+    const drawExams=()=>{
+      examList.replaceChildren();
+      if(!examItems.length){examList.appendChild(createElement("p","school-tool-description","No exams or deadlines added."));return;}
+      const today=new Date();today.setHours(0,0,0,0);
+      [...examItems].sort((a,b)=>a.date.localeCompare(b.date)).forEach(item=>{
+        const target=new Date(item.date+"T00:00:00");const days=Math.round((target-today)/86400000);
+        const row=createElement("div","school-saved-row");
+        const info=createElement("div","school-saved-copy");
+        info.append(createElement("strong","",item.name),createElement("small","",target.toLocaleDateString()+" · "+(days<0?"Past date":days===0?"Today":days+" days left")));
+        const remove=createElement("button","secondary-button","×");remove.type="button";remove.setAttribute("aria-label","Remove "+item.name);
+        remove.addEventListener("click",()=>{examItems=examItems.filter(x=>x.id!==item.id);saveExams();drawExams();});
+        row.append(info,remove);examList.appendChild(row);
+      });
+    };
+    examForm.addEventListener("submit",event=>{event.preventDefault();if(!examName.value.trim()||!examDate.value)return;examItems.push({id:"exam-"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:examName.value.trim(),date:examDate.value});saveExams();examName.value="";drawExams();});
+    exams.append(examForm,examList);drawExams();layout.appendChild(exams);
+
+    // Focus timer (25-minute focus session).
+    const focus=createElement("article","school-tool-card school-focus");
+    focus.append(createElement("div","school-tool-kicker","FOCUS MODE"),createElement("h2","","Study timer"),createElement("p","school-tool-description","A simple 25-minute focus session. Keep this tab open while it runs."));
+    const timerDisplay=createElement("div","school-timer-display","25:00");timerDisplay.setAttribute("role","timer");timerDisplay.setAttribute("aria-live","off");
+    const timerActions=createElement("div","school-timer-actions");
+    const timerStart=createElement("button","primary-button","Start");timerStart.type="button";
+    const timerReset=createElement("button","secondary-button","Reset");timerReset.type="button";
+    const timerStatus=createElement("p","school-save-status","Ready when you are.");
+    let remaining=25*60*1000,deadline=0,running=false;
+    if(window.__vfSchoolTimerInterval){clearInterval(window.__vfSchoolTimerInterval);window.__vfSchoolTimerInterval=null;}
+    const paintTimer=()=>{
+      const seconds=Math.max(0,Math.ceil(remaining/1000));
+      timerDisplay.textContent=String(Math.floor(seconds/60)).padStart(2,"0")+":"+String(seconds%60).padStart(2,"0");
+      timerStart.textContent=running?"Pause":(remaining===0?"Start again":"Start");
+    };
+    const stopTimer=()=>{if(window.__vfSchoolTimerInterval){clearInterval(window.__vfSchoolTimerInterval);window.__vfSchoolTimerInterval=null;}running=false;};
+    timerStart.addEventListener("click",()=>{
+      if(running){remaining=Math.max(0,deadline-Date.now());stopTimer();timerStatus.textContent="Paused.";paintTimer();return;}
+      if(remaining<=0)remaining=25*60*1000;
+      running=true;deadline=Date.now()+remaining;timerStatus.textContent="Focus session in progress.";
+      window.__vfSchoolTimerInterval=setInterval(()=>{
+        remaining=Math.max(0,deadline-Date.now());paintTimer();
+        if(remaining<=0){stopTimer();timerStatus.textContent="Session complete — nice work!";showToast("Your 25-minute study session is complete.");paintTimer();}
+      },250);
+      paintTimer();
+    });
+    timerReset.addEventListener("click",()=>{stopTimer();remaining=25*60*1000;timerStatus.textContent="Timer reset.";paintTimer();});
+    timerActions.append(timerStart,timerReset);focus.append(timerDisplay,timerActions,timerStatus);layout.appendChild(focus);
+
     section.appendChild(layout);root.replaceChildren(section);
   }
 
