@@ -129,3 +129,75 @@
   cursor: pointer;
   font-weight: bold;
 }
+
+
+.mobileControls {
+  display: none;
+  position: fixed;
+  z-index: 1200;
+  left: max(18px, env(safe-area-inset-left));
+  bottom: max(22px, env(safe-area-inset-bottom));
+  width: 154px;
+  height: 154px;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.mobileJoystick {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border: 2px solid rgba(255,255,255,.2);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(30,50,75,.72), rgba(8,15,28,.55));
+  box-shadow: 0 12px 35px rgba(0,0,0,.35), inset 0 0 25px rgba(255,255,255,.06);
+  touch-action: none;
+  pointer-events: auto;
+}
+.mobileStick {
+  width: 58px;
+  height: 58px;
+  border: 1px solid rgba(255,255,255,.35);
+  border-radius: 50%;
+  background: linear-gradient(145deg, #65d9ff, #1687d4);
+  box-shadow: 0 5px 18px rgba(0,130,255,.4);
+  pointer-events: none;
+}
+.mobileHint {
+  position: absolute;
+  left: 50%;
+  bottom: -20px;
+  transform: translateX(-50%);
+  color: rgba(255,255,255,.65);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .18em;
+  pointer-events: none;
+}
+@media (max-width: 900px), (pointer: coarse) {
+  .mobileControls { display: block; }
+  .backButton {
+    top: max(10px, env(safe-area-inset-top));
+    left: max(10px, env(safe-area-inset-left));
+    min-height: 42px;
+    padding: 9px 15px;
+  }
+  .roomTag {
+    top: max(10px, env(safe-area-inset-top));
+    font-size: clamp(11px, 3vw, 15px);
+    padding: 8px 12px;
+    max-width: 45vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+@media (max-width: 420px) {
+  .mobileControls { width: 132px; height: 132px; }
+  .mobileStick { width: 52px; height: 52px; }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .mobileControls { width: 112px; height: 112px; left: 14px; bottom: 12px; }
+  .mobileStick { width: 44px; height: 44px; }
+}
