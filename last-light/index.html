@@ -2,11 +2,47 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="theme-color" content="#080d19"><title>Last Light | VoidForge</title>
 <style>
 *{box-sizing:border-box}body{margin:0;min-height:100vh;background:#070d18;color:#eff6ff;font:15px system-ui;display:grid;place-items:center;padding:12px}.shell{width:min(1100px,100%);padding:18px;background:#101a2b;border:1px solid #2b4160;border-radius:20px;box-shadow:0 24px 80px #0009}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}h1{font-size:clamp(22px,4vw,34px);margin:0}.sub{color:#9db2cf;margin:4px 0 14px}.stats{display:flex;gap:8px;flex-wrap:wrap}.stat{background:#091323;border:1px solid #263d5c;padding:8px 11px;border-radius:10px;color:#a8bad2;font-size:12px}.stat b{color:white;margin-left:5px}#game{display:block;width:100%;height:auto;aspect-ratio:16/9;border-radius:14px;border:1px solid #29415f;background:#07101d;touch-action:none}.bottom{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;color:#a8bad2}.actions{display:flex;gap:8px}button{border:1px solid #42648d;background:#1b3555;color:white;border-radius:11px;padding:11px 16px;font:inherit;font-weight:650;touch-action:manipulation;user-select:none}button:active{background:#3a679b;transform:scale(.97)}.mobile{display:none;grid-template-columns:1fr auto;align-items:center;gap:16px;margin-top:14px;touch-action:none}.dpad{display:grid;grid-template-columns:repeat(3,56px);grid-template-rows:repeat(2,52px);gap:6px}.dpad button{padding:0;font-size:22px}.dpad .up{grid-column:2}.dpad .left{grid-column:1;grid-row:2}.dpad .down{grid-column:2;grid-row:2}.dpad .right{grid-column:3;grid-row:2}.action{min-width:90px;min-height:90px;border-radius:50%;background:#174c69;border-color:#42c8f5;font-size:15px}.hint{font-size:13px}@media(max-width:700px){body{padding:7px;display:block}.shell{padding:12px;border-radius:15px}.mobile{display:grid}.hint{max-width:100%}.bottom{align-items:flex-start}button{padding:10px 12px}}@media(orientation:portrait) and (max-width:700px){#game{aspect-ratio:4/3}}
+
+/* VoidForge cross-device polish */
+html,body{width:100%;min-height:100%;overscroll-behavior:none}
+body{min-height:100dvh;padding:clamp(6px,1.5vw,12px)}
+.shell{width:min(1100px,100%);min-width:0}
+#game{width:100%;max-width:100%;height:auto;display:block;touch-action:none}
+.mobile{padding-bottom:max(4px,env(safe-area-inset-bottom))}
+.mobile button{min-width:48px;min-height:48px;touch-action:none;-webkit-user-select:none;user-select:none}
+.dpad button{width:clamp(48px,13vw,60px);height:clamp(48px,12vw,58px);border-radius:14px}
+.action{min-width:clamp(68px,19vw,92px);min-height:clamp(68px,19vw,92px)}
+.actions{flex-wrap:wrap}
+@media(max-width:700px){
+ body{display:block;padding:env(safe-area-inset-top) 6px env(safe-area-inset-bottom)}
+ .shell{padding:clamp(9px,2.5vw,14px);border-radius:14px}
+ .top{align-items:flex-start}
+ .stats{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+ .stat{min-width:0;padding:7px 6px;font-size:10px}
+ #game{aspect-ratio:4/3;max-height:54dvh}
+ .bottom{gap:8px}
+ .actions{width:100%;display:grid;grid-template-columns:1fr 1fr}
+ .actions button{min-height:44px}
+ .mobile{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:clamp(10px,5vw,28px);align-items:center;margin:12px 2px 4px}
+ .dpad{justify-self:start}
+}
+@media(max-height:560px) and (orientation:landscape){
+ body{display:block}
+ .shell{padding:7px}
+ .top{gap:5px}
+ .sub{margin:2px 0 5px}
+ #game{aspect-ratio:16/7;max-height:48dvh}
+ .mobile{margin-top:6px}
+ .dpad{grid-template-rows:repeat(2,42px)}
+ .dpad button{height:42px;min-height:42px}
+ .action{min-height:60px;min-width:60px}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 </style></head><body><main class="shell"><div class="top"><div><h1>Last Light</h1><p class="sub">VOIDFORGE 3D ARCADE • Mobile + Desktop</p></div><div class="stats"><div class="stat">SCORE <b id="score">0</b></div><div class="stat">BEST <b id="best">0</b></div><div class="stat">STATUS <b id="status">READY</b></div></div></div><canvas id="game" aria-label="Interactive 3D game"></canvas><div class="bottom"><span class="hint" id="hint">Use WASD / arrow keys or the mobile controls.</span><div class="actions"><button id="start">Start / Restart</button><button id="pause">Pause</button></div></div><div class="mobile" aria-label="Touch controls"><div class="dpad"><button class="up" data-key="up">▲</button><button class="left" data-key="left">◀</button><button class="down" data-key="down">▼</button><button class="right" data-key="right">▶</button></div><button class="action" data-key="action">ACTION</button></div></main>
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 const MODE='horror', canvas=document.querySelector('#game'), scoreEl=document.querySelector('#score'), bestEl=document.querySelector('#best'), statusEl=document.querySelector('#status');
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, matchMedia('(max-width: 700px), (pointer: coarse)').matches ? 1.25 : 1.5));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;
 const scene=new THREE.Scene();scene.background=new THREE.Color(MODE==='horror'?0x080b16:0x071321);scene.fog=new THREE.Fog(0x071321,18,42);
 const camera=new THREE.PerspectiveCamera(55,1,.1,100);camera.position.set(0,15,19);camera.lookAt(0,0,0);
 scene.add(new THREE.HemisphereLight(0xa8d9ff,0x172035,2));const sun=new THREE.DirectionalLight(0xffffff,2.2);sun.position.set(-7,14,8);sun.castShadow=true;scene.add(sun);
