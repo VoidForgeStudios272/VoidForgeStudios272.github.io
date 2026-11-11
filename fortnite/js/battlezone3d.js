@@ -176,4 +176,4 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
   window.BattleZonePractice={start,stop};
   makeWorld();
   window.addEventListener("pagehide",()=>{stop();renderer.dispose();},{once:true});
-})().catch(error=>{console.error("[BattleZone 3D]",error);const hint=document.getElementById("brHint");if(hint)hint.textContent="3D engine failed to load. Check your connection and refresh.";});
+})();
