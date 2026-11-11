@@ -1,4 +1,5 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+import { createBattleZoneShaders } from "./battlezone-shaders.js";
 
 (() => {
   "use strict";
@@ -22,6 +23,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.12;
+  const postFX = createBattleZoneShaders(renderer, scene, camera, canvas);
   const hemi = new THREE.HemisphereLight(0xd8edff, 0x536d3c, 2.05);
   scene.add(hemi);
   const sun = new THREE.DirectionalLight(0xffedcf, 3.0);
@@ -169,7 +171,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
     spawnBots();spawnPickups();hud.end.classList.remove("show");hud.hint.style.display="block";$("brDropBtn").style.display="block";$("brDropBtn").textContent="JUMP";setPhase("THE BATTLE BUS","Jump when you are ready · Auto-drop in 14s");updateHud();
   }
   function updateHud(){hud.kills.textContent=kills;hud.alive.textContent=1+bots.filter(b=>b.alive).length;hud.storm.textContent=Math.round(stormRadius/195*100)+"%";hud.ammo.textContent=reloadUntil>performance.now()?"RELOADING":ammo+" / "+reserve;hud.health.style.width=Math.max(0,health)+"%";hud.shield.style.width=Math.max(0,shield)+"%";}
-  function resize(){const w=Math.max(1,canvas.clientWidth),h=Math.max(1,canvas.clientHeight);camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false);}
+  function resize(){const w=Math.max(1,canvas.clientWidth),h=Math.max(1,canvas.clientHeight);camera.aspect=w/h;camera.updateProjectionMatrix();postFX.setSize(w,h);}
   function showEnd(win){running=false;document.exitPointerLock?.();$("brDropBtn").style.display="none";hud.endTitle.textContent=win?"VICTORY ROYALE":"ELIMINATED";hud.endText.textContent=win?"You secured the island with "+kills+" eliminations.":"You scored "+kills+" eliminations. Drop back in and try again.";hud.end.classList.add("show");}
   function damage(amount){let n=amount;if(shield>0){const used=Math.min(shield,n);shield-=used;n-=used;}health=Math.max(0,health-n);if(health<=0)showEnd(false);updateHud();}
   function addTracer(from,to,color=0xffdf86){const geo=new THREE.BufferGeometry().setFromPoints([from.clone(),to.clone()]);const line=new THREE.Line(geo,new THREE.LineBasicMaterial({color,transparent:true,opacity:.9}));scene.add(line);setTimeout(()=>{scene.remove(line);geo.dispose();line.material.dispose();},95);}
@@ -226,7 +228,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
     if(bots.every(b=>!b.alive))showEnd(true);
     updateHud();
   }
-  function frame(){if(!running)return;const dt=Math.min(clock.getDelta(),.04);update(dt);renderer.render(scene,camera);raf=requestAnimationFrame(frame);}
+  function frame(){if(!running)return;const dt=Math.min(clock.getDelta(),.04);update(dt);postFX.render(dt);raf=requestAnimationFrame(frame);}
   function start(){if(running)return;root.classList.add("active");running=true;clock.start();reset();resize();camera.position.set(-220,100,30);frame();}
   function stop(){running=false;cancelAnimationFrame(raf);root.classList.remove("active");pointer.fire=false;keys.clear();joystick.x=joystick.y=0;document.exitPointerLock?.();}
   canvas.addEventListener("click",()=>{if(running&&matchMedia("(pointer:fine)").matches&&!pointer.locked)canvas.requestPointerLock?.();});
