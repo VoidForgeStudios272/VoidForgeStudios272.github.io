@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "Teams",
-  "short_name": "Teams",
+  "name": "Set your App Name here",
+  "short_name": "Set Your App Name here",
   "description": "Stay connected and collaborate with Teams. Chat, meet, call, and share with everyone in one place.",
   "lang": "en",
   "start_url": "./",
