@@ -47,8 +47,18 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
   let running=false, raf=0, kills=0, ammo=30, reserve=150, reloadUntil=0, fireCooldown=0, elapsed=0, stormRadius=195, stormTimer=0, medkits=2, health=100, shield=50, yaw=0, pitch=.12, jumpVelocity=0, grounded=true;
   const player = {position:new THREE.Vector3(0,2,0), velocity:new THREE.Vector3(), mesh:null, mixer:null};
   const mats = {};
+  const textureLoader = new THREE.TextureLoader();
+  const textureRoot = new URL("../assets/textures/", import.meta.url);
+  function loadTexture(file, repeatX=1, repeatY=1){
+    const texture=textureLoader.load(new URL(file,textureRoot).href);
+    texture.colorSpace=THREE.SRGBColorSpace;
+    texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
+    texture.repeat.set(repeatX,repeatY);
+    return texture;
+  }
+  const textures={grass:loadTexture("grass.svg",18,18),sand:loadTexture("sand.svg",12,12),water:loadTexture("water.svg",8,8),bus:loadTexture("battle-bus.svg",2,1),player:loadTexture("player-suit.svg"),heal:loadTexture("healing-item.svg"),rock:loadTexture("block-rock.svg")};
   const mat=(color,roughness=.88,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
-  mats.grass=mat(0x6b9c52); mats.darkGrass=mat(0x477a42); mats.sand=mat(0xc9b47a);
+  mats.grass=mat(0xffffff); mats.grass.map=textures.grass; mats.darkGrass=mat(0x477a42); mats.sand=mat(0xffffff); mats.sand.map=textures.sand;
   mats.bark=mat(0x765039); mats.leaf=mat(0x2e7042); mats.leaf2=mat(0x4a914e);
   mats.rock=mat(0x737d80); mats.roof=mat(0x9b5742); mats.wall=mat(0xd7c7a5);
   mats.blue=mat(0x397fc0,.55); mats.red=mat(0xc94f45,.6); mats.yellow=mat(0xf1c84a,.5);
@@ -61,7 +71,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
     geo.computeVertexNormals();
     const ground=new THREE.Mesh(geo,mats.grass);ground.receiveShadow=true;scene.add(ground);groundTargets.push(ground);
     const beach=new THREE.Mesh(new THREE.CircleGeometry(204,96),mats.sand);beach.rotation.x=-Math.PI/2;beach.position.y=-.45;scene.add(beach);
-    const water=new THREE.Mesh(new THREE.PlaneGeometry(900,900),new THREE.MeshStandardMaterial({color:0x3b91b7,roughness:.32,metalness:.12}));
+    const waterMat=new THREE.MeshStandardMaterial({color:0xffffff,map:textures.water,roughness:.3,metalness:.12});const water=new THREE.Mesh(new THREE.PlaneGeometry(900,900),waterMat);
     water.rotation.x=-Math.PI/2;water.position.y=-1.1;scene.add(water);
     const patchGeo=new THREE.CircleGeometry(1,10);
     for(let i=0;i<230;i++){const x=THREE.MathUtils.randFloatSpread(385),z=THREE.MathUtils.randFloatSpread(385);if(Math.hypot(x,z)>198)continue;const patch=new THREE.Mesh(patchGeo, i%3?mats.darkGrass:mats.grass);patch.rotation.x=-Math.PI/2;patch.scale.set(THREE.MathUtils.randFloat(1,4),THREE.MathUtils.randFloat(1,3),1);patch.position.set(x,terrainHeight(x,z)+.04,z);scene.add(patch);}
@@ -92,10 +102,11 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
 
   function makeBattleBus(){
     const bus=new THREE.Group();
-    const blue=mat(0x1768b5,.48),light=mat(0xd9efff,.25,.12),rubber=mat(0x17202b),yellow=mat(0xf3c83e,.4);
+    const blue=mat(0xffffff,.48);blue.map=textures.bus;const light=mat(0xd9efff,.25,.12),rubber=mat(0x17202b),yellow=mat(0xf3c83e,.4);
     box(12,4.4,5.3,blue,0,0,0,bus);
     box(12.2,.35,5.5,yellow,0,-1.65,0,bus);
     box(12.1,.35,5.5,blue,0,2.25,0,bus);
+    box(2.4,1.1,1.2,blue,0,-.45,3.05,bus);box(12.8,.32,.45,yellow,0,-1.55,2.8,bus);
     for(let i=-2;i<=2;i++)box(1.65,1.5,.12,light,i*2.05,.35,2.68,bus);
     for(let i=-2;i<=2;i++)box(1.65,1.5,.12,light,i*2.05,.35,-2.68,bus);
     for(let x of [-4.2,4.2])for(let z of [-2.45,2.45]){const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.75,.75,.45,16),rubber);wheel.rotation.z=Math.PI/2;wheel.position.set(x,-2,z);bus.add(wheel);}
@@ -103,7 +114,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
     const stripe=new THREE.Mesh(new THREE.TorusGeometry(6.5,.22,8,32),yellow);stripe.position.y=10;stripe.rotation.x=Math.PI/2;bus.add(stripe);
     for(let x of [-3.7,3.7]){const cable=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,7,6),rubber);cable.position.set(x,6.3,0);bus.add(cable);}
     const lamp=new THREE.PointLight(0x8bd9ff,35,38);lamp.position.set(0,7,0);bus.add(lamp);
-    bus.position.set(-220,88,0);bus.rotation.y=-Math.PI/2;scene.add(bus);return bus;
+    bus.position.set(-220,88,0);bus.rotation.y=Math.PI/2;scene.add(bus);return bus;
   }
   function makeGlider(){
     const g=new THREE.Group();const wing=new THREE.Mesh(new THREE.BoxGeometry(11,.25,3.2),new THREE.MeshStandardMaterial({color:0xe8eaf0,roughness:.5,side:THREE.DoubleSide}));wing.position.y=6.4;wing.castShadow=true;g.add(wing);
@@ -120,7 +131,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
     yaw=Math.PI/2;pitch=.28;
   }
   function character(color,isPlayer=false){
-    const group=new THREE.Group(),bodyMat=mat(color,.55),skin=mat(0xf0c6a0),dark=mat(0x172437,.6);
+    const group=new THREE.Group(),bodyMat=mat(color,.55),skin=mat(0xf0c6a0),dark=mat(0x172437,.6);if(color===0x347bd1)bodyMat.map=textures.player;
     const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.68,.95,4,8),bodyMat);torso.position.y=1.65;torso.castShadow=true;group.add(torso);
     const head=new THREE.Mesh(new THREE.SphereGeometry(.43,12,10),skin);head.position.y=2.65;head.castShadow=true;group.add(head);
     const pack=new THREE.Mesh(new THREE.BoxGeometry(.8,.95,.35),dark);pack.position.set(0,1.65,-.58);group.add(pack);
@@ -134,7 +145,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
   }
   function spawnPickups(){
     const types=["ammo","shield","med","ammo","shield","ammo"];
-    for(let i=0;i<34;i++){const x=THREE.MathUtils.randFloatSpread(350),z=THREE.MathUtils.randFloatSpread(350),type=types[i%types.length];const color=type==="ammo"?0xf4c84b:type==="shield"?0x4dbdff:0x5de18b;const g=new THREE.Group();const gem=new THREE.Mesh(new THREE.OctahedronGeometry(.8,0),new THREE.MeshStandardMaterial({color,emissive:color,emissiveIntensity:.45,metalness:.25,roughness:.3}));gem.position.y=1.2;gem.castShadow=true;g.add(gem);const ring=new THREE.Mesh(new THREE.TorusGeometry(1.05,.07,6,20),new THREE.MeshBasicMaterial({color}));ring.rotation.x=Math.PI/2;ring.position.y=.25;g.add(ring);g.position.set(x,terrainHeight(x,z),z);scene.add(g);pickups.push({group:g,type,active:true,x,z});}
+    for(let i=0;i<34;i++){const x=THREE.MathUtils.randFloatSpread(350),z=THREE.MathUtils.randFloatSpread(350),type=types[i%types.length];const color=type==="ammo"?0xf4c84b:type==="shield"?0x4dbdff:0x5de18b;const g=new THREE.Group();const gemMat=new THREE.MeshStandardMaterial({color:type==="med"?0xffffff:color,map:type==="med"?textures.heal:null,emissive:color,emissiveIntensity:.45,metalness:.25,roughness:.3});const gem=new THREE.Mesh(new THREE.OctahedronGeometry(.8,0),gemMat);gem.position.y=1.2;gem.castShadow=true;g.add(gem);const ring=new THREE.Mesh(new THREE.TorusGeometry(1.05,.07,6,20),new THREE.MeshBasicMaterial({color}));ring.rotation.x=Math.PI/2;ring.position.y=.25;g.add(ring);g.position.set(x,terrainHeight(x,z),z);scene.add(g);pickups.push({group:g,type,active:true,x,z});}
   }
   function reset(){
     for(const b of bots)scene.remove(b.mesh);bots.length=0;
@@ -157,7 +168,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
     let end=target;if(hits.length){const hit=hits[0];end=hit.point;let obj=hit.object;while(obj.parent&&!bots.some(b=>b.mesh===obj))obj=obj.parent;const bot=bots.find(b=>b.mesh===obj);if(bot){bot.hp-=34;if(bot.hp<=0){bot.alive=false;scene.remove(bot.mesh);kills++;if(Math.random()<.7)dropPickup(bot.mesh.position.x,bot.mesh.position.z,"ammo");}}}
     addTracer(origin,end);updateHud();
   }
-  function dropPickup(x,z,type){const color=type==="ammo"?0xf4c84b:0x5de18b;const g=new THREE.Group();const m=new THREE.Mesh(new THREE.OctahedronGeometry(.8),new THREE.MeshStandardMaterial({color,emissive:color,emissiveIntensity:.4}));m.position.y=1;g.add(m);g.position.set(x,terrainHeight(x,z),z);scene.add(g);pickups.push({group:g,type,active:true,x,z});}
+  function dropPickup(x,z,type){const color=type==="ammo"?0xf4c84b:0x5de18b;const g=new THREE.Group();const m=new THREE.Mesh(new THREE.OctahedronGeometry(.8),new THREE.MeshStandardMaterial({color:type==="med"?0xffffff:color,map:type==="med"?textures.heal:null,emissive:color,emissiveIntensity:.4}));m.position.y=1;g.add(m);g.position.set(x,terrainHeight(x,z),z);scene.add(g);pickups.push({group:g,type,active:true,x,z});}
   function reload(){if(!running||reloadUntil>performance.now()||ammo===30||reserve<=0)return;reloadUntil=performance.now()+1150;setTimeout(()=>{if(!running)return;const n=Math.min(30-ammo,reserve);ammo+=n;reserve-=n;reloadUntil=0;updateHud();},1150);updateHud();}
   function build(){if(!running||builds.length>=24)return;const dir=new THREE.Vector3(Math.sin(yaw),0,Math.cos(yaw));const pos=player.position.clone().addScaledVector(dir,3.8);pos.y=terrainHeight(pos.x,pos.z)+1.5;const mesh=box(5,3,.35,mats.blue,pos.x,pos.y,pos.z);mesh.rotation.y=yaw;builds.push({mesh,life:22});solidBlockers.push(mesh);}
   function hasLineOfSight(from,to){

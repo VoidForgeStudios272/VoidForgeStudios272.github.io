@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "coordinateSystem": "Three.js world coordinates; Y-up; island centered at (0,0,0).",
+  "uvConvention": "Standard normalized UV coordinates. Repeating ground materials use RepeatWrapping.",
+  "assets": {
+    "terrain": {
+      "grass": {
+        "file": "grass.svg",
+        "colorSpace": "srgb",
+        "wrap": "repeat",
+        "repeat": [
+          18,
+          18
+        ]
+      },
+      "sand": {
+        "file": "sand.svg",
+        "colorSpace": "srgb",
+        "wrap": "repeat",
+        "repeat": [
+          12,
+          12
+        ]
+      },
+      "water": {
+        "file": "water.svg",
+        "colorSpace": "srgb",
+        "wrap": "repeat",
+        "repeat": [
+          8,
+          8
+        ]
+      }
+    },
+    "structures": {
+      "rock": {
+        "file": "block-rock.svg",
+        "colorSpace": "srgb",
+        "wrap": "repeat",
+        "repeat": [
+          1,
+          1
+        ]
+      },
+      "battleBus": {
+        "file": "battle-bus.svg",
+        "colorSpace": "srgb",
+        "wrap": "repeat",
+        "repeat": [
+          2,
+          1
+        ]
+      }
+    },
+    "characters": {
+      "playerSuit": {
+        "file": "player-suit.svg",
+        "colorSpace": "srgb",
+        "wrap": "repeat",
+        "repeat": [
+          1,
+          1
+        ]
+      }
+    },
+    "pickups": {
+      "healingItem": {
+        "file": "healing-item.svg",
+        "colorSpace": "srgb",
+        "wrap": "clamp",
+        "repeat": [
+          1,
+          1
+        ],
+        "geometry": "octahedron",
+        "note": "Green cross texture used for the medkit pickup."
+      }
+    }
+  },
+  "bus": {
+    "travelAxis": "+X",
+    "start": [
+      -220,
+      88,
+      0
+    ],
+    "end": [
+      220,
+      88,
+      0
+    ],
+    "localForward": "+Z",
+    "yawRadians": 1.57079632679,
+    "balloonOffset": [
+      0,
+      10,
+      0
+    ]
+  },
+  "arena": {
+    "size": 420,
+    "halfExtent": 210,
+    "terrainHeightFunction": "terrainHeight(x,z)",
+    "yUp": true
+  }
+}
