@@ -56,12 +56,12 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
     texture.repeat.set(repeatX,repeatY);
     return texture;
   }
-  const textures={grass:loadTexture("grass.svg",18,18),sand:loadTexture("sand.svg",12,12),water:loadTexture("water.svg",8,8),bus:loadTexture("battle-bus.svg",2,1),player:loadTexture("player-suit.svg"),heal:loadTexture("healing-item.svg"),rock:loadTexture("block-rock.svg")};
+  const textures={grass:loadTexture("grass.svg",18,18),sand:loadTexture("sand.svg",12,12),water:loadTexture("water.svg",8,8),bus:loadTexture("battle-bus.svg",2,1),player:loadTexture("player-suit.svg"),heal:loadTexture("healing-item.svg"),rock:loadTexture("block-rock.svg"),wood:loadTexture("wood-planks.svg"),metal:loadTexture("metal-panels.svg"),brick:loadTexture("brick.svg"),concrete:loadTexture("concrete.svg"),foliage:loadTexture("foliage.svg"),roof:loadTexture("roof-shingles.svg"),weapon:loadTexture("weapon-steel.svg"),storm:loadTexture("storm-energy.svg"),fabric:loadTexture("fabric-camo.svg"),crate:loadTexture("supply-crate.svg")};
   const mat=(color,roughness=.88,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
   mats.grass=mat(0xffffff); mats.grass.map=textures.grass; mats.darkGrass=mat(0x477a42); mats.sand=mat(0xffffff); mats.sand.map=textures.sand;
-  mats.bark=mat(0x765039); mats.leaf=mat(0x2e7042); mats.leaf2=mat(0x4a914e); mats.rock=mat(0xffffff);mats.rock.map=textures.rock;
-  mats.roof=mat(0x9b5742); mats.wall=mat(0xd7c7a5);
-  mats.blue=mat(0x397fc0,.55); mats.red=mat(0xc94f45,.6); mats.yellow=mat(0xf1c84a,.5);
+  mats.bark=mat(0xffffff);mats.bark.map=textures.wood; mats.leaf=mat(0xffffff);mats.leaf.map=textures.foliage; mats.leaf2=mat(0x4a914e); mats.rock=mat(0xffffff);mats.rock.map=textures.rock;
+  mats.roof=mat(0xffffff);mats.roof.map=textures.roof; mats.wall=mat(0xffffff);mats.wall.map=textures.concrete;
+  mats.blue=mat(0xffffff,.55);mats.blue.map=textures.metal; mats.red=mat(0xc94f45,.6); mats.yellow=mat(0xf1c84a,.5); mats.wood=mat(0xffffff);mats.wood.map=textures.wood; mats.brick=mat(0xffffff);mats.brick.map=textures.brick; mats.weapon=mat(0xffffff,.45,.55);mats.weapon.map=textures.weapon;
   const box=(w,h,d,material,x,y,z,group=scene)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;group.add(m);return m;};
   function terrainHeight(x,z){return Math.sin(x*.025)*2.1+Math.cos(z*.031)*1.7+Math.sin((x+z)*.018)*1.4+Math.max(0,1-Math.hypot(x+65,z-75)/115)*10;}
   function makeTerrain(){

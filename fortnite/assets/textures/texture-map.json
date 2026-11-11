@@ -75,6 +75,48 @@
         "geometry": "octahedron",
         "note": "Green cross texture used for the medkit pickup."
       }
+    },
+    "materials": {
+      "wood": {
+        "file": "wood-planks.svg",
+        "wrap": "repeat"
+      },
+      "metal": {
+        "file": "metal-panels.svg",
+        "wrap": "repeat"
+      },
+      "brick": {
+        "file": "brick.svg",
+        "wrap": "repeat"
+      },
+      "concrete": {
+        "file": "concrete.svg",
+        "wrap": "repeat"
+      },
+      "foliage": {
+        "file": "foliage.svg",
+        "wrap": "repeat"
+      },
+      "roof": {
+        "file": "roof-shingles.svg",
+        "wrap": "repeat"
+      },
+      "weapon": {
+        "file": "weapon-steel.svg",
+        "wrap": "repeat"
+      },
+      "storm": {
+        "file": "storm-energy.svg",
+        "wrap": "repeat"
+      },
+      "fabric": {
+        "file": "fabric-camo.svg",
+        "wrap": "repeat"
+      },
+      "supplyCrate": {
+        "file": "supply-crate.svg",
+        "wrap": "repeat"
+      }
     }
   },
   "bus": {
@@ -102,5 +144,30 @@
     "halfExtent": 210,
     "terrainHeightFunction": "terrainHeight(x,z)",
     "yUp": true
+  },
+  "icons": {
+    "sprite": "../icons/game-icons.svg",
+    "symbols": [
+      "health",
+      "shield",
+      "ammo",
+      "storm",
+      "players",
+      "crosshair",
+      "build",
+      "medkit",
+      "jump",
+      "reload",
+      "bus",
+      "glider",
+      "weapon",
+      "map",
+      "pickaxe",
+      "trophy",
+      "settings",
+      "backpack",
+      "victory",
+      "elimination"
+    ]
   }
 }

@@ -179,6 +179,12 @@ html,body{overflow:auto}
 @media(max-width:650px){#brPhase{top:104px;min-width:180px;padding:8px 12px}#brPhase strong{font-size:13px}#brDropBtn{bottom:145px;padding:13px 23px;font-size:14px}.br-top{gap:5px}.br-stats{gap:4px}.br-stat{min-width:48px;font-size:9px}.br-stat b{font-size:12px}.br-exit{font-size:10px}}
 @media(max-width:390px){#brGame.mobile-mode .br-action{width:49px;height:49px;font-size:9px}#brGame.mobile-mode [data-br="fire"]{width:62px;height:62px}}
 
+
+/* BattleZone SVG icon system */
+.br-stat{position:relative;padding-left:31px!important}.br-stat-icon{position:absolute;left:8px;top:50%;width:20px;height:20px;transform:translateY(-50%);fill:none;stroke:#f5f8ff;stroke-width:9;filter:drop-shadow(0 2px 4px #0008)}
+.br-resource{display:flex;align-items:center;gap:7px;width:min(220px,28vw)}.br-resource>svg{width:23px;height:23px;flex:none;fill:none;stroke:#f5f8ff;stroke-width:10;filter:drop-shadow(0 2px 4px #0008)}.br-resource .br-bar{flex:1;min-width:0}
+.br-action{display:flex;align-items:center;justify-content:center;gap:6px}.br-action svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:10}
+@media(max-width:650px){.br-stat{padding-left:25px!important}.br-stat-icon{left:5px;width:16px;height:16px}.br-resource{width:min(160px,34vw);gap:5px}.br-resource>svg{width:19px;height:19px}.br-action svg{width:16px;height:16px}}
 </style>
 </head>
 
@@ -310,10 +316,10 @@ html,body{overflow:auto}
  <header class="br-top">
   <div class="br-brand">BATTLE<span>ZONE</span> <small style="display:block;color:#9fb0c7;font:700 9px Arial;letter-spacing:1px">SOLO PRACTICE ISLAND</small></div>
   <div class="br-stats">
-   <div class="br-stat">ELIMINATIONS<b id="brKills">0</b></div>
-   <div class="br-stat">PLAYERS LEFT<b id="brAlive">13</b></div>
-   <div class="br-stat">STORM<b id="brStorm">100%</b></div>
-   <div class="br-stat">WEAPON<b id="brAmmo">30 / 120</b></div>
+   <div class="br-stat"><svg class="br-stat-icon" role="img" aria-label="Eliminations"><use href="assets/icons/game-icons.svg#elimination"/></svg>ELIMINATIONS<b id="brKills">0</b></div>
+   <div class="br-stat"><svg class="br-stat-icon" role="img" aria-label="Players left"><use href="assets/icons/game-icons.svg#players"/></svg>PLAYERS LEFT<b id="brAlive">13</b></div>
+   <div class="br-stat"><svg class="br-stat-icon" role="img" aria-label="Storm"><use href="assets/icons/game-icons.svg#storm"/></svg>STORM<b id="brStorm">100%</b></div>
+   <div class="br-stat"><svg class="br-stat-icon" role="img" aria-label="Weapon ammunition"><use href="assets/icons/game-icons.svg#ammo"/></svg>WEAPON<b id="brAmmo">30 / 120</b></div>
   </div>
   <button id="brExit" class="br-exit">LEAVE MATCH</button>
  </header>
@@ -323,13 +329,13 @@ html,body{overflow:auto}
  <div class="br-bottom">
   <div id="brJoystick" class="br-joystick" aria-label="Movement joystick"><div id="brStick" class="br-stick"></div></div>
   <div class="br-bars">
-   <div class="br-bar"><span id="brHealth"></span></div>
-   <div class="br-bar"><span id="brShield"></span></div>
+   <div class="br-resource"><svg aria-label="Health"><use href="assets/icons/game-icons.svg#health"/></svg><div class="br-bar"><span id="brHealth"></span></div></div>
+   <div class="br-resource"><svg aria-label="Shield"><use href="assets/icons/game-icons.svg#shield"/></svg><div class="br-bar"><span id="brShield"></span></div></div>
   </div>
   <div class="br-controls">
-   <button class="br-action" data-br="build" aria-label="Build cover">BUILD</button>
-   <button class="br-action" data-br="heal" aria-label="Use medkit">HEAL</button>
-   <button class="br-action" data-br="fire" aria-label="Fire weapon">FIRE</button><button class="br-action" data-br="jump" aria-label="Jump">JUMP</button>
+   <button class="br-action" data-br="build" aria-label="Build cover"><svg><use href="assets/icons/game-icons.svg#build"/></svg>BUILD</button>
+   <button class="br-action" data-br="heal" aria-label="Use medkit"><svg><use href="assets/icons/game-icons.svg#medkit"/></svg>HEAL</button>
+   <button class="br-action" data-br="fire" aria-label="Fire weapon"><svg><use href="assets/icons/game-icons.svg#crosshair"/></svg>FIRE</button><button class="br-action" data-br="jump" aria-label="Jump"><svg><use href="assets/icons/game-icons.svg#jump"/></svg>JUMP</button>
   </div>
  </div>
  <div id="brEnd" class="br-end">
