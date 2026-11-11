@@ -127,6 +127,34 @@ html,body{overflow:auto}
   .ui-grid{grid-template-columns:1fr}
 }
 
+
+/* Battle Royale practice island */
+#brGame{position:fixed;inset:0;z-index:300;background:#09121c;display:none;flex-direction:column;color:#fff;font-family:Arial,sans-serif}
+#brGame.active{display:flex}
+.br-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:#07101eeF;border-bottom:1px solid #ffffff20;z-index:2}
+.br-brand{font-weight:1000;letter-spacing:1px;font-style:italic}.br-brand span{color:#ffd02f}
+.br-stats{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.br-stat{min-width:76px;padding:7px 10px;background:#ffffff12;border:1px solid #ffffff20;border-radius:6px;text-align:center;font-size:11px;color:#c4d0df}
+.br-stat b{display:block;color:#fff;font-size:16px;margin-top:2px}
+.br-exit{border:1px solid #ffffff40;background:#ffffff12;color:#fff;padding:9px 13px;font-weight:900;border-radius:5px}
+#brCanvas{display:block;width:100%;height:100%;min-height:0;flex:1;touch-action:none;background:#7caa68}
+.br-bottom{position:absolute;left:12px;right:12px;bottom:12px;display:flex;justify-content:space-between;align-items:end;pointer-events:none}
+.br-bars{width:min(260px,42vw);display:grid;gap:5px}
+.br-bar{height:13px;background:#111a;border:1px solid #ffffff70;border-radius:10px;overflow:hidden}
+.br-bar span{display:block;height:100%;width:100%;transition:width .15s}
+#brHealth{background:#40d77b}#brShield{background:#48b9ff}
+.br-controls{display:flex;gap:8px;pointer-events:auto}
+.br-action{width:54px;height:54px;border-radius:50%;border:2px solid #ffffff90;background:#14243ddd;color:white;font-weight:1000;box-shadow:0 4px 15px #0007;touch-action:none}
+.br-action:active{transform:scale(.94);background:#ffd02f;color:#172139}
+.br-hint{position:absolute;left:50%;top:70px;transform:translateX(-50%);padding:8px 12px;background:#07101edb;border:1px solid #ffffff25;border-radius:6px;font-size:12px;text-align:center;pointer-events:none}
+.br-end{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:#07101ebf;backdrop-filter:blur(8px);z-index:5;padding:20px}
+.br-end.show{display:flex}
+.br-end-card{width:min(430px,94vw);padding:28px;background:#101d31;border:1px solid #ffffff35;text-align:center;box-shadow:0 25px 80px #0009}
+.br-end-card h2{margin:0 0 8px;font-size:42px;font-weight:1000;font-style:italic}
+.br-end-card p{color:#aabbd0;line-height:1.5}
+.br-end-card button{margin:7px;padding:12px 18px;border:0;background:#ffd02f;color:#172139;font-weight:1000}
+@media(max-width:650px){.br-top{padding:7px;flex-wrap:wrap}.br-brand{font-size:13px}.br-stat{min-width:55px;padding:5px}.br-stat b{font-size:13px}.br-exit{padding:7px}.br-hint{top:88px;font-size:10px;width:90%}.br-action{width:48px;height:48px}.br-bars{width:40vw}}
+@media(hover:hover) and (pointer:fine){.br-controls{display:none}}
 </style>
 </head>
 
@@ -253,6 +281,35 @@ html,body{overflow:auto}
   </div>
 </section>
 
+
+<section id="brGame" aria-label="Battle Royale practice island">
+ <header class="br-top">
+  <div class="br-brand">BATTLE<span>ZONE</span> <small style="display:block;color:#9fb0c7;font:700 9px Arial;letter-spacing:1px">SOLO PRACTICE ISLAND</small></div>
+  <div class="br-stats">
+   <div class="br-stat">ELIMINATIONS<b id="brKills">0</b></div>
+   <div class="br-stat">PLAYERS LEFT<b id="brAlive">13</b></div>
+   <div class="br-stat">STORM<b id="brStorm">100%</b></div>
+   <div class="br-stat">WEAPON<b id="brAmmo">30 / 120</b></div>
+  </div>
+  <button id="brExit" class="br-exit">LEAVE MATCH</button>
+ </header>
+ <canvas id="brCanvas" aria-label="Top-down battle royale game"></canvas>
+ <div class="br-hint" id="brHint">WASD / arrows to move · Mouse to aim · Click or Space to fire · Q build cover · R reload · E use medkit</div>
+ <div class="br-bottom">
+  <div class="br-bars">
+   <div class="br-bar"><span id="brHealth"></span></div>
+   <div class="br-bar"><span id="brShield"></span></div>
+  </div>
+  <div class="br-controls">
+   <button class="br-action" data-br="build" aria-label="Build cover">BUILD</button>
+   <button class="br-action" data-br="heal" aria-label="Use medkit">HEAL</button>
+   <button class="br-action" data-br="fire" aria-label="Fire weapon">FIRE</button>
+  </div>
+ </div>
+ <div id="brEnd" class="br-end">
+  <div class="br-end-card"><h2 id="brEndTitle">VICTORY ROYALE</h2><p id="brEndText">You survived the island.</p><button id="brAgain">PLAY AGAIN</button><button id="brBack">RETURN TO LOBBY</button></div>
+ </div>
+</section>
 <div id="toast" class="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
@@ -547,36 +604,10 @@ PlayerDB.watchPlayer(async function (player) {
   }
 });
 
-document
-  .getElementById("playButton")
-  .addEventListener("click", async function () {
-    this.disabled = true;
-    this.textContent = "MATCHMAKING...";
-
-    try {
-      const result =
-        await BattleMatchmaking.findMatch();
-
-      if (result) {
-        showToast("Match found!");
-      } else {
-        showToast("Searching for players...");
-      }
-    } catch (error) {
-      console.error(
-        "[BattleZone] Matchmaking error:",
-        error
-      );
-
-      showToast(
-        error.message ||
-        "Matchmaking failed."
-      );
-    } finally {
-      this.disabled = false;
-      this.textContent = "PLAY";
-    }
-  });
+document.getElementById("playButton").addEventListener("click",function(){
+  if(window.BattleZonePractice){window.BattleZonePractice.start();showToast("Solo practice island loaded. Online matchmaking is not connected yet.");}
+  else showToast("Practice island could not load. Please refresh.");
+});
   // Top sections and V-Bucks balance.
   const topNavButtons = document.querySelectorAll(".top-nav-btn");
   const sectionBanner = document.getElementById("sectionBanner");
@@ -652,6 +683,78 @@ document
   addVbucks.addEventListener("click", function () {
     showToast("V-Bucks are managed from your player account.");
   });
+
+/* =========================================================
+   SOLO BATTLE ROYALE PRACTICE ISLAND
+   Client-side bots; this is not online matchmaking.
+========================================================= */
+(function(){
+ const root=document.getElementById("brGame"),canvas=document.getElementById("brCanvas");
+ if(!root||!canvas)return;
+ const ctx=canvas.getContext("2d");
+ const $=id=>document.getElementById(id);
+ const world={w:2200,h:1600},keys=new Set(),bullets=[],loot=[],walls=[],bots=[];
+ let running=false,raf=0,last=0,elapsed=0,storm=1,matchKills=0,ammo=30,reserve=120,reloadAt=0,fireAt=0,medkits=2;
+ const player={x:1100,y:800,r:16,hp:100,shield:50,speed:245,angle:0};
+ const camera={x:0,y:0},pointer={x:0,y:0,down:false},joy={x:0,y:0};
+ const rand=(a,b)=>a+Math.random()*(b-a),dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+ function resize(){const dpr=Math.min(devicePixelRatio||1,2),r=canvas.getBoundingClientRect();canvas.width=Math.max(1,Math.floor(r.width*dpr));canvas.height=Math.max(1,Math.floor(r.height*dpr));ctx.setTransform(dpr,0,0,dpr,0,0);}
+ function makeBot(i){let x,y;do{x=rand(100,world.w-100);y=rand(100,world.h-100);}while(Math.hypot(x-player.x,y-player.y)<360);return{x,y,r:15,hp:65,angle:0,speed:rand(85,125),next:rand(0,2),dx:0,dy:0,fire:rand(.5,2),alive:true,color:["#ed7b59","#d5b34d","#9e87db","#5eb6a1"][i%4]};}
+ function reset(){bullets.length=0;loot.length=0;walls.length=0;bots.length=0;player.x=world.w/2;player.y=world.h/2;player.hp=100;player.shield=50;player.angle=0;ammo=30;reserve=120;medkits=2;matchKills=0;elapsed=0;storm=1;for(let i=0;i<12;i++)bots.push(makeBot(i));for(let i=0;i<34;i++)loot.push({x:rand(90,world.w-90),y:rand(90,world.h-90),type:Math.random()<.45?"ammo":Math.random()<.7?"shield":"med",r:10});$("brEnd").classList.remove("show");$("brHint").style.display="block";updateHud();}
+ function updateHud(){ $("brKills").textContent=matchKills;$("brAlive").textContent=1+bots.filter(b=>b.alive).length;$("brStorm").textContent=Math.round(storm*100)+"%";$("brAmmo").textContent=(reloadAt>0?"RELOADING":ammo+" / "+reserve);$("brHealth").style.width=Math.max(0,player.hp)+"%";$("brShield").style.width=Math.max(0,player.shield)+"%"; }
+ function start(){if(running)return;root.classList.add("active");running=true;reset();resize();last=performance.now();raf=requestAnimationFrame(frame);}
+ function stop(){running=false;cancelAnimationFrame(raf);root.classList.remove("active");keys.clear();pointer.down=false;joy.x=joy.y=0;}
+ function end(win){running=false;cancelAnimationFrame(raf);$("brEndTitle").textContent=win?"VICTORY ROYALE":"ELIMINATED";$("brEndText").textContent=win?"Island secured with "+matchKills+" eliminations.":"You scored "+matchKills+" eliminations. Try a different drop strategy."; $("brEnd").classList.add("show");}
+ function useHeal(){if(!running||medkits<=0||player.hp>=100)return;medkits--;player.hp=Math.min(100,player.hp+45);updateHud();showToast("Medkit used · "+medkits+" remaining");}
+ function build(){if(!running||walls.length>=18)return;const x=player.x+Math.cos(player.angle)*62,y=player.y+Math.sin(player.angle)*62;walls.push({x,y,w:72,h:18,angle:player.angle,life:18});}
+ function reload(){if(!running||reloadAt||ammo===30||reserve<=0)return;reloadAt=performance.now()+1050;setTimeout(()=>{if(!running)return;const n=Math.min(30-ammo,reserve);ammo+=n;reserve-=n;reloadAt=0;updateHud();},1050);}
+ function shoot(){if(!running||reloadAt||ammo<=0||performance.now()<fireAt)return;if(ammo===0){reload();return;}ammo--;fireAt=performance.now()+145;bullets.push({x:player.x+Math.cos(player.angle)*22,y:player.y+Math.sin(player.angle)*22,vx:Math.cos(player.angle)*760,vy:Math.sin(player.angle)*760,life:1.1,owner:"player",damage:27});updateHud();}
+ function hurt(target,damage){let left=damage;if(target.shield>0){const n=Math.min(target.shield,left);target.shield-=n;left-=n;}target.hp-=left;if(target.hp<=0){target.hp=0;return true;}return false;}
+ function killBot(bot){bot.alive=false;matchKills++;loot.push({x:bot.x,y:bot.y,type:"ammo",r:10});if(Math.random()<.55)loot.push({x:bot.x+18,y:bot.y,type:"shield",r:10});updateHud();if(bots.every(b=>!b.alive))end(true);}
+ function update(dt){
+  elapsed+=dt;storm=Math.max(.12,1-elapsed/210);
+  const speed=player.speed*(keys.has("shift")?1.25:1),mx=(keys.has("d")||keys.has("arrowright")?1:0)-(keys.has("a")||keys.has("arrowleft")?1:0)+joy.x,my=(keys.has("s")||keys.has("arrowdown")?1:0)-(keys.has("w")||keys.has("arrowup")?1:0)+joy.y,len=Math.hypot(mx,my)||1;
+  player.x=Math.max(20,Math.min(world.w-20,player.x+mx/len*speed*dt));player.y=Math.max(20,Math.min(world.h-20,player.y+my/len*speed*dt));
+  const rect=canvas.getBoundingClientRect();if(pointer.valid){const wx=pointer.x-rect.left+camera.x,wy=pointer.y-rect.top+camera.y;player.angle=Math.atan2(wy-player.y,wx-player.x);}if(pointer.down||keys.has(" "))shoot();
+  const radius=650*storm;if(Math.hypot(player.x-world.w/2,player.y-world.h/2)>radius){player.hp-=9*dt;if(player.hp<=0){player.hp=0;updateHud();end(false);return;}}
+  bots.forEach(bot=>{if(!bot.alive)return;const d=dist(bot,player),a=Math.atan2(player.y-bot.y,player.x-bot.x);bot.angle=a;bot.next-=dt;bot.fire-=dt;if(bot.next<=0){const retreat=d<150?-1:1;bot.dx=Math.cos(a)*retreat;bot.dy=Math.sin(a)*retreat;bot.next=rand(.5,1.6);}if(d<650){bot.x+=bot.dx*bot.speed*dt;bot.y+=bot.dy*bot.speed*dt;}if(d<430&&bot.fire<=0){const spread=rand(-.16,.16),ang=a+spread;bullets.push({x:bot.x,y:bot.y,vx:Math.cos(ang)*420,vy:Math.sin(ang)*420,life:1.5,owner:bot,damage:8});bot.fire=rand(.8,1.6);}});
+  bullets.forEach(b=>{b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(b.owner==="player"){for(const bot of bots){if(bot.alive&&Math.hypot(bot.x-b.x,bot.y-b.y)<bot.r+4){bot.hp-=b.damage;b.life=0;if(bot.hp<=0)killBot(bot);break;}}}else if(Math.hypot(player.x-b.x,player.y-b.y)<player.r+4){hurt(player,b.damage);b.life=0;if(player.hp<=0)end(false);}});
+  for(let i=bullets.length-1;i>=0;i--)if(bullets[i].life<=0||bullets[i].x<0||bullets[i].y<0||bullets[i].x>world.w||bullets[i].y>world.h)bullets.splice(i,1);
+  for(let i=loot.length-1;i>=0;i--){const item=loot[i];if(Math.hypot(player.x-item.x,player.y-item.y)<28){if(item.type==="ammo")reserve=Math.min(240,reserve+30);if(item.type==="shield")player.shield=Math.min(100,player.shield+25);if(item.type==="med")medkits=Math.min(5,medkits+1);loot.splice(i,1);}}
+  walls.forEach(w=>w.life-=dt);for(let i=walls.length-1;i>=0;i--)if(walls[i].life<=0)walls.splice(i,1);
+  updateHud();
+ }
+ function draw(){
+  const r=canvas.getBoundingClientRect(),w=r.width,h=r.height;camera.x=Math.max(0,Math.min(world.w-w,player.x-w/2));camera.y=Math.max(0,Math.min(world.h-h,player.y-h/2));
+  ctx.clearRect(0,0,w,h);ctx.save();ctx.translate(-camera.x,-camera.y);
+  ctx.fillStyle="#81aa6d";ctx.fillRect(0,0,world.w,world.h);
+  for(let i=0;i<90;i++){const x=(i*197)%world.w,y=(i*313)%world.h;ctx.fillStyle=i%3?"#719b62":"#91b978";ctx.beginPath();ctx.arc(x,y,randStatic(i,8,24),0,Math.PI*2);ctx.fill();}
+  ctx.strokeStyle="#657f58";ctx.lineWidth=4;for(let x=100;x<world.w;x+=230){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,world.h);ctx.stroke();}for(let y=120;y<world.h;y+=220){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(world.w,y);ctx.stroke();}
+  ctx.fillStyle="#667a87";[[350,300,170,110],[820,220,180,120],[1450,330,210,140],[450,1040,190,130],[1300,1100,230,150],[900,760,160,130]].forEach(([x,y,bw,bh])=>{ctx.fillRect(x,y,bw,bh);ctx.fillStyle="#a8b4b2";ctx.fillRect(x+8,y+8,bw-16,bh-16);ctx.fillStyle="#667a87";});
+  loot.forEach(item=>{ctx.fillStyle=item.type==="ammo"?"#ffd34d":item.type==="shield"?"#50c8ff":"#55df87";ctx.beginPath();ctx.arc(item.x,item.y,item.r,0,Math.PI*2);ctx.fill();ctx.fillStyle="#102030";ctx.font="bold 11px Arial";ctx.textAlign="center";ctx.fillText(item.type==="ammo"?"A":item.type==="shield"?"S":"+",item.x,item.y+4);});
+  walls.forEach(wall=>{ctx.save();ctx.translate(wall.x,wall.y);ctx.rotate(wall.angle);ctx.fillStyle="#b98a58";ctx.fillRect(-wall.w/2,-wall.h/2,wall.w,wall.h);ctx.strokeStyle="#f1d4a2";ctx.strokeRect(-wall.w/2,-wall.h/2,wall.w,wall.h);ctx.restore();});
+  bullets.forEach(b=>{ctx.fillStyle=b.owner==="player"?"#fff2a0":"#ff7777";ctx.beginPath();ctx.arc(b.x,b.y,4,0,Math.PI*2);ctx.fill();});
+  bots.forEach(bot=>{if(!bot.alive)return;drawCharacter(bot,bot.color);});
+  drawCharacter(player,"#46c9ff");
+  const radius=650*storm;ctx.strokeStyle="#65baff";ctx.lineWidth=9;ctx.beginPath();ctx.arc(world.w/2,world.h/2,radius,0,Math.PI*2);ctx.stroke();ctx.fillStyle="#285fba18";ctx.beginPath();ctx.rect(0,0,world.w,world.h);ctx.arc(world.w/2,world.h/2,radius,0,Math.PI*2,true);ctx.fill("evenodd");
+  ctx.restore();
+  // Mini map
+  const mw=118,mh=86,ox=w-mw-14,oy=14;ctx.fillStyle="#07101edb";ctx.fillRect(ox,oy,mw,mh);ctx.strokeStyle="#ffffff80";ctx.strokeRect(ox,oy,mw,mh);ctx.fillStyle="#6e9c69";ctx.fillRect(ox+4,oy+4,mw-8,mh-8);ctx.strokeStyle="#7bc9ff";ctx.beginPath();ctx.arc(ox+mw/2,oy+mh/2,Math.min(mw,mh)*.38*storm,0,Math.PI*2);ctx.stroke();ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(ox+4+player.x/world.w*(mw-8),oy+4+player.y/world.h*(mh-8),3.5,0,Math.PI*2);ctx.fill();ctx.fillStyle="#ff7777";bots.filter(b=>b.alive).forEach(b=>{ctx.fillRect(ox+4+b.x/world.w*(mw-8)-1,oy+4+b.y/world.h*(mh-8)-1,3,3);});
+ }
+ function randStatic(n,a,b){const v=Math.sin(n*127.1)*43758.5453;return a+(v-Math.floor(v))*(b-a);}
+ function drawCharacter(p,color){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.angle||0);ctx.fillStyle="#0005";ctx.beginPath();ctx.ellipse(0,8,17,12,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=color;ctx.beginPath();ctx.arc(0,0,p.r||15,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#fff";ctx.lineWidth=2;ctx.stroke();ctx.fillStyle="#263447";ctx.fillRect(4,-5,24,10);ctx.restore();if(p.hp!==undefined&&p!==player){ctx.fillStyle="#202020";ctx.fillRect(p.x-17,p.y-25,34,4);ctx.fillStyle="#4ddd8a";ctx.fillRect(p.x-17,p.y-25,34*Math.max(0,p.hp/65),4);}}
+ function frame(now){if(!running)return;const dt=Math.min(.035,(now-last)/1000||0);last=now;update(dt);draw();raf=requestAnimationFrame(frame);}
+ canvas.addEventListener("pointermove",e=>{pointer.x=e.clientX;pointer.y=e.clientY;pointer.valid=true;});
+ canvas.addEventListener("pointerdown",e=>{if(e.pointerType==="mouse"){pointer.down=true;canvas.setPointerCapture(e.pointerId);}else{pointer.x=e.clientX;pointer.y=e.clientY;pointer.valid=true;shoot();}});
+ canvas.addEventListener("pointerup",()=>{pointer.down=false;});canvas.addEventListener("pointercancel",()=>{pointer.down=false;});
+ window.addEventListener("keydown",e=>{const k=e.key.toLowerCase();if(["w","a","s","d","arrowup","arrowdown","arrowleft","arrowright"," ","shift","q","e","r"].includes(k)&&root.classList.contains("active")){if(k.startsWith("arrow")||k===" ")e.preventDefault();keys.add(k);if(k==="q")build();if(k==="e")useHeal();if(k==="r")reload();}});
+ window.addEventListener("keyup",e=>keys.delete(e.key.toLowerCase()));
+ document.querySelectorAll("[data-br]").forEach(btn=>{const action=btn.dataset.br;btn.addEventListener("pointerdown",e=>{e.preventDefault();if(action==="fire"){pointer.down=true;shoot();}if(action==="build")build();if(action==="heal")useHeal();});btn.addEventListener("pointerup",()=>{if(action==="fire")pointer.down=false;});btn.addEventListener("pointercancel",()=>{if(action==="fire")pointer.down=false;});});
+ $("brExit").addEventListener("click",stop);$("brBack").addEventListener("click",stop);$("brAgain").addEventListener("click",()=>{running=false;start();});
+ window.addEventListener("resize",resize);
+ window.BattleZonePractice={start,stop};
+ function randStaticDummy(){}
+})();
 
 </script>
 
