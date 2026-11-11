@@ -139,7 +139,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
   function reset(){
     for(const b of bots)scene.remove(b.mesh);bots.length=0;
     for(const p of pickups)scene.remove(p.group);pickups.length=0;
-    for(const b of builds)scene.remove(b.mesh);builds.length=0;
+    for(const b of builds){scene.remove(b.mesh);const blockerIndex=solidBlockers.indexOf(b.mesh);if(blockerIndex>=0)solidBlockers.splice(blockerIndex,1);}builds.length=0;
     bullets.forEach(b=>scene.remove(b.mesh));bullets.length=0;
     kills=0;phase="bus";phaseTime=0;ammo=30;reserve=150;reloadUntil=0;fireCooldown=0;elapsed=0;stormRadius=195;stormTimer=0;medkits=2;health=100;shield=50;yaw=0;pitch=.12;jumpVelocity=0;grounded=true;
     player.position.set(-220,84,0);if(battleBus)battleBus.position.set(-220,88,0);if(glider)glider.visible=false;
