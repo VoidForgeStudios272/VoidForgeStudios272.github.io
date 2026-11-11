@@ -38,6 +38,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
   const keys = new Set();
   const pointer = {locked:false, fire:false, lookId:null, lastX:0,lastY:0};
   const joystick = {id:null,x:0,y:0};
+  let stormRing=null;
   let running=false, raf=0, kills=0, ammo=30, reserve=150, reloadUntil=0, fireCooldown=0, elapsed=0, stormRadius=195, stormTimer=0, medkits=2, health=100, shield=50, yaw=0, pitch=.12, jumpVelocity=0, grounded=true;
   const player = {position:new THREE.Vector3(0,2,0), velocity:new THREE.Vector3(), mesh:null, mixer:null};
   const mats = {};
@@ -80,6 +81,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
     [[-78,-64,.4,1],[-112,48,1.1,.85],[75,-96,.8,1.1],[110,54,-.5,1],[-12,115,.3,.9],[145,-8,1.4,.75]].forEach(v=>makeHouse(...v));
     for(let i=0;i<46;i++){const x=THREE.MathUtils.randFloatSpread(370),z=THREE.MathUtils.randFloatSpread(370);if(Math.hypot(x,z)>190)continue;const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(THREE.MathUtils.randFloat(1,3),0),mats.rock);rock.position.set(x,terrainHeight(x,z)+1,z);rock.scale.y=.7;rock.castShadow=true;scene.add(rock);}
     const islandRing=new THREE.Mesh(new THREE.TorusGeometry(199,.65,8,128),new THREE.MeshStandardMaterial({color:0x4ed6ed,emissive:0x137eaa,emissiveIntensity:1.2}));islandRing.rotation.x=Math.PI/2;islandRing.position.y=1;scene.add(islandRing);
+    stormRing=new THREE.Mesh(new THREE.TorusGeometry(195,.85,8,160),new THREE.MeshBasicMaterial({color:0x43d9ff,transparent:true,opacity:.88}));stormRing.rotation.x=Math.PI/2;stormRing.position.y=3.5;scene.add(stormRing);
   }
   function character(color,isPlayer=false){
     const group=new THREE.Group(),bodyMat=mat(color,.55),skin=mat(0xf0c6a0),dark=mat(0x172437,.6);
@@ -116,7 +118,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
   function shoot(){if(!running||reloadUntil>performance.now()||ammo<=0||fireCooldown>0)return;if(ammo<=0){reload();return;}ammo--;fireCooldown=.14;
     const origin=camera.position.clone();const dir=new THREE.Vector3();camera.getWorldDirection(dir);const target=origin.clone().addScaledVector(dir,180);raycaster.set(origin,dir);raycaster.far=180;
     const targets=bots.filter(b=>b.alive).map(b=>b.mesh);const hits=raycaster.intersectObjects(targets,true);
-    let end=target;if(hits.length){const hit=hits[0];end=hit.point;let obj=hit.object;while(obj.parent&&!bots.some(b=>b.mesh===obj))obj=obj.parent;const bot=bots.find(b=>b.mesh===obj);if(bot){bot.hp-=34;addTracer(origin,end);if(bot.hp<=0){bot.alive=false;scene.remove(bot.mesh);kills++;if(Math.random()<.7)dropPickup(bot.mesh.position.x,bot.mesh.position.z,"ammo");}}}
+    let end=target;if(hits.length){const hit=hits[0];end=hit.point;let obj=hit.object;while(obj.parent&&!bots.some(b=>b.mesh===obj))obj=obj.parent;const bot=bots.find(b=>b.mesh===obj);if(bot){bot.hp-=34;if(bot.hp<=0){bot.alive=false;scene.remove(bot.mesh);kills++;if(Math.random()<.7)dropPickup(bot.mesh.position.x,bot.mesh.position.z,"ammo");}}}
     addTracer(origin,end);updateHud();
   }
   function dropPickup(x,z,type){const color=type==="ammo"?0xf4c84b:0x5de18b;const g=new THREE.Group();const m=new THREE.Mesh(new THREE.OctahedronGeometry(.8),new THREE.MeshStandardMaterial({color,emissive:color,emissiveIntensity:.4}));m.position.y=1;g.add(m);g.position.set(x,terrainHeight(x,z),z);scene.add(g);pickups.push({group:g,type,active:true,x,z});}
@@ -128,7 +130,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
   function update(dt){
     elapsed+=dt;stormTimer+=dt;fireCooldown=Math.max(0,fireCooldown-dt);
     if(reloadUntil&&performance.now()>=reloadUntil){const n=Math.min(30-ammo,reserve);ammo+=n;reserve-=n;reloadUntil=0;}
-    if(stormTimer>12){stormTimer=0;stormRadius=Math.max(38,stormRadius-12);}
+    if(stormTimer>12){stormTimer=0;stormRadius=Math.max(38,stormRadius-12);if(stormRing)stormRing.scale.setScalar(stormRadius/195);}
     const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw)),right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));
     let mx=(keys.has("d")||keys.has("arrowright")?1:0)-(keys.has("a")||keys.has("arrowleft")?1:0)+joystick.x;
     let mz=(keys.has("s")||keys.has("arrowdown")?1:0)-(keys.has("w")||keys.has("arrowup")?1:0)+joystick.y;

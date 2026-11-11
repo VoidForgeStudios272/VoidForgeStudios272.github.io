@@ -137,7 +137,7 @@ html,body{overflow:auto}
 .br-stat{min-width:76px;padding:7px 10px;background:#ffffff12;border:1px solid #ffffff20;border-radius:6px;text-align:center;font-size:11px;color:#c4d0df}
 .br-stat b{display:block;color:#fff;font-size:16px;margin-top:2px}
 .br-exit{border:1px solid #ffffff40;background:#ffffff12;color:#fff;padding:9px 13px;font-weight:900;border-radius:5px}
-#brCanvas{display:block;width:100%;height:100%;min-height:0;flex:1;touch-action:none;background:#7caa68}
+.br-crosshair{position:absolute;left:50%;top:50%;z-index:2;width:22px;height:22px;transform:translate(-50%,-50%);pointer-events:none;opacity:.92}.br-crosshair:before,.br-crosshair:after{content:"";position:absolute;background:#fff;box-shadow:0 1px 3px #000}.br-crosshair:before{width:2px;height:22px;left:10px;top:0}.br-crosshair:after{height:2px;width:22px;left:0;top:10px}\n#brCanvas{display:block;width:100%;height:100%;min-height:0;flex:1;touch-action:none;background:#7caa68}
 .br-bottom{position:absolute;left:12px;right:12px;bottom:12px;display:flex;justify-content:space-between;align-items:end;pointer-events:none}
 .br-bars{width:min(260px,42vw);display:grid;gap:5px}
 .br-bar{height:13px;background:#111a;border:1px solid #ffffff70;border-radius:10px;overflow:hidden}
@@ -297,7 +297,7 @@ html,body{overflow:auto}
   </div>
   <button id="brExit" class="br-exit">LEAVE MATCH</button>
  </header>
- <canvas id="brCanvas" aria-label="Third-person 3D battle royale game"></canvas>
+ <canvas id="brCanvas" aria-label="Third-person 3D battle royale game"></canvas><div class="br-crosshair" aria-hidden="true"></div>
  <div class="br-hint" id="brHint">WASD move · Mouse look · Click fire · Shift sprint · Space jump · Q build · R reload · E heal</div>
  <div class="br-bottom">
   <div id="brJoystick" class="br-joystick" aria-label="Movement joystick"><div id="brStick" class="br-stick"></div></div>
