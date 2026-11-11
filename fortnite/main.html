@@ -159,6 +159,26 @@ html,body{overflow:auto}
 .br-end-card button{margin:7px;padding:12px 18px;border:0;background:#ffd02f;color:#172139;font-weight:1000}
 @media(max-width:650px){.br-top{padding:7px;flex-wrap:wrap}.br-brand{font-size:13px}.br-stat{min-width:55px;padding:5px}.br-stat b{font-size:13px}.br-exit{padding:7px}.br-hint{top:88px;font-size:10px;width:90%}.br-action{width:48px;height:48px}.br-bars{width:40vw}}
 @media(hover:hover) and (pointer:fine){.br-controls{display:none}}
+
+#brPhase{position:absolute;left:50%;top:74px;transform:translateX(-50%);z-index:3;padding:10px 18px;border:1px solid #ffffff55;border-radius:12px;background:#07182bdc;box-shadow:0 8px 30px #0006;text-align:center;pointer-events:none;min-width:210px}
+#brPhase strong{display:block;font-size:15px;letter-spacing:1.5px;color:#ffd34d}
+#brPhase span{display:block;font-size:11px;color:#e4edf8;margin-top:3px}
+#brDropBtn{position:absolute;z-index:4;left:50%;bottom:120px;transform:translateX(-50%);padding:14px 28px;border:2px solid #fff;border-radius:999px;background:linear-gradient(135deg,#ffdc4a,#f18b22);color:#172139;font-size:16px;font-weight:1000;letter-spacing:1px;box-shadow:0 8px 30px #0008;touch-action:manipulation}
+#brDropBtn:active{transform:translateX(-50%) scale(.96)}
+#brGame.mobile-mode .br-top{padding-top:max(7px,env(safe-area-inset-top))}
+#brGame.mobile-mode .br-bottom{left:10px;right:10px;bottom:max(12px,env(safe-area-inset-bottom));align-items:end}
+#brGame.mobile-mode .br-joystick{width:126px;height:126px;bottom:4px;left:2px;background:#10243dbb;border-color:#ffffffa0}
+#brGame.mobile-mode .br-stick{width:54px;height:54px;left:34px;top:34px}
+#brGame.mobile-mode .br-controls{gap:9px;align-items:end}
+#brGame.mobile-mode .br-action{width:58px;height:58px;font-size:10px;border-width:2px;background:#13243deF}
+#brGame.mobile-mode [data-br="fire"]{width:72px;height:72px;background:#c94d38ed;border-color:#fff}
+#brGame.mobile-mode [data-br="jump"]{background:#e8bd37ed;color:#182438}
+#brGame.mobile-mode .br-bars{position:absolute;left:138px;bottom:8px;width:min(34vw,190px)}
+#brGame.mobile-mode .br-hint{top:102px;max-width:88vw}
+#brGame.mobile-mode .br-crosshair{opacity:.75}
+@media(max-width:650px){#brPhase{top:104px;min-width:180px;padding:8px 12px}#brPhase strong{font-size:13px}#brDropBtn{bottom:145px;padding:13px 23px;font-size:14px}.br-top{gap:5px}.br-stats{gap:4px}.br-stat{min-width:48px;font-size:9px}.br-stat b{font-size:12px}.br-exit{font-size:10px}}
+@media(max-width:390px){#brGame.mobile-mode .br-action{width:49px;height:49px;font-size:9px}#brGame.mobile-mode [data-br="fire"]{width:62px;height:62px}}
+
 </style>
 </head>
 
@@ -298,7 +318,8 @@ html,body{overflow:auto}
   <button id="brExit" class="br-exit">LEAVE MATCH</button>
  </header>
  <canvas id="brCanvas" aria-label="Third-person 3D battle royale game"></canvas><div class="br-crosshair" aria-hidden="true"></div>
- <div class="br-hint" id="brHint">WASD move · Mouse look · Click fire · Shift sprint · Space jump · Q build · R reload · E heal</div>
+ <div id="brPhase"><strong>THE BATTLE BUS</strong><span>Choose your drop location</span></div><button id="brDropBtn" type="button">JUMP</button>
+ <div class="br-hint" id="brHint">Desktop: WASD move · Mouse look · Click fire · Q build · R reload · E heal · Space jump</div>
  <div class="br-bottom">
   <div id="brJoystick" class="br-joystick" aria-label="Movement joystick"><div id="brStick" class="br-stick"></div></div>
   <div class="br-bars">
