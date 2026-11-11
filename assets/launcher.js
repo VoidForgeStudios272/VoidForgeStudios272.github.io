@@ -1396,6 +1396,7 @@
     currentGame = null;
     if (gameFrame) gameFrame.style.filter = "";
     gameView?.classList.remove("vf-shader-scanlines");
+    gameView?.classList.remove("vf-shader-vignette");
     if (shaderPanel) shaderPanel.hidden = true;
     if (shaderButton) shaderButton.setAttribute("aria-expanded", "false");
     latestGameFps = null; latestGameSize = ""; updateGameStatsOverlay();
