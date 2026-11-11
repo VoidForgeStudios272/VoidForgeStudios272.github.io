@@ -185,6 +185,22 @@ html,body{overflow:auto}
 .br-resource{display:flex;align-items:center;gap:7px;width:min(220px,28vw)}.br-resource>svg{width:23px;height:23px;flex:none;fill:none;stroke:#f5f8ff;stroke-width:10;filter:drop-shadow(0 2px 4px #0008)}.br-resource .br-bar{flex:1;min-width:0}
 .br-action{display:flex;align-items:center;justify-content:center;gap:6px}.br-action svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:10}
 @media(max-width:650px){.br-stat{padding-left:25px!important}.br-stat-icon{left:5px;width:16px;height:16px}.br-resource{width:min(160px,34vw);gap:5px}.br-resource>svg{width:19px;height:19px}.br-action svg{width:16px;height:16px}}
+
+/* BattleZone cinematic shader controls */
+.br-visuals{position:relative;z-index:8}
+.br-visuals-toggle{border:1px solid #ffffff55;background:linear-gradient(135deg,#183b5c,#10223a);color:#eaf6ff;padding:9px 13px;border-radius:6px;font-size:11px;font-weight:1000;letter-spacing:.7px}
+.br-visuals-toggle:hover{border-color:#7bdcff;background:#1b4569}
+.br-visuals-panel{position:absolute;right:0;top:calc(100% + 9px);width:min(290px,calc(100vw - 24px));padding:15px;background:rgba(7,16,30,.97);border:1px solid #6bcfff66;border-radius:10px;box-shadow:0 18px 55px #000b;backdrop-filter:blur(18px);color:#f4f8ff}
+.br-visuals-panel[hidden]{display:none}
+.br-visuals-title{font-size:14px;font-weight:1000;letter-spacing:1px;margin-bottom:4px}
+.br-visuals-sub{font-size:10px;color:#93abc4;margin-bottom:13px}
+.br-visuals-field{display:grid;gap:6px;margin:10px 0;color:#c9d8e8;font-size:11px;font-weight:800}
+.br-visuals-field select{width:100%;height:38px;padding:0 10px;border:1px solid #ffffff25;border-radius:6px;background:#14243a;color:white}
+.br-visuals-check{display:flex;align-items:center;gap:9px;padding:8px 0;color:#d9e5f2;font-size:12px}
+.br-visuals-check input{accent-color:#45c8ff;width:16px;height:16px}
+.br-visuals-note{margin:10px 0 0;color:#849bb4;font-size:10px;line-height:1.45}
+@media(max-width:650px){.br-visuals-toggle{padding:7px 9px;font-size:9px}.br-visuals-panel{right:-4px}}
+
 </style>
 </head>
 
@@ -321,6 +337,24 @@ html,body{overflow:auto}
    <div class="br-stat"><svg class="br-stat-icon" role="img" aria-label="Players left"><use href="assets/icons/game-icons.svg#players"/></svg>PLAYERS LEFT<b id="brAlive">13</b></div>
    <div class="br-stat"><svg class="br-stat-icon" role="img" aria-label="Storm"><use href="assets/icons/game-icons.svg#storm"/></svg>STORM<b id="brStorm">100%</b></div>
    <div class="br-stat"><svg class="br-stat-icon" role="img" aria-label="Weapon ammunition"><use href="assets/icons/game-icons.svg#ammo"/></svg>WEAPON<b id="brAmmo">30 / 120</b></div>
+  </div>
+  <div class="br-visuals">
+   <button id="brVisualsToggle" class="br-visuals-toggle" type="button" aria-expanded="false" aria-controls="brVisualsPanel">✦ VISUALS</button>
+   <section id="brVisualsPanel" class="br-visuals-panel" aria-label="Graphics and shader settings" hidden>
+    <div class="br-visuals-title">CINEMATIC SHADERS</div>
+    <div class="br-visuals-sub">Live graphics settings · saved on this device</div>
+    <label class="br-visuals-field" for="brShaderQuality">RENDER QUALITY
+     <select id="brShaderQuality">
+      <option value="low">Low · Performance</option>
+      <option value="medium">Medium · Balanced</option>
+      <option value="high">High · Recommended</option>
+      <option value="ultra">Ultra · Maximum detail</option>
+     </select>
+    </label>
+    <label class="br-visuals-check"><input id="brShaderBloom" type="checkbox" checked> Cinematic bloom and light glow</label>
+    <label class="br-visuals-check"><input id="brShaderVignette" type="checkbox" checked> Cinematic color and vignette</label>
+    <p class="br-visuals-note">Ultra quality uses more GPU power. Lower the quality if the game feels slow on your device.</p>
+   </section>
   </div>
   <button id="brExit" class="br-exit">LEAVE MATCH</button>
  </header>
@@ -716,6 +750,12 @@ document.getElementById("playButton").addEventListener("click",function(){
   addVbucks.addEventListener("click", function () {
     showToast("V-Bucks are managed from your player account.");
   });
+
+  const visualToggle=document.getElementById("brVisualsToggle");
+  const visualPanel=document.getElementById("brVisualsPanel");
+  visualToggle?.addEventListener("click",()=>{const open=visualPanel.hidden;visualPanel.hidden=!open;visualToggle.setAttribute("aria-expanded",String(open));});
+  document.addEventListener("pointerdown",event=>{if(!visualPanel||visualPanel.hidden||visualPanel.contains(event.target)||visualToggle?.contains(event.target))return;visualPanel.hidden=true;visualToggle?.setAttribute("aria-expanded","false");});
+  document.addEventListener("keydown",event=>{if(event.key==="Escape"&&visualPanel&&!visualPanel.hidden){visualPanel.hidden=true;visualToggle?.setAttribute("aria-expanded","false");}});
 
 /* 3D BattleZone engine is loaded as a module below. */;
 
