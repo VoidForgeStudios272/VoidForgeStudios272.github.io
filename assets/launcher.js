@@ -69,6 +69,8 @@
   const shaderPreset = $("#shaderPreset");
   const shaderScanlines = $("#shaderScanlines");
   const shaderVibrance = $("#shaderVibrance");
+  const shaderGlow = $("#shaderGlow");
+  const shaderVignette = $("#shaderVignette");
   const shaderGameName = $("#shaderGameName");
   const shaderReset = $("#shaderReset");
   const GAME_SHADER_KEY = "voidforgeGameShadersV1";
@@ -96,7 +98,9 @@
     return {
       preset: Object.prototype.hasOwnProperty.call(SHADER_PRESETS, saved.preset) ? saved.preset : "high",
       scanlines: saved.scanlines === true,
-      vibrance: saved.vibrance === true
+      vibrance: saved.vibrance === true,
+      glow: saved.glow === true,
+      vignette: saved.vignette === true
     };
   }
   function applyGameShaders() {
@@ -105,11 +109,15 @@
     const filters = [];
     if (SHADER_PRESETS[profile.preset]) filters.push(SHADER_PRESETS[profile.preset]);
     if (profile.vibrance) filters.push("saturate(1.18)");
+    if (profile.glow) filters.push("drop-shadow(0 0 12px rgba(125,145,255,.36))");
     gameFrame.style.filter = filters.join(" ") || "none";
     gameView?.classList.toggle("vf-shader-scanlines", profile.scanlines);
+    gameView?.classList.toggle("vf-shader-vignette", profile.vignette);
     if (shaderPreset) shaderPreset.value = profile.preset;
     if (shaderScanlines) shaderScanlines.checked = profile.scanlines;
     if (shaderVibrance) shaderVibrance.checked = profile.vibrance;
+    if (shaderGlow) shaderGlow.checked = profile.glow;
+    if (shaderVignette) shaderVignette.checked = profile.vignette;
     if (shaderGameName) shaderGameName.textContent = currentGame.name || currentGame.title || currentGame.id || "This game";
     if (gameFrame.contentWindow) {
       try { gameFrame.contentWindow.postMessage({type:"voidforge:shader-settings",gameId:String(currentGame.id),settings:profile},window.location.origin); } catch {}
@@ -136,6 +144,8 @@
     shaderPreset?.addEventListener("change", () => updateGameShader("preset", shaderPreset.value));
     shaderScanlines?.addEventListener("change", () => updateGameShader("scanlines", shaderScanlines.checked));
     shaderVibrance?.addEventListener("change", () => updateGameShader("vibrance", shaderVibrance.checked));
+    shaderGlow?.addEventListener("change", () => updateGameShader("glow", shaderGlow.checked));
+    shaderVignette?.addEventListener("change", () => updateGameShader("vignette", shaderVignette.checked));
     shaderReset?.addEventListener("click", () => {
       if (!currentGame) return;
       delete gameShaderProfiles[String(currentGame.id)];
@@ -2340,7 +2350,7 @@
   }
   function broadcastStudioSettings() {
     if(!gameFrame?.contentWindow||!currentGame) return;
-    gameFrame.contentWindow.postMessage({type:"voidforge:settings",version:1,gameId:String(currentGame.id),settings:{...studioSettings,shaderPreset:getCurrentShaderProfile().preset,shaderScanlines:getCurrentShaderProfile().scanlines,shaderVibrance:getCurrentShaderProfile().vibrance},gameSettings:currentGame?{...(studioGameProfiles[currentGame.id]||{})}:{}} ,window.location.origin);
+    gameFrame.contentWindow.postMessage({type:"voidforge:settings",version:1,gameId:String(currentGame.id),settings:{...studioSettings,shaderPreset:getCurrentShaderProfile().preset,shaderScanlines:getCurrentShaderProfile().scanlines,shaderVibrance:getCurrentShaderProfile().vibrance,shaderGlow:getCurrentShaderProfile().glow,shaderVignette:getCurrentShaderProfile().vignette},gameSettings:currentGame?{...(studioGameProfiles[currentGame.id]||{})}:{}} ,window.location.origin);
   }
   function updateStudioSetting(key,value) {
     if(!Object.prototype.hasOwnProperty.call(STUDIO_SETTINGS_DEFAULTS,key)) return;

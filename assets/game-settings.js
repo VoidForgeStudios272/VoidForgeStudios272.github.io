@@ -73,8 +73,12 @@
     root.dataset.vfShaderPreset = current.shaderPreset || "high";
     root.dataset.vfShaderScanlines = current.shaderScanlines ? "true" : "false";
     root.dataset.vfShaderVibrance = current.shaderVibrance ? "true" : "false";
+    root.dataset.vfShaderGlow = current.shaderGlow ? "true" : "false";
+    root.dataset.vfShaderVignette = current.shaderVignette ? "true" : "false";
     root.classList.toggle("vf-shader-scanlines", !!current.shaderScanlines);
     root.classList.toggle("vf-shader-vibrance", !!current.shaderVibrance);
+    root.classList.toggle("vf-shader-glow", !!current.shaderGlow);
+    root.classList.toggle("vf-shader-vignette", !!current.shaderVignette);
     root.dataset.vfColorMode = current.colorMode || "system";
     root.dataset.vfFov = String(current.fov ?? 90);
     root.dataset.vfShadows = current.shadows || "high";

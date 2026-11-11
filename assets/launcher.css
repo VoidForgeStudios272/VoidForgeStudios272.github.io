@@ -3242,3 +3242,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible {
 .game-stage iframe{transition:filter .18s ease}
 @media(max-width:760px){.game-toolbar{gap:7px;padding:0 9px}.game-toolbar-actions{gap:4px;overflow-x:auto;max-width:72vw;scrollbar-width:none}.game-toolbar-actions::-webkit-scrollbar{display:none}.game-toolbar .toolbar-button{padding:7px 8px;font-size:11px;white-space:nowrap}.game-shader-panel{position:fixed;top:72px;right:10px}}
 @media(prefers-reduced-motion:reduce){.game-stage iframe{transition:none}}
+
+.game-view.vf-shader-vignette .game-stage::before{content:"";position:absolute;z-index:3;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 48%,rgba(0,0,0,.52) 100%)}
+.game-view.vf-shader-vignette .game-stage::before,.game-view.vf-shader-scanlines .game-stage::after{mix-blend-mode:multiply}
