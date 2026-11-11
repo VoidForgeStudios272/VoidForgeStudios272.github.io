@@ -62,6 +62,17 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
   mats.bark=mat(0xffffff);mats.bark.map=textures.wood; mats.leaf=mat(0xffffff);mats.leaf.map=textures.foliage; mats.leaf2=mat(0x4a914e); mats.rock=mat(0xffffff);mats.rock.map=textures.rock;
   mats.roof=mat(0xffffff);mats.roof.map=textures.roof; mats.wall=mat(0xffffff);mats.wall.map=textures.concrete;
   mats.blue=mat(0xffffff,.55);mats.blue.map=textures.metal; mats.red=mat(0xc94f45,.6); mats.yellow=mat(0xf1c84a,.5); mats.wood=mat(0xffffff);mats.wood.map=textures.wood; mats.brick=mat(0xffffff);mats.brick.map=textures.brick; mats.weapon=mat(0xffffff,.45,.55);mats.weapon.map=textures.weapon;
+  // Browser Texture Studio exports are stored on this same origin and loaded into BattleZone materials.
+  function applySavedCustomTextures(){
+    let saved={};
+    try{saved=JSON.parse(localStorage.getItem("battlezone.customTextures.v1")||"{}");}catch(error){console.warn("[BattleZone] Custom texture library could not be read",error);}
+    const targets={grass:[mats.grass,18,18],sand:[mats.sand,12,12],wood:[mats.wood,1,1],foliage:[mats.leaf,1,1],roof:[mats.roof,1,1],concrete:[mats.wall,1,1],metal:[mats.blue,1,1],brick:[mats.brick,1,1],weapon:[mats.weapon,1,1]};
+    Object.entries(targets).forEach(([key,entry])=>{
+      const data=saved[key];if(!data||!data.dataUrl)return;
+      textureLoader.load(data.dataUrl,texture=>{texture.colorSpace=THREE.SRGBColorSpace;texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.repeat.set(entry[1],entry[2]);entry[0].map=texture;entry[0].color.set(0xffffff);entry[0].needsUpdate=true;});
+    });
+  }
+  applySavedCustomTextures();
   const box=(w,h,d,material,x,y,z,group=scene)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;group.add(m);return m;};
   function terrainHeight(x,z){return Math.sin(x*.025)*2.1+Math.cos(z*.031)*1.7+Math.sin((x+z)*.018)*1.4+Math.max(0,1-Math.hypot(x+65,z-75)/115)*10;}
   function makeTerrain(){
