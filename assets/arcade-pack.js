@@ -289,7 +289,12 @@ function gridGame(){
   function moveMaze(dir){if(!active)return;const cell=cells[player];if(cell[dir])return;player+=dir==="n"?-size:dir==="s"?size:dir==="e"?1:-1;renderMaze();if(player===size*size-1){round++;add(8+round);$("status").textContent="Maze cleared! A new maze is ready.";gridGame();}}
   clearMoveControls();const handler=e=>{const dir={ArrowUp:"n",w:"n",ArrowDown:"s",s:"s",ArrowLeft:"w",a:"w",ArrowRight:"e",d:"e"}[e.key];if(active&&dir){e.preventDefault();moveMaze(dir);}};window.__vfArcadeMoveHandler=handler;document.addEventListener("keydown",handler);renderMaze();return;
  }
- prompt.textContent="Tap tiles to change their value";board.style.gridTemplateColumns="repeat(4,minmax(0,1fr))";for(let i=0;i<16;i++){const b=document.createElement("button");b.className="tile";b.textContent="";b.addEventListener("click",()=>{if(!active)return;b.textContent=String((Number(b.textContent||0)%4)+1);add(.25);});board.append(b);}
+ prompt.textContent="Lights Out: turn every tile dark. Each tap flips that tile and its neighbors.";board.style.gridTemplateColumns="repeat(4,minmax(0,1fr))";
+ const lights=Array(16).fill(false);let moves=0;
+ function flip(i){const r=Math.floor(i/4),c=i%4;for(const n of [i,r>0?i-4:-1,r<3?i+4:-1,c>0?i-1:-1,c<3?i+1:-1])if(n>=0)lights[n]=!lights[n];}
+ for(let n=0;n<7;n++)flip(Math.floor(Math.random()*16));
+ function render(){board.replaceChildren();lights.forEach((on,i)=>{const b=document.createElement("button");b.className="tile";b.textContent=on?"✦":"·";b.style.minHeight="66px";b.style.background=on?"#6958a6":"#202a3e";b.style.color=on?"#fff":"#66728b";b.setAttribute("aria-label","Tile "+(i+1)+(on?" on":" off"));b.addEventListener("click",()=>{if(!active)return;flip(i);moves++;render();if(lights.every(v=>!v)){add(8+Math.max(0,7-moves));round++;$("status").textContent="Board cleared in "+moves+" moves! New puzzle.";gameInterval(()=>{if(active)gridGame();},850);}});board.append(b);});}
+ render();
 }
 function sudokuGame(){
  const solution=[1,2,3,4,3,4,1,2,2,1,4,3,4,3,2,1],given=[1,0,0,4,0,4,1,0,2,0,4,0,0,3,0,1],values=given.slice();let selected=-1;
@@ -341,6 +346,22 @@ function shapeShiftGame(){
 const words=["PLANET","ORBIT","GALAXY","COMET","NEBULA","ROCKET","ASTEROID"];
 function questionGame(){board.replaceChildren();let answer;if(cfg[2]==="math"){const a=2+Math.floor(Math.random()*18),b=2+Math.floor(Math.random()*12),op=round%3===0?"+":round%3===1?"−":"×";answer=String(op==="+"?a+b:op==="−"?Math.abs(a-b):a*b);prompt.textContent=a+" "+op+" "+b+" = ?";}else{const word=words[Math.floor(Math.random()*words.length)];answer=word;let display=cfg[2]==="typing"?word:word.split("").sort(()=>Math.random()-.5).join("");if(cfg[2]!=="typing"&&display===word)display=word.slice(1)+word[0];prompt.textContent=(cfg[2]==="typing"?"Type this word: ":"Unscramble: ")+display;}const input=document.createElement("input");input.className="answer";input.placeholder="Your answer";input.autocomplete="off";const submit=document.createElement("button");submit.className="primary";submit.textContent="Check";const check=()=>{if(!active)return;if(input.value.trim().toUpperCase()===answer){round++;add(2+Math.min(3,Math.floor(round/4)));questionGame();}else{$("status").textContent="Not quite — try again.";input.select();}};submit.addEventListener("click",check);input.addEventListener("keydown",e=>{if(e.key==="Enter")check();});board.append(input,submit);input.focus();}
 function stackGame(){board.replaceChildren();prompt.textContent="Stop the moving block near the center";const bar=document.createElement("div");bar.className="stack-bar";const moving=document.createElement("div");moving.className="moving";bar.append(moving);board.append(bar);let pos=0,dir=1;const anim=gameInterval(()=>{if(!active){clearInterval(anim);return;}pos+=dir*2.5;if(pos>85||pos<0)dir*=-1;moving.style.left=pos+"%";},30);const stop=document.createElement("button");stop.className="primary";stop.textContent="STOP";stop.addEventListener("click",()=>{if(!active)return;clearInterval(anim);add(Math.max(0,5-Math.round(Math.abs(pos-42)/12)));stackGame();});board.append(stop);}
-function cardsGame(){prompt.textContent="Draw cards and get close to 21";let total=0;const display=document.createElement("div");display.className="card-total";display.textContent="Your total: 0";const draw=document.createElement("button");draw.className="primary";draw.textContent="Draw card";draw.addEventListener("click",()=>{if(!active)return;total+=1+Math.floor(Math.random()*11);display.textContent="Your total: "+total;if(total===21){add(5);total=0;}else if(total>21){time=Math.max(0,time-5);total=0;update();}});const hold=document.createElement("button");hold.className="secondary";hold.textContent="Hold";hold.addEventListener("click",()=>{if(total){add(Math.max(1,Math.floor(total/5)));total=0;display.textContent="Your total: 0";}});board.append(display,draw,hold);}
+function cardsGame(){
+ prompt.textContent="Blackjack: beat the dealer without going over 21.";
+ let player=[],dealer=[],done=false;
+ const display=document.createElement("div");display.className="card-total";display.style.gridColumn="1/-1";display.style.textAlign="center";display.style.padding="16px";display.style.background="#20283a";display.style.borderRadius="14px";
+ const dealerLine=document.createElement("div"),playerLine=document.createElement("div");dealerLine.style.marginBottom="10px";display.append(dealerLine,playerLine);
+ const draw=document.createElement("button");draw.className="primary";draw.textContent="Hit";
+ const hold=document.createElement("button");hold.className="secondary";hold.textContent="Stand";
+ function card(){const n=1+Math.floor(Math.random()*13);return n>10?10:n;}
+ function total(hand){let n=hand.reduce((a,b)=>a+b,0),aces=hand.filter(v=>v===1).length;while(aces>0&&n+10<=21){n+=10;aces--;}return n;}
+ function paint(reveal=false){dealerLine.textContent="Dealer: "+(reveal?dealer.join(" · ")+"  = "+total(dealer):dealer[0]+" · 🂠");playerLine.textContent="You: "+player.join(" · ")+"  = "+total(player);}
+ function end(){if(done)return;done=true;draw.disabled=true;hold.disabled=true;const p=total(player),d=total(dealer);if(p>21){time=Math.max(0,time-4);update();$("status").textContent="Bust! The dealer wins.";}else if(d>21||p>d){add(6);$("status").textContent="You beat the dealer!";}else if(p===d){add(1);$("status").textContent="Push — it's a tie.";}else{$("status").textContent="Dealer wins this hand.";}paint(true);const t=gameInterval(()=>{clearInterval(t);if(active)cardsGame();},950);}
+ function hit(){if(!active||done)return;player.push(card());paint();if(total(player)>=21)end();}
+ draw.addEventListener("click",hit);
+ hold.addEventListener("click",()=>{if(!active||done)return;while(total(dealer)<17)dealer.push(card());end();});
+ player=[card(),card()];dealer=[card(),card()];paint();board.append(display,draw,hold);
+ if(total(player)===21)end();
+}
 $("start").addEventListener("click",start);$("reset").addEventListener("click",start);
 })();
