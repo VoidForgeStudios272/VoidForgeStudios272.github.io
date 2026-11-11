@@ -59,7 +59,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
   const textures={grass:loadTexture("grass.svg",18,18),sand:loadTexture("sand.svg",12,12),water:loadTexture("water.svg",8,8),bus:loadTexture("battle-bus.svg",2,1),player:loadTexture("player-suit.svg"),heal:loadTexture("healing-item.svg"),rock:loadTexture("block-rock.svg")};
   const mat=(color,roughness=.88,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
   mats.grass=mat(0xffffff); mats.grass.map=textures.grass; mats.darkGrass=mat(0x477a42); mats.sand=mat(0xffffff); mats.sand.map=textures.sand;
-  mats.bark=mat(0x765039); mats.leaf=mat(0x2e7042); mats.leaf2=mat(0x4a914e);
+  mats.bark=mat(0x765039); mats.leaf=mat(0x2e7042); mats.leaf2=mat(0x4a914e); mats.rock=mat(0xffffff);mats.rock.map=textures.rock;
   mats.rock=mat(0x737d80); mats.roof=mat(0x9b5742); mats.wall=mat(0xd7c7a5);
   mats.blue=mat(0x397fc0,.55); mats.red=mat(0xc94f45,.6); mats.yellow=mat(0xf1c84a,.5);
   const box=(w,h,d,material,x,y,z,group=scene)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;group.add(m);return m;};
