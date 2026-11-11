@@ -269,6 +269,12 @@ function moveGame(){
 function clickGame(){board.replaceChildren();const colors=["VIOLET","CYAN","CORAL","LIME","GOLD"];let wanted=colors[Math.floor(Math.random()*5)];prompt.textContent=cfg[2]==="color"?"TAP: "+wanted:"Tap the targets!";colors.forEach((c,i)=>{const b=document.createElement("button");b.className="tile color-tile";b.textContent=c;b.style.setProperty("--tile",["#9575ff","#54c9e7","#f08091","#8bd18a","#e9b75e"][i]);b.addEventListener("click",()=>{if(!active)return;if(cfg[2]==="color"){if(c===wanted){add(2);wanted=colors[Math.floor(Math.random()*5)];prompt.textContent="TAP: "+wanted;}else{streak=0;$("streak").textContent="0×";time=Math.max(0,time-2);update();}}else{add(1);b.disabled=true;b.classList.add("dim");if([...board.querySelectorAll("button")].every(x=>x.disabled))clickGame();}});board.append(b);});}
 function gridGame(){
  board.replaceChildren();
+ if(slug==="sudoku-lite")return sudokuGame();
+ if(slug==="connect-four")return connectFourGame();
+ if(slug==="checkers")return checkersGame();
+ if(slug==="chess-arena")return chessArenaGame();
+ if(slug==="gem-match")return gemMatchGame();
+ if(slug==="shape-shift")return shapeShiftGame();
  if(cfg[2]==="memory"){
   const length=Math.min(3+Math.floor(round/2),8),seq=Array.from({length},()=>Math.floor(Math.random()*9));let step=0,showing=true;
   prompt.textContent="Watch the sequence ("+length+" steps), then repeat it";
@@ -284,6 +290,53 @@ function gridGame(){
   clearMoveControls();const handler=e=>{const dir={ArrowUp:"n",w:"n",ArrowDown:"s",s:"s",ArrowLeft:"w",a:"w",ArrowRight:"e",d:"e"}[e.key];if(active&&dir){e.preventDefault();moveMaze(dir);}};window.__vfArcadeMoveHandler=handler;document.addEventListener("keydown",handler);renderMaze();return;
  }
  prompt.textContent="Tap tiles to change their value";board.style.gridTemplateColumns="repeat(4,minmax(0,1fr))";for(let i=0;i<16;i++){const b=document.createElement("button");b.className="tile";b.textContent="";b.addEventListener("click",()=>{if(!active)return;b.textContent=String((Number(b.textContent||0)%4)+1);add(.25);});board.append(b);}
+}
+function sudokuGame(){
+ const solution=[1,2,3,4,3,4,1,2,2,1,4,3,4,3,2,1],given=[1,0,0,4,0,4,1,0,2,0,4,0,0,3,0,1],values=given.slice();let selected=-1;
+ board.style.gridTemplateColumns="repeat(4,minmax(0,1fr))";prompt.textContent="Complete the 4×4 Sudoku. Each row, column and 2×2 box needs 1–4.";
+ function render(){board.replaceChildren();values.forEach((v,i)=>{const b=document.createElement("button");b.className="tile";b.textContent=v||"·";b.disabled=!!given[i];b.style.minHeight="66px";b.style.borderColor=selected===i?"#a99bff":given[i]?"#63718d":"#414862";b.style.background=given[i]?"#303b54":selected===i?"#4c4775":"#252c40";b.addEventListener("click",()=>{if(!active||given[i])return;selected=i;values[i]=values[i]%4+1;render();check();});board.append(b);});}
+ function check(){if(values.every(Boolean)){if(values.every((v,i)=>v===solution[i])){add(12);round++;$("status").textContent="Perfect Sudoku! New puzzle starting.";gameInterval(()=>{if(active){values.splice(0,16,...given);selected=-1;render();}},900);}else{$("status").textContent="Not quite — check each row, column and 2×2 box.";}}}
+ const handler=e=>{if(!active||selected<0||!["1","2","3","4"].includes(e.key))return;values[selected]=Number(e.key);render();check();};window.__vfArcadeMoveHandler=handler;document.addEventListener("keydown",handler);render();
+}
+function connectFourGame(){
+ const rows=6,cols=7;let cells=Array(rows*cols).fill(0),turn=1,locked=false;
+ board.style.gridTemplateColumns="repeat(7,minmax(0,1fr))";prompt.textContent="Connect four. Player 1 starts — tap a column to drop a disc.";
+ function wins(r,c,p){for(const [dr,dc] of [[0,1],[1,0],[1,1],[1,-1]]){let n=1;for(const sign of [-1,1]){let rr=r+dr*sign,cc=c+dc*sign;while(rr>=0&&rr<rows&&cc>=0&&cc<cols&&cells[rr*cols+cc]===p){n++;rr+=dr*sign;cc+=dc*sign;}}if(n>=4)return true;}return false;}
+ function render(){board.replaceChildren();for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const b=document.createElement("button");b.className="tile";b.textContent=cells[r*cols+c]===1?"🔵":cells[r*cols+c]===2?"🟡":"·";b.style.minHeight="48px";b.style.padding="0";b.style.fontSize="clamp(16px,3vw,24px)";b.style.background="#1e2940";b.setAttribute("aria-label","Column "+(c+1)+", row "+(r+1));b.addEventListener("click",()=>drop(c));board.append(b);}}
+ function drop(c){if(!active||locked)return;let r=rows-1;while(r>=0&&cells[r*cols+c])r--;if(r<0)return;cells[r*cols+c]=turn;render();if(wins(r,c,turn)){locked=true;if(turn===1)add(10);$("status").textContent="Player "+turn+" connects four! Starting a new match.";const t=gameInterval(()=>{clearInterval(t);if(active){cells=Array(rows*cols).fill(0);turn=1;locked=false;render();$("status").textContent="Player 1 starts the next round."; }},1100);return;}if(cells.every(Boolean)){$("status").textContent="Draw! New board.";cells=Array(rows*cols).fill(0);turn=1;render();return;}turn=3-turn;$("status").textContent="Player "+turn+" — choose a column.";}
+ render();
+}
+function checkersGame(){
+ const size=6;let pieces=Array(size*size).fill(0),selected=-1,locked=false;
+ for(let r=0;r<2;r++)for(let c=0;c<size;c++)if((r+c)%2===1)pieces[r*size+c]=2;
+ for(let r=4;r<6;r++)for(let c=0;c<size;c++)if((r+c)%2===1)pieces[r*size+c]=1;
+ board.style.gridTemplateColumns="repeat(6,minmax(0,1fr))";prompt.textContent="Checkers mini: move diagonally, jump to capture. You are blue; the forge AI is red.";
+ function movesFor(side){const out=[];for(let i=0;i<pieces.length;i++)if(pieces[i]===side||pieces[i]===side+2){const r=Math.floor(i/size),c=i%size,dirs=pieces[i]>2?[-1,1]:side===1?[-1]:[1];for(const dr of dirs)for(const dc of [-1,1]){const nr=r+dr,nc=c+dc;if(nr<0||nr>=size||nc<0||nc>=size)continue;const ni=nr*size+nc;if(!pieces[ni])out.push({from:i,to:ni,capture:-1});else if(pieces[ni]!==side&&pieces[ni]!==side+2){const jr=nr+dr,jc=nc+dc;if(jr>=0&&jr<size&&jc>=0&&jc<size&&!pieces[jr*size+jc])out.push({from:i,to:jr*size+jc,capture:ni});}}}return out;}
+ function render(){board.replaceChildren();pieces.forEach((p,i)=>{const b=document.createElement("button");b.className="tile";b.style.minHeight="54px";b.style.padding="0";b.style.borderRadius="7px";b.style.background:(Math.floor(i/size)+i%size)%2?"#252d42":"#111827";b.style.borderColor=selected===i?"#fff":"#414862";b.textContent=p?(p===1?"🔵":p===2?"🔴":p===3?"👑":"♛"):"";b.disabled=!active||locked;b.addEventListener("click",()=>choose(i));board.append(b);});}
+ function choose(i){if(!active||locked)return;if(selected<0){if(pieces[i]===1||pieces[i]===3){selected=i;render();}return;}const move=movesFor(1).find(m=>m.from===selected&&m.to===i);if(!move){selected=pieces[i]===1||pieces[i]===3?i:-1;render();return;}apply(move,1);}
+ function apply(m,side){const p=pieces[m.from];pieces[m.from]=0;pieces[m.to]=p;if(m.capture>=0){pieces[m.capture]=0;if(side===1)add(2);}const row=Math.floor(m.to/size);if((side===1&&row===0)||(side===2&&row===size-1))pieces[m.to]=side+2;selected=-1;render();const enemy=side===1?2:1;if(!pieces.some(v=>v===enemy||v===enemy+2)||movesFor(enemy).length===0){if(side===1)add(8);$("status").textContent=side===1?"You win the checkers round!":"The forge AI wins this round.";locked=true;return;}if(side===1){locked=true;$("status").textContent="Forge AI is thinking…";const t=gameInterval(()=>{clearInterval(t);if(!active)return;const opts=movesFor(2);opts.sort((a,b)=>(b.capture>=0)-(a.capture>=0));const chosen=opts[0];if(chosen)apply(chosen,2);locked=false;render();$("status").textContent="Your move — blue pieces.";},500);}else{locked=false;render();}}
+ render();
+}
+function chessArenaGame(){
+ const size=5;let player=12,targets=new Set();function refill(){targets.clear();while(targets.size<5){const n=Math.floor(Math.random()*25);if(n!==player)targets.add(n);}}
+ board.style.gridTemplateColumns="repeat(5,minmax(0,1fr))";refill();prompt.textContent="Knight challenge: move like a chess knight and capture all five stars.";
+ function render(){board.replaceChildren();for(let i=0;i<25;i++){const b=document.createElement("button");b.className="tile";b.style.minHeight="58px";b.style.padding="0";b.style.borderRadius="7px";b.style.background=i===player?"#4e5c9b":targets.has(i)?"#225c4a":"#20283a";b.textContent=i===player?"♞":targets.has(i)?"★":"";b.addEventListener("click",()=>moveTo(i));board.append(b);}}
+ function moveTo(i){if(!active||i===player)return;const r=Math.floor(player/size),c=player%size,nr=Math.floor(i/size),nc=i%size;if(!((Math.abs(r-nr)===2&&Math.abs(c-nc)===1)||(Math.abs(r-nr)===1&&Math.abs(c-nc)===2))){$("status").textContent="That is not a knight move.";return;}player=i;if(targets.delete(i)){add(3);$("status").textContent="Star captured — "+targets.size+" remaining.";}render();if(!targets.size){round++;add(8);player=12;refill();render();$("status").textContent="All targets captured! New board.";}}
+ render();
+}
+function gemMatchGame(){
+ const size=6,palette=["💎","🔷","🟣","🟢","🔶"],colors=Array.from({length:size*size},()=>Math.floor(Math.random()*palette.length));let busy=false;
+ board.style.gridTemplateColumns="repeat(6,minmax(0,1fr))";prompt.textContent="Tap a connected group of three or more matching gems to clear it.";
+ function cluster(start){const color=colors[start],seen=new Set([start]),queue=[start];while(queue.length){const i=queue.pop(),r=Math.floor(i/size),c=i%size;for(const n of [r>0?i-size:-1,r<size-1?i+size:-1,c>0?i-1:-1,c<size-1?i+1:-1])if(n>=0&&!seen.has(n)&&colors[n]===color){seen.add(n);queue.push(n);}}return [...seen];}
+ function render(){board.replaceChildren();colors.forEach((v,i)=>{const b=document.createElement("button");b.className="tile";b.textContent=palette[v];b.style.minHeight="52px";b.style.padding="0";b.style.fontSize="clamp(17px,3vw,25px)";b.addEventListener("click",()=>clear(i));board.append(b);});}
+ function clear(i){if(!active||busy)return;const group=cluster(i);if(group.length<3){$("status").textContent="Find a group of at least three matching gems.";return;}busy=true;add(group.length*2);group.forEach(n=>colors[n]=-1);render();const t=gameInterval(()=>{clearInterval(t);if(!active){busy=false;return;}group.forEach(n=>colors[n]=Math.floor(Math.random()*palette.length));busy=false;render();},180);}
+ render();
+}
+function shapeShiftGame(){
+ const shapes=["●","◆","▲","■"],target=shapes[Math.floor(Math.random()*shapes.length)];let hits=0;const tiles=Array.from({length:16},(_,i)=>i<4?target:shapes.filter(x=>x!==target)[Math.floor(Math.random()*3)]).sort(()=>Math.random()-.5);
+ board.style.gridTemplateColumns="repeat(4,minmax(0,1fr))";prompt.textContent="Find every "+target+" shape.";
+ function render(){board.replaceChildren();tiles.forEach((v,i)=>{const b=document.createElement("button");b.className="tile";b.textContent=v;b.style.minHeight="66px";b.addEventListener("click",()=>{if(!active||b.disabled)return;if(v===target){b.disabled=true;b.classList.add("good");hits++;add(1);if(hits===4){round++;shapeShiftGame();}}else{b.classList.add("dim");b.disabled=true;streak=0;$("streak").textContent="0×";time=Math.max(0,time-1);update();}});board.append(b);});}
+ render();
 }
 const words=["PLANET","ORBIT","GALAXY","COMET","NEBULA","ROCKET","ASTEROID"];
 function questionGame(){board.replaceChildren();let answer;if(cfg[2]==="math"){const a=2+Math.floor(Math.random()*18),b=2+Math.floor(Math.random()*12),op=round%3===0?"+":round%3===1?"−":"×";answer=String(op==="+"?a+b:op==="−"?Math.abs(a-b):a*b);prompt.textContent=a+" "+op+" "+b+" = ?";}else{const word=words[Math.floor(Math.random()*words.length)];answer=word;let display=cfg[2]==="typing"?word:word.split("").sort(()=>Math.random()-.5).join("");if(cfg[2]!=="typing"&&display===word)display=word.slice(1)+word[0];prompt.textContent=(cfg[2]==="typing"?"Type this word: ":"Unscramble: ")+display;}const input=document.createElement("input");input.className="answer";input.placeholder="Your answer";input.autocomplete="off";const submit=document.createElement("button");submit.className="primary";submit.textContent="Check";const check=()=>{if(!active)return;if(input.value.trim().toUpperCase()===answer){round++;add(2+Math.min(3,Math.floor(round/4)));questionGame();}else{$("status").textContent="Not quite — try again.";input.select();}};submit.addEventListener("click",check);input.addEventListener("keydown",e=>{if(e.key==="Enter")check();});board.append(input,submit);input.focus();}
