@@ -144,6 +144,10 @@ html,body{overflow:auto}
 .br-bar span{display:block;height:100%;width:100%;transition:width .15s}
 #brHealth{background:#40d77b}#brShield{background:#48b9ff}
 .br-controls{display:flex;gap:8px;pointer-events:auto}
+.br-joystick{position:absolute;left:0;bottom:0;width:112px;height:112px;border-radius:50%;border:2px solid #ffffff70;background:#14243d99;pointer-events:auto;touch-action:none}
+.br-joystick:after{content:"";position:absolute;inset:34px;border:1px solid #ffffff30;border-radius:50%}
+.br-stick{position:absolute;left:31px;top:31px;width:46px;height:46px;border-radius:50%;background:#dce8f0cc;border:2px solid #fff;box-shadow:0 3px 12px #0008;pointer-events:none}
+@media(hover:hover) and (pointer:fine){.br-joystick{display:none}}
 .br-action{width:54px;height:54px;border-radius:50%;border:2px solid #ffffff90;background:#14243ddd;color:white;font-weight:1000;box-shadow:0 4px 15px #0007;touch-action:none}
 .br-action:active{transform:scale(.94);background:#ffd02f;color:#172139}
 .br-hint{position:absolute;left:50%;top:70px;transform:translateX(-50%);padding:8px 12px;background:#07101edb;border:1px solid #ffffff25;border-radius:6px;font-size:12px;text-align:center;pointer-events:none}
@@ -718,7 +722,7 @@ document.getElementById("playButton").addEventListener("click",function(){
   const rect=canvas.getBoundingClientRect();if(pointer.valid){const wx=pointer.x-rect.left+camera.x,wy=pointer.y-rect.top+camera.y;player.angle=Math.atan2(wy-player.y,wx-player.x);}if(pointer.down||keys.has(" "))shoot();
   const radius=650*storm;if(Math.hypot(player.x-world.w/2,player.y-world.h/2)>radius){player.hp-=9*dt;if(player.hp<=0){player.hp=0;updateHud();end(false);return;}}
   bots.forEach(bot=>{if(!bot.alive)return;const d=dist(bot,player),a=Math.atan2(player.y-bot.y,player.x-bot.x);bot.angle=a;bot.next-=dt;bot.fire-=dt;if(bot.next<=0){const retreat=d<150?-1:1;bot.dx=Math.cos(a)*retreat;bot.dy=Math.sin(a)*retreat;bot.next=rand(.5,1.6);}if(d<650){bot.x+=bot.dx*bot.speed*dt;bot.y+=bot.dy*bot.speed*dt;}if(d<430&&bot.fire<=0){const spread=rand(-.16,.16),ang=a+spread;bullets.push({x:bot.x,y:bot.y,vx:Math.cos(ang)*420,vy:Math.sin(ang)*420,life:1.5,owner:bot,damage:8});bot.fire=rand(.8,1.6);}});
-  bullets.forEach(b=>{b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(b.owner==="player"){for(const bot of bots){if(bot.alive&&Math.hypot(bot.x-b.x,bot.y-b.y)<bot.r+4){bot.hp-=b.damage;b.life=0;if(bot.hp<=0)killBot(bot);break;}}}else if(Math.hypot(player.x-b.x,player.y-b.y)<player.r+4){hurt(player,b.damage);b.life=0;if(player.hp<=0)end(false);}});
+  bullets.forEach(b=>{b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(walls.some(w=>Math.hypot(b.x-w.x,b.y-w.y)<38)){b.life=0;return;}if(b.owner==="player"){for(const bot of bots){if(bot.alive&&Math.hypot(bot.x-b.x,bot.y-b.y)<bot.r+4){bot.hp-=b.damage;b.life=0;if(bot.hp<=0)killBot(bot);break;}}}else if(Math.hypot(player.x-b.x,player.y-b.y)<player.r+4){hurt(player,b.damage);b.life=0;if(player.hp<=0)end(false);}});
   for(let i=bullets.length-1;i>=0;i--)if(bullets[i].life<=0||bullets[i].x<0||bullets[i].y<0||bullets[i].x>world.w||bullets[i].y>world.h)bullets.splice(i,1);
   for(let i=loot.length-1;i>=0;i--){const item=loot[i];if(Math.hypot(player.x-item.x,player.y-item.y)<28){if(item.type==="ammo")reserve=Math.min(240,reserve+30);if(item.type==="shield")player.shield=Math.min(100,player.shield+25);if(item.type==="med")medkits=Math.min(5,medkits+1);loot.splice(i,1);}}
   walls.forEach(w=>w.life-=dt);for(let i=walls.length-1;i>=0;i--)if(walls[i].life<=0)walls.splice(i,1);
@@ -744,6 +748,12 @@ document.getElementById("playButton").addEventListener("click",function(){
  function randStatic(n,a,b){const v=Math.sin(n*127.1)*43758.5453;return a+(v-Math.floor(v))*(b-a);}
  function drawCharacter(p,color){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.angle||0);ctx.fillStyle="#0005";ctx.beginPath();ctx.ellipse(0,8,17,12,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=color;ctx.beginPath();ctx.arc(0,0,p.r||15,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#fff";ctx.lineWidth=2;ctx.stroke();ctx.fillStyle="#263447";ctx.fillRect(4,-5,24,10);ctx.restore();if(p.hp!==undefined&&p!==player){ctx.fillStyle="#202020";ctx.fillRect(p.x-17,p.y-25,34,4);ctx.fillStyle="#4ddd8a";ctx.fillRect(p.x-17,p.y-25,34*Math.max(0,p.hp/65),4);}}
  function frame(now){if(!running)return;const dt=Math.min(.035,(now-last)/1000||0);last=now;update(dt);draw();raf=requestAnimationFrame(frame);}
+ const joystick=$("brJoystick"),stick=$("brStick");let joyPointer=null;
+ function setJoy(e){const rect=joystick.getBoundingClientRect(),cx=rect.left+rect.width/2,cy=rect.top+rect.height/2,dx=e.clientX-cx,dy=e.clientY-cy,len=Math.hypot(dx,dy),scale=Math.min(1,42/(len||1));joy.x=dx*scale/42;joy.y=dy*scale/42;stick.style.transform="translate("+joy.x*30+"px,"+joy.y*30+"px)";}
+ joystick.addEventListener("pointerdown",e=>{e.preventDefault();joyPointer=e.pointerId;joystick.setPointerCapture(joyPointer);setJoy(e);});
+ joystick.addEventListener("pointermove",e=>{if(e.pointerId===joyPointer)setJoy(e);});
+ function releaseJoy(e){if(e.pointerId!==joyPointer)return;joyPointer=null;joy.x=joy.y=0;stick.style.transform="";}
+ joystick.addEventListener("pointerup",releaseJoy);joystick.addEventListener("pointercancel",releaseJoy);
  canvas.addEventListener("pointermove",e=>{pointer.x=e.clientX;pointer.y=e.clientY;pointer.valid=true;});
  canvas.addEventListener("pointerdown",e=>{if(e.pointerType==="mouse"){pointer.down=true;canvas.setPointerCapture(e.pointerId);}else{pointer.x=e.clientX;pointer.y=e.clientY;pointer.valid=true;shoot();}});
  canvas.addEventListener("pointerup",()=>{pointer.down=false;});canvas.addEventListener("pointercancel",()=>{pointer.down=false;});
