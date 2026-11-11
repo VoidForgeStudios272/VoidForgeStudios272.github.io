@@ -16,7 +16,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
   scene.fog = new THREE.Fog(0x9bc9e8, 115, 330);
   const camera = new THREE.PerspectiveCamera(70, 1, .1, 650);
   const renderer = new THREE.WebGLRenderer({canvas, antialias: matchMedia("(pointer:fine)").matches, powerPreference:"high-performance"});
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.65));
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, matchMedia("(pointer:coarse), (max-width:800px)").matches ? 1.2 : 1.65));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -26,7 +26,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
   scene.add(hemi);
   const sun = new THREE.DirectionalLight(0xffedcf, 3.0);
   sun.position.set(-85, 125, 65); sun.castShadow = true;
-  sun.shadow.mapSize.set(1536,1536);
+  sun.shadow.mapSize.set(matchMedia("(pointer:coarse), (max-width:800px)").matches ? 768 : 1536,matchMedia("(pointer:coarse), (max-width:800px)").matches ? 768 : 1536);
   sun.shadow.camera.left=-145; sun.shadow.camera.right=145;
   sun.shadow.camera.top=145; sun.shadow.camera.bottom=-145;
   sun.shadow.bias=-.00025; scene.add(sun);
