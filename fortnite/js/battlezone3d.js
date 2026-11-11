@@ -34,6 +34,8 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
   const clock = new THREE.Clock();
   const raycaster = new THREE.Raycaster();
   const groundTargets = [];
+  // Solid meshes that stop bullets and enemy line of sight.
+  const solidBlockers = [];
   const bots = [], bullets = [], pickups = [], builds = [], trees = [];
   const keys = new Set();
   const pointer = {locked:false, fire:false, lookId:null, lastX:0,lastY:0};
@@ -68,7 +70,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
     const g=new THREE.Group();g.position.set(x,terrainHeight(x,z),z);g.scale.setScalar(scale);
     const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.35,.55,4,7),mats.bark);trunk.position.y=2;trunk.castShadow=true;g.add(trunk);
     for(let i=0;i<3;i++){const crown=new THREE.Mesh(new THREE.ConeGeometry(2.3-i*.25,4.2,7),i%2?mats.leaf:mats.leaf2);crown.position.y=4.3+i*1.35;crown.castShadow=true;g.add(crown);}
-    scene.add(g);trees.push(g);
+    scene.add(g);trees.push(g);solidBlockers.push(...g.children);
   }
   function makeHouse(x,z,rot=0,scale=1){
     const g=new THREE.Group();g.position.set(x,terrainHeight(x,z),z);g.rotation.y=rot;g.scale.setScalar(scale);
@@ -76,13 +78,13 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
     const roof= new THREE.Mesh(new THREE.ConeGeometry(9,4.2,4),mats.roof);roof.position.y=8;roof.rotation.y=Math.PI/4;roof.castShadow=true;g.add(roof);
     box(2.1,3.5,.18,mats.bark,0,1.75,5.08,g);
     for(const side of [-1,1]){const win=box(1.8,1.5,.2,mats.blue,side*3.5,3.8,5.1,g);win.material=new THREE.MeshStandardMaterial({color:0x70b9dc,roughness:.25,metalness:.2});}
-    scene.add(g);groundTargets.push(...g.children.filter(o=>o.isMesh));return g;
+    scene.add(g);groundTargets.push(...g.children.filter(o=>o.isMesh));solidBlockers.push(...g.children.filter(o=>o.isMesh));return g;
   }
   function makeWorld(){
     makeTerrain();
     for(let i=0;i<105;i++){const x=THREE.MathUtils.randFloatSpread(385),z=THREE.MathUtils.randFloatSpread(385);if(Math.hypot(x,z)>194||Math.hypot(x,z)<23)continue;makeTree(x,z,THREE.MathUtils.randFloat(.75,1.35));}
     [[-78,-64,.4,1],[-112,48,1.1,.85],[75,-96,.8,1.1],[110,54,-.5,1],[-12,115,.3,.9],[145,-8,1.4,.75]].forEach(v=>makeHouse(...v));
-    for(let i=0;i<46;i++){const x=THREE.MathUtils.randFloatSpread(370),z=THREE.MathUtils.randFloatSpread(370);if(Math.hypot(x,z)>190)continue;const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(THREE.MathUtils.randFloat(1,3),0),mats.rock);rock.position.set(x,terrainHeight(x,z)+1,z);rock.scale.y=.7;rock.castShadow=true;scene.add(rock);}
+    for(let i=0;i<46;i++){const x=THREE.MathUtils.randFloatSpread(370),z=THREE.MathUtils.randFloatSpread(370);if(Math.hypot(x,z)>190)continue;const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(THREE.MathUtils.randFloat(1,3),0),mats.rock);rock.position.set(x,terrainHeight(x,z)+1,z);rock.scale.y=.7;rock.castShadow=true;scene.add(rock);solidBlockers.push(rock);}
     const islandRing=new THREE.Mesh(new THREE.TorusGeometry(199,.65,8,128),new THREE.MeshStandardMaterial({color:0x4ed6ed,emissive:0x137eaa,emissiveIntensity:1.2}));islandRing.rotation.x=Math.PI/2;islandRing.position.y=1;scene.add(islandRing);
     stormRing=new THREE.Mesh(new THREE.TorusGeometry(195,.85,8,160),new THREE.MeshBasicMaterial({color:0x43d9ff,transparent:true,opacity:.88}));stormRing.rotation.x=Math.PI/2;stormRing.position.y=3.5;scene.add(stormRing);
     battleBus=makeBattleBus();glider=makeGlider();
@@ -149,15 +151,25 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
   function showEnd(win){running=false;document.exitPointerLock?.();$("brDropBtn").style.display="none";hud.endTitle.textContent=win?"VICTORY ROYALE":"ELIMINATED";hud.endText.textContent=win?"You secured the island with "+kills+" eliminations.":"You scored "+kills+" eliminations. Drop back in and try again.";hud.end.classList.add("show");}
   function damage(amount){let n=amount;if(shield>0){const used=Math.min(shield,n);shield-=used;n-=used;}health=Math.max(0,health-n);if(health<=0)showEnd(false);updateHud();}
   function addTracer(from,to,color=0xffdf86){const geo=new THREE.BufferGeometry().setFromPoints([from.clone(),to.clone()]);const line=new THREE.Line(geo,new THREE.LineBasicMaterial({color,transparent:true,opacity:.9}));scene.add(line);setTimeout(()=>{scene.remove(line);geo.dispose();line.material.dispose();},95);}
-  function shoot(){if(!running||reloadUntil>performance.now()||ammo<=0||fireCooldown>0)return;if(ammo<=0){reload();return;}ammo--;fireCooldown=.14;
+  function shoot(){if(!running||reloadUntil>performance.now()||fireCooldown>0)return;if(ammo<=0){reload();return;}ammo--;fireCooldown=.14;
     const origin=camera.position.clone();const dir=new THREE.Vector3();camera.getWorldDirection(dir);const target=origin.clone().addScaledVector(dir,180);raycaster.set(origin,dir);raycaster.far=180;
-    const targets=bots.filter(b=>b.alive).map(b=>b.mesh);const hits=raycaster.intersectObjects(targets,true);
+    const targets=bots.filter(b=>b.alive).map(b=>b.mesh);const hits=raycaster.intersectObjects([...solidBlockers,...targets],true);
     let end=target;if(hits.length){const hit=hits[0];end=hit.point;let obj=hit.object;while(obj.parent&&!bots.some(b=>b.mesh===obj))obj=obj.parent;const bot=bots.find(b=>b.mesh===obj);if(bot){bot.hp-=34;if(bot.hp<=0){bot.alive=false;scene.remove(bot.mesh);kills++;if(Math.random()<.7)dropPickup(bot.mesh.position.x,bot.mesh.position.z,"ammo");}}}
     addTracer(origin,end);updateHud();
   }
   function dropPickup(x,z,type){const color=type==="ammo"?0xf4c84b:0x5de18b;const g=new THREE.Group();const m=new THREE.Mesh(new THREE.OctahedronGeometry(.8),new THREE.MeshStandardMaterial({color,emissive:color,emissiveIntensity:.4}));m.position.y=1;g.add(m);g.position.set(x,terrainHeight(x,z),z);scene.add(g);pickups.push({group:g,type,active:true,x,z});}
   function reload(){if(!running||reloadUntil>performance.now()||ammo===30||reserve<=0)return;reloadUntil=performance.now()+1150;setTimeout(()=>{if(!running)return;const n=Math.min(30-ammo,reserve);ammo+=n;reserve-=n;reloadUntil=0;updateHud();},1150);updateHud();}
-  function build(){if(!running||builds.length>=24)return;const dir=new THREE.Vector3(Math.sin(yaw),0,Math.cos(yaw));const pos=player.position.clone().addScaledVector(dir,3.8);pos.y=terrainHeight(pos.x,pos.z)+1.5;const mesh=box(5,3,.35,mats.blue,pos.x,pos.y,pos.z);mesh.rotation.y=yaw;builds.push({mesh,life:22});}
+  function build(){if(!running||builds.length>=24)return;const dir=new THREE.Vector3(Math.sin(yaw),0,Math.cos(yaw));const pos=player.position.clone().addScaledVector(dir,3.8);pos.y=terrainHeight(pos.x,pos.z)+1.5;const mesh=box(5,3,.35,mats.blue,pos.x,pos.y,pos.z);mesh.rotation.y=yaw;builds.push({mesh,life:22});solidBlockers.push(mesh);}
+  function hasLineOfSight(from,to){
+    const origin=from.clone().add(new THREE.Vector3(0,1.8,0));
+    const target=to.clone().add(new THREE.Vector3(0,1.55,0));
+    const delta=target.sub(origin);const distance=delta.length();
+    if(distance<.1)return true;
+    raycaster.set(origin,delta.normalize());raycaster.near=.05;raycaster.far=Math.max(.05,distance-.45);
+    const hit=raycaster.intersectObjects(solidBlockers,true)[0];
+    raycaster.near=0;raycaster.far=Infinity;
+    return !hit;
+  }
   function heal(){if(!running||medkits<=0||health>=100)return;medkits--;health=Math.min(100,health+45);updateHud();}
   function jump(){if(running&&grounded){jumpVelocity=8.2;grounded=false;}}
   function collect(){for(const p of pickups){if(!p.active)continue;if(Math.hypot(p.x-player.position.x,p.z-player.position.z)<2.8){p.active=false;scene.remove(p.group);if(p.type==="ammo")reserve=Math.min(240,reserve+45);if(p.type==="shield")shield=Math.min(100,shield+25);if(p.type==="med")medkits=Math.min(5,medkits+1);updateHud();}}}
@@ -182,11 +194,11 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
     if(phase==="landed"&&pointer.fire)shoot();
     for(const b of bots){if(!b.alive||phase!=="landed")continue;const pos=b.mesh.position,dx=player.position.x-pos.x,dz=player.position.z-pos.z,d=Math.hypot(dx,dz);b.fire-=dt;
       if(d>11){pos.x+=dx/(d||1)*b.speed*dt;pos.z+=dz/(d||1)*b.speed*dt;}else if(d<7){pos.x-=dx/(d||1)*b.speed*.65*dt;pos.z-=dz/(d||1)*b.speed*.65*dt;}
-      if(d<65&&b.fire<=0){b.fire=THREE.MathUtils.randFloat(1.1,2.2);damage(THREE.MathUtils.randFloat(4,9));}
+      if(d<65&&b.fire<=0&&hasLineOfSight(pos,player.position)){b.fire=THREE.MathUtils.randFloat(1.1,2.2);damage(THREE.MathUtils.randFloat(4,9));}
       pos.y=terrainHeight(pos.x,pos.z);b.mesh.rotation.y=Math.atan2(dx,dz);
     }
     for(const p of pickups)if(p.active){p.group.rotation.y+=dt*1.4;p.group.position.y=terrainHeight(p.x,p.z)+.25+Math.sin(elapsed*2+p.x)*.18;}
-    for(let i=builds.length-1;i>=0;i--){builds[i].life-=dt;if(builds[i].life<=0){scene.remove(builds[i].mesh);builds.splice(i,1);}}
+    for(let i=builds.length-1;i>=0;i--){builds[i].life-=dt;if(builds[i].life<=0){scene.remove(builds[i].mesh);const blockerIndex=solidBlockers.indexOf(builds[i].mesh);if(blockerIndex>=0)solidBlockers.splice(blockerIndex,1);builds.splice(i,1);}}
     collect();
     if(phase==="landed"&&Math.hypot(player.position.x,player.position.z)>stormRadius)damage(7*dt);
     if(bots.every(b=>!b.alive))showEnd(true);
