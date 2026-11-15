@@ -23,7 +23,7 @@ import { createBattleZoneShaders } from "./battlezone-shaders.js";
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.12;
-  const postFX = createBattleZoneShaders(renderer, scene, camera, canvas);
+  const postFX = createBattleZoneShaders(THREE, renderer, scene, camera, canvas, "battlezone.visuals.v2");
   const hemi = new THREE.HemisphereLight(0xd8edff, 0x536d3c, 2.05);
   scene.add(hemi);
   const sun = new THREE.DirectionalLight(0xffedcf, 3.0);
