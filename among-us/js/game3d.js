@@ -31,6 +31,7 @@ export async function start3DGame(mapId, options={}) {
     scene=new THREE.Scene();scene.background=new THREE.Color(sceneColor);scene.fog=new THREE.Fog(sceneColor,38,95);
     camera=new THREE.PerspectiveCamera(58,view.clientWidth/view.clientHeight,.1,180);
     const postFX=createBattleZoneShaders(THREE,renderer,scene,camera,canvas,"voidforge.visuals.shared.v1");
+    postFX.setSize(view.clientWidth,view.clientHeight);
     scene.add(new THREE.HemisphereLight(0xc5e9ff,0x17202a,2.0));
     const sun=new THREE.DirectionalLight(0xffffff,2.2);sun.position.set(-12,24,10);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
     const fill=new THREE.PointLight(map.accent,28,45);fill.position.set(0,8,0);scene.add(fill);
