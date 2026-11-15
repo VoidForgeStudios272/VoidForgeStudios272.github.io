@@ -12,7 +12,7 @@ const PRESETS = {
   ultra:  { pixelRatio: 1.50, bloom: 0.68, threshold: 0.80, strength: 0.68, radius: 0.36, sharpen: 0.34, saturation: 1.20, contrast: 1.11, vignette: 0.34, grain: 0.028 }
 };
 
-const CinematicShader = {
+function createCinematicShader(THREE) { return {
   uniforms: {
     tDiffuse: { value: null },
     uResolution: { value: new THREE.Vector2(1, 1) },
@@ -61,9 +61,9 @@ const CinematicShader = {
       gl_FragColor = vec4(max(color, 0.0), 1.0);
     }
   `
-};
+}; }
 
-function readSettings() {
+function readSettings(storageKey = STORAGE_KEY) {
   try {
     const saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
     return {
@@ -77,11 +77,11 @@ function readSettings() {
 }
 
 export function createBattleZoneShaders(THREE, renderer, scene, camera, canvas, storageKey = STORAGE_KEY) {
-  const settings = readSettings();
+  const settings = readSettings(storageKey);
   const composer = new EffectComposer(renderer);
   const renderPass = new RenderPass(scene, camera);
   const bloomPass = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.48, 0.3, 0.84);
-  const cinematicPass = new ShaderPass(CinematicShader);
+  const cinematicPass = new ShaderPass(createCinematicShader(THREE));
   const outputPass = new OutputPass();
   composer.addPass(renderPass);
   composer.addPass(bloomPass);
