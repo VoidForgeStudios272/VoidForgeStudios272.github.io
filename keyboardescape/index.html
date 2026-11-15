@@ -954,7 +954,7 @@ let lastPing = 0;
 /* =========================================================
    THREE JS SCENE SETUP
 ========================================================= */
-let scene, camera, renderer, clock, localMesh, world;
+let scene, camera, renderer, clock, localMesh, world, postFX = null;
 
 /* =========================================================
    PLAYER STATE
@@ -995,10 +995,11 @@ function initThree(){
     powerPreference: "high-performance"
   });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-  postFX.setSize(innerWidth, innerHeight);
+  renderer.setSize(innerWidth, innerHeight);
   renderer.shadowMap.enabled = true;
   document.body.appendChild(renderer.domElement);
-  const postFX = createBattleZoneShaders(THREE, renderer, scene, camera, renderer.domElement, "voidforge.visuals.shared.v1");
+  postFX = createBattleZoneShaders(THREE, renderer, scene, camera, renderer.domElement, "voidforge.visuals.shared.v1");
+  postFX.setSize(innerWidth, innerHeight);
 
   clock = new THREE.Clock();
 
@@ -1770,7 +1771,8 @@ function resize(){
   camera.aspect = innerWidth / innerHeight;
   camera.updateDynamicAspect ? camera.updateDynamicAspect() : camera.updateMatrix();
   camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
+  if (postFX) postFX.setSize(innerWidth, innerHeight);
+  else renderer.setSize(innerWidth, innerHeight);
 }
 
 let lastPadJump=false;
