@@ -8,6 +8,7 @@ const MAPS = {
 
 export async function start3DGame(mapId, options={}) {
   const THREE = await import("https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js");
+  const { createBattleZoneShaders } = await import("../../fortnite/js/battlezone-shaders.js");
   const map = MAPS[mapId] || MAPS.skeld;
   const host = document.createElement("div");
   host.className = "vf3d-shell";
@@ -29,6 +30,7 @@ export async function start3DGame(mapId, options={}) {
     renderer.outputColorSpace=THREE.SRGBColorSpace;
     scene=new THREE.Scene();scene.background=new THREE.Color(sceneColor);scene.fog=new THREE.Fog(sceneColor,38,95);
     camera=new THREE.PerspectiveCamera(58,view.clientWidth/view.clientHeight,.1,180);
+    const postFX=createBattleZoneShaders(THREE,renderer,scene,camera,canvas,"voidforge.visuals.shared.v1");
     scene.add(new THREE.HemisphereLight(0xc5e9ff,0x17202a,2.0));
     const sun=new THREE.DirectionalLight(0xffffff,2.2);sun.position.set(-12,24,10);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
     const fill=new THREE.PointLight(map.accent,28,45);fill.position.set(0,8,0);scene.add(fill);
@@ -125,7 +127,7 @@ export async function start3DGame(mapId, options={}) {
     host.querySelector(".vf3d-use").addEventListener("click",attemptUse);
     const close=()=>{if(disposed)return;disposed=true;cancelAnimationFrame(raf);window.removeEventListener("keydown",keydown);window.removeEventListener("keyup",keyup);if(ro)ro.disconnect();renderer.dispose();host.remove();};
     host.querySelector(".vf3d-exit").addEventListener("click",close);
-    const resize=()=>{if(disposed)return;const w=view.clientWidth,h=view.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/Math.max(1,h);camera.updateProjectionMatrix();};
+    const resize=()=>{if(disposed)return;const w=view.clientWidth,h=view.clientHeight;postFX.setSize(w,h);camera.aspect=w/Math.max(1,h);camera.updateProjectionMatrix();};
     const ro=typeof ResizeObserver!=="undefined"?new ResizeObserver(resize):null;if(ro)ro.observe(view);
     function blocked(x,z){return colliders.some(c=>Math.abs(x-c.x)<c.w/2+.48&&Math.abs(z-c.z)<c.d/2+.48);}
     function loop(){
@@ -148,7 +150,7 @@ export async function start3DGame(mapId, options={}) {
       const target=new THREE.Vector3(player.position.x,2.4,player.position.z);
       const desired=new THREE.Vector3(player.position.x+9,8.5,player.position.z+11);
       camera.position.lerp(desired,1-Math.pow(.001,dt));camera.lookAt(target);
-      updateHud();renderer.render(scene,camera);
+      updateHud();postFX.render(dt);
     }
     loop();
     return {close};
