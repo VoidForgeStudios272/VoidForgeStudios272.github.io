@@ -844,7 +844,8 @@ html,body{width:100%;height:100%;overflow:hidden;}
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js"></script>
 
 <script type="module">
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+import { createBattleZoneShaders } from "../fortnite/js/battlezone-shaders.js";
 
 /* =========================================================
    SETTINGS
@@ -994,9 +995,10 @@ function initThree(){
     powerPreference: "high-performance"
   });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-  renderer.setSize(innerWidth, innerHeight);
+  postFX.setSize(innerWidth, innerHeight);
   renderer.shadowMap.enabled = true;
   document.body.appendChild(renderer.domElement);
+  const postFX = createBattleZoneShaders(THREE, renderer, scene, camera, renderer.domElement, "voidforge.visuals.shared.v1");
 
   clock = new THREE.Clock();
 
@@ -1796,7 +1798,7 @@ function animate(){
     });
   }
 
-  renderer.render(scene, camera);
+  postFX.render(dt);
 }
 
 /* =========================================================
