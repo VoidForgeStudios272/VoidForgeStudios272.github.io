@@ -119,6 +119,7 @@ export function createBattleZoneShaders(THREE, renderer, scene, camera, canvas, 
   function setSize(w, h) {
     width = Math.max(1, w); height = Math.max(1, h);
     renderer.setSize(width, height, false);
+    composer.setPixelRatio(renderer.getPixelRatio());
     composer.setSize(width, height);
     cinematicPass.uniforms.uResolution.value.set(width * renderer.getPixelRatio(), height * renderer.getPixelRatio());
   }
