@@ -1,4 +1,3 @@
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
 import { EffectComposer } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/RenderPass.js";
 import { ShaderPass } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/ShaderPass.js";
@@ -66,7 +65,7 @@ const CinematicShader = {
 
 function readSettings() {
   try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    const saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
     return {
       quality: PRESETS[saved.quality] ? saved.quality : "high",
       bloom: saved.bloom !== false,
@@ -77,7 +76,7 @@ function readSettings() {
   }
 }
 
-export function createBattleZoneShaders(renderer, scene, camera, canvas) {
+export function createBattleZoneShaders(THREE, renderer, scene, camera, canvas, storageKey = STORAGE_KEY) {
   const settings = readSettings();
   const composer = new EffectComposer(renderer);
   const renderPass = new RenderPass(scene, camera);
@@ -108,7 +107,7 @@ export function createBattleZoneShaders(renderer, scene, camera, canvas) {
     cinematicPass.uniforms.uVignette.value = settings.vignette ? p.vignette : 0;
     cinematicPass.uniforms.uGrain.value = p.grain;
     cinematicPass.uniforms.uResolution.value.set(width * ratio, height * ratio);
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(settings)); } catch {}
+    try { localStorage.setItem(storageKey, JSON.stringify(settings)); } catch {}
     const quality = document.getElementById("brShaderQuality");
     const bloom = document.getElementById("brShaderBloom");
     const vignette = document.getElementById("brShaderVignette");
