@@ -113,7 +113,7 @@ export function enhanceScene(THREE, scene, options = {}, seen = new WeakSet()) {
     for (const material of list) {
       if (!material || seen.has(material)) continue;
       seen.add(material);
-      const preset = object.userData?.vfShader || options;
+      const preset = object.userData?.vfShader || material.userData?.vfShader || options;
       enhanceMaterial(THREE, material, preset);
     }
   });
@@ -133,8 +133,10 @@ export function createProceduralInstances(THREE, geometry, material, count, conf
   const mesh = new THREE.InstancedMesh(geometry, material, Math.max(0, count | 0));
   const dummy = new THREE.Object3D();
   for (let i = 0; i < mesh.count; i++) {
-    const transform = configure?.(i, dummy) || dummy;
-    mesh.setMatrixAt(i, transform.matrix || transform.updateMatrix?.() && transform.matrix || dummy.matrix);
+    const configured = configure?.(i, dummy);
+    const transform = configured || dummy;
+    transform.updateMatrix?.();
+    mesh.setMatrixAt(i, transform.matrix);
   }
   mesh.instanceMatrix.needsUpdate = true;
   mesh.computeBoundingSphere();
