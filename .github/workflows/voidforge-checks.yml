@@ -43,6 +43,9 @@ jobs:
             echo "No JavaScript files found."
           fi
 
+      - name: Test VoidForge GPU Shader Engine
+        run: node --test tests/voidforge-gpu-shaders.test.mjs
+
       - name: Validate JavaScript
         shell: bash
         run: |
