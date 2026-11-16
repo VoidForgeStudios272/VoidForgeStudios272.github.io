@@ -3245,3 +3245,43 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible {
 
 .game-view.vf-shader-vignette .game-stage::before{content:"";position:absolute;z-index:3;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 48%,rgba(0,0,0,.52) 100%)}
 .game-view.vf-shader-vignette .game-stage::before,.game-view.vf-shader-scanlines .game-stage::after{mix-blend-mode:multiply}
+
+
+/* =========================================================
+   BETA LAB — isolated opt-in launcher experiments
+========================================================= */
+.beta-nav-badge{background:rgba(112,151,255,.16)!important;color:#a9c5ff!important;border:1px solid rgba(112,151,255,.25)}
+.beta-lab-view{gap:22px}
+.beta-lab-hero,.beta-control-panel,.beta-experiment-card{border:1px solid rgba(139,166,220,.15);border-radius:20px;background:linear-gradient(145deg,rgba(24,35,62,.78),rgba(12,17,31,.88));box-shadow:0 14px 40px rgba(0,0,0,.16)}
+.beta-lab-hero{padding:clamp(22px,4vw,34px);position:relative;overflow:hidden}
+.beta-lab-hero:after{content:"";position:absolute;width:260px;height:260px;right:-90px;top:-130px;border-radius:50%;background:rgba(84,130,255,.16);filter:blur(8px);pointer-events:none}
+.beta-kicker{font-size:10px;font-weight:800;letter-spacing:1.8px;color:#8fb5ff}
+.beta-lab-hero h2,.beta-control-panel h2{font-size:clamp(22px,3vw,30px);letter-spacing:-.8px;margin:12px 0 8px;color:#f1f5ff}
+.beta-lab-hero p,.beta-control-panel>p,.beta-experiment-card p{color:#9aa9c4;line-height:1.65;margin:0}
+.beta-warning{margin-top:20px;padding:12px 14px;border-radius:12px;background:rgba(232,174,75,.09);border:1px solid rgba(232,174,75,.2);color:#e9c887;font-size:12px}
+.beta-lab-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.beta-experiment-card{padding:20px;min-width:0}
+.beta-card-top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:18px}
+.beta-experiment-tag,.beta-experiment-status{font-size:9px;font-weight:800;letter-spacing:1px;color:#91a9ce}
+.beta-experiment-status{color:#8fe0ba}
+.beta-experiment-card h3{font-size:17px;margin:0 0 8px;color:#eef3ff}
+.beta-experiment-card p{font-size:12px;min-height:60px}
+.beta-toggle{display:flex;align-items:center;gap:10px;margin-top:18px;font-size:12px;color:#c4d0e5;cursor:pointer}
+.beta-toggle input{position:absolute;opacity:0;width:1px;height:1px}
+.beta-toggle-track{width:38px;height:22px;border-radius:20px;background:#3a4357;position:relative;transition:background .2s;flex:none}
+.beta-toggle-track:after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s}
+.beta-toggle input:checked+.beta-toggle-track{background:#477ee8}
+.beta-toggle input:checked+.beta-toggle-track:after{transform:translateX(16px)}
+.beta-toggle input:focus-visible+.beta-toggle-track{outline:2px solid #a9c5ff;outline-offset:3px}
+.beta-control-panel{padding:22px}
+.beta-channel-select{display:block;margin-top:16px;max-width:360px;width:100%;padding:12px 14px;border-radius:11px;border:1px solid rgba(145,170,220,.22);background:#111a2b;color:#edf3ff;font:inherit}
+.beta-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.beta-actions button{cursor:pointer}
+.beta-diagnostics-output{white-space:pre-wrap;overflow-wrap:anywhere;margin:16px 0 0;padding:15px;border-radius:12px;background:#080d18;border:1px solid rgba(139,166,220,.13);color:#9fc4ff;font:11px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;min-height:58px}
+.beta-dev-hud{position:sticky;bottom:12px;z-index:5;padding:10px 13px;border-radius:10px;background:rgba(7,13,25,.94);border:1px solid rgba(102,154,255,.4);color:#9fc4ff;font:10px ui-monospace,monospace;backdrop-filter:blur(12px)}
+html.vf-beta-glow .beta-lab-hero{box-shadow:0 0 38px rgba(66,120,255,.13),0 14px 40px rgba(0,0,0,.16)}
+html.vf-beta-compact .games-grid{gap:10px!important}
+html.vf-beta-compact .game-card{padding:12px!important}
+@media(max-width:900px){.beta-lab-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.beta-lab-grid{grid-template-columns:1fr}.beta-experiment-card p{min-height:0}.beta-actions{flex-direction:column}.beta-actions button{width:100%}.beta-lab-hero,.beta-control-panel,.beta-experiment-card{border-radius:15px}}
+@media(prefers-reduced-motion:reduce){.beta-toggle-track,.beta-toggle-track:after{transition:none}}
