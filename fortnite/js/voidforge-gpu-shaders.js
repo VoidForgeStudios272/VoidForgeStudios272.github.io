@@ -56,6 +56,7 @@ export function enhanceMaterial(THREE, material, options = {}) {
   material.userData ||= {};
   material.userData.vfGpuShaderInstalled = true;
   const previousCompile = material.onBeforeCompile;
+  const previousCacheKey = material.customProgramCacheKey?.bind(material);
   material.onBeforeCompile = shader => {
     previousCompile?.(shader);
     shader.uniforms.uVfTime = { value: 0 };
@@ -88,7 +89,7 @@ export function enhanceMaterial(THREE, material, options = {}) {
         ${opts.hologram ? "float vfScan = 0.82 + 0.18 * sin(gl_FragCoord.y * 0.65 + uVfTime * 5.0); gl_FragColor.rgb *= vfScan;" : ""}`);
     material.userData.vfShaderUniforms = shader.uniforms;
   };
-  material.customProgramCacheKey = () => `voidforge-gpu-v2-${opts.wind}-${opts.displacement}-${opts.fresnel}-${opts.rimPower}-${opts.emissive}-${opts.rimColor.join(",")}-${opts.hologram}`;
+  material.customProgramCacheKey = () => `${previousCacheKey?.() || ""}|voidforge-gpu-v2-${opts.wind}-${opts.displacement}-${opts.fresnel}-${opts.rimPower}-${opts.emissive}-${opts.rimColor.join(",")}-${opts.hologram}`;
   material.needsUpdate = true;
   return material;
 }
@@ -180,35 +181,46 @@ export function subdivideGeometry(geometry, levels = 1) {
 /** Native WebGPU compute kernel. Returns null when WebGPU is unavailable. */
 export async function createWebGPUComputeKernel({ code, entryPoint = "main", workgroupSize = 64, bindings = [] } = {}) {
   if (!globalThis.navigator?.gpu) return null;
-  const adapter = await navigator.gpu.requestAdapter();
-  if (!adapter) return null;
-  const device = await adapter.requestDevice();
-  const module = device.createShaderModule({ code });
-  const computeVisibility = globalThis.GPUShaderStage?.COMPUTE ?? 4;
-  const layoutEntries = bindings.map((binding, index) => ({
-    binding: index, visibility: computeVisibility,
-    buffer: { type: binding.type || "storage" }
-  }));
-  const bindGroupLayout = device.createBindGroupLayout({ entries: layoutEntries });
-  const pipeline = device.createComputePipeline({
-    layout: device.createPipelineLayout({ bindGroupLayouts: [bindGroupLayout] }),
-    compute: { module, entryPoint }
-  });
-  return {
-    device, pipeline, bindGroupLayout,
-    dispatch(bindGroup, workgroups = 1) {
-      const encoder = device.createCommandEncoder();
-      const pass = encoder.beginComputePass();
-      pass.setPipeline(pipeline); pass.setBindGroup(0, bindGroup);
-      pass.dispatchWorkgroups(Math.max(1, workgroups | 0)); pass.end();
-      device.queue.submit([encoder.finish()]);
-    },
-    destroy() { device.destroy(); }
-  };
+  let device;
+  try {
+    const adapter = await navigator.gpu.requestAdapter();
+    if (!adapter) return null;
+    device = await adapter.requestDevice();
+    const module = device.createShaderModule({ code });
+    const computeVisibility = globalThis.GPUShaderStage?.COMPUTE ?? 4;
+    const layoutEntries = bindings.map((binding, index) => ({
+      binding: index, visibility: computeVisibility,
+      buffer: { type: binding.type || "storage", ...(binding.minBindingSize ? { minBindingSize: binding.minBindingSize } : {}) }
+    }));
+    const bindGroupLayout = device.createBindGroupLayout({ entries: layoutEntries });
+    const pipeline = await device.createComputePipelineAsync({
+      layout: device.createPipelineLayout({ bindGroupLayouts: [bindGroupLayout] }),
+      compute: { module, entryPoint }
+    });
+    const size = Math.max(1, workgroupSize | 0);
+    return {
+      backend: "webgpu", device, pipeline, bindGroupLayout, workgroupSize: size,
+      dispatch(bindGroup, workgroups = 1) {
+        const encoder = device.createCommandEncoder();
+        const pass = encoder.beginComputePass();
+        pass.setPipeline(pipeline); pass.setBindGroup(0, bindGroup);
+        pass.dispatchWorkgroups(Math.max(1, workgroups | 0)); pass.end();
+        device.queue.submit([encoder.finish()]);
+      },
+      dispatchFor(bindGroup, itemCount) {
+        this.dispatch(bindGroup, Math.ceil(Math.max(0, itemCount) / size));
+      },
+      destroy() { device.destroy(); }
+    };
+  } catch (error) {
+    device?.destroy();
+    console.warn("[VoidForge] WebGPU compute unavailable; use the CPU fallback.", error);
+    return null;
+  }
 }
 
 export function createCPUComputeFallback(count, step) {
   const size = Math.max(0, count | 0);
   const data = new Float32Array(size);
-  return { data, dispatch(delta = 1 / 60) { for (let i=0;i<size;i++) data[i]=step(data[i],i,delta); } };
+  return { backend: "cpu", data, dispatch(delta = 1 / 60) { for (let i=0;i<size;i++) data[i]=step(data[i],i,delta); } };
 }
