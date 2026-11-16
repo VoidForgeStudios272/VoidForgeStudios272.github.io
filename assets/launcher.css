@@ -3285,3 +3285,17 @@ html.vf-beta-compact .game-card{padding:12px!important}
 @media(max-width:900px){.beta-lab-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.beta-lab-grid{grid-template-columns:1fr}.beta-experiment-card p{min-height:0}.beta-actions{flex-direction:column}.beta-actions button{width:100%}.beta-lab-hero,.beta-control-panel,.beta-experiment-card{border-radius:15px}}
 @media(prefers-reduced-motion:reduce){.beta-toggle-track,.beta-toggle-track:after{transition:none}}
+
+
+/* Beta Lab expansion: accessibility, layouts, display effects and accents */
+.beta-accent-label{display:grid;gap:8px;margin-top:16px;color:#c8d5eb;font-size:12px;max-width:360px}
+html[data-vf-beta-accent="violet"]{--vf-beta-accent:#a78bfa}
+html[data-vf-beta-accent="mint"]{--vf-beta-accent:#63d9b2}
+html[data-vf-beta-accent="rose"]{--vf-beta-accent:#fb8caf}
+html[data-vf-beta-accent="blue"]{--vf-beta-accent:#78aaff}
+.beta-lab-view .beta-kicker,.beta-lab-view .beta-experiment-status{color:var(--vf-beta-accent,#8fb5ff)}
+html.vf-beta-list-mode .games-grid{grid-template-columns:minmax(0,1fr)!important;gap:9px!important}
+html.vf-beta-list-mode .games-grid>*{width:100%;max-width:none}
+html.vf-beta-reduce-motion *,html.vf-beta-reduce-motion *::before,html.vf-beta-reduce-motion *::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+html.vf-beta-scanlines body::after{content:"";position:fixed;inset:0;z-index:9990;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.07) 0,rgba(0,0,0,.07) 1px,transparent 1px,transparent 4px);opacity:.35}
+@media(prefers-reduced-motion:reduce){html.vf-beta-scanlines body::after{display:none}}
