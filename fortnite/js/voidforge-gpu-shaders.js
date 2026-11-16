@@ -149,7 +149,7 @@ export function createProceduralInstances(THREE, geometry, material, count, conf
 }
 
 /** CPU tessellation fallback: split each triangle into four triangles. */
-export function subdivideGeometry(geometry, levels = 1) {
+export function subdivideGeometry(THREE, geometry, levels = 1) {
   let current = geometry.clone();
   const iterations = clamp(Math.floor(levels), 0, 4);
   for (let level = 0; level < iterations; level++) {
