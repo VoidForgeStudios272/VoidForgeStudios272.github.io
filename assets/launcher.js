@@ -1939,7 +1939,7 @@
   const BETA_STORAGE_KEY = "voidforgeBetaLabV1";
 
   function readBetaSettings() {
-    const defaults = { channel: "beta", glow: true, compact: false, debug: false };
+    const defaults = { channel: "beta", glow: true, compact: false, debug: false, reduceMotion: false, listMode: false, scanlines: false, accent: "blue" };
     try {
       return { ...defaults, ...(JSON.parse(localStorage.getItem(BETA_STORAGE_KEY) || "{}")) };
     } catch {
@@ -1957,6 +1957,10 @@
     document.documentElement.classList.toggle("vf-beta-glow", !!settings.glow);
     document.documentElement.classList.toggle("vf-beta-compact", !!settings.compact);
     document.documentElement.classList.toggle("vf-beta-debug", !!settings.debug);
+    document.documentElement.classList.toggle("vf-beta-reduce-motion", !!settings.reduceMotion);
+    document.documentElement.classList.toggle("vf-beta-list-mode", !!settings.listMode);
+    document.documentElement.classList.toggle("vf-beta-scanlines", !!settings.scanlines);
+    document.documentElement.dataset.vfBetaAccent = ["blue","violet","mint","rose"].includes(settings.accent) ? settings.accent : "blue";
   }
 
   function renderBetaView(root) {
@@ -1978,7 +1982,10 @@
     const experiments = [
       { key: "glow", title: "Aurora interface", desc: "Adds a subtle animated glow to supported launcher surfaces.", tag: "VISUAL PREVIEW" },
       { key: "compact", title: "Compact library", desc: "Reduces game-card spacing to fit more titles on screen.", tag: "LAYOUT PREVIEW" },
-      { key: "debug", title: "Developer HUD", desc: "Shows a small live diagnostics panel while the Beta Lab is open.", tag: "DEV TOOL" }
+      { key: "debug", title: "Developer HUD", desc: "Shows a small live diagnostics panel while the Beta Lab is open.", tag: "DEV TOOL" },
+      { key: "reduceMotion", title: "Motion-safe mode", desc: "Tests a calmer interface with most launcher animations disabled.", tag: "ACCESSIBILITY" },
+      { key: "listMode", title: "Library list layout", desc: "Previews a dense single-column layout for game cards.", tag: "LAYOUT PREVIEW" },
+      { key: "scanlines", title: "Retro display effect", desc: "Adds a subtle CRT-inspired overlay to the launcher background.", tag: "VISUAL PREVIEW" }
     ];
     experiments.forEach(item => {
       const card = createElement("article", "beta-experiment-card");
@@ -2018,6 +2025,19 @@
       showToast("Update channel preference saved.");
     });
     controls.appendChild(select);
+    const accentLabel = createElement("label", "beta-accent-label");
+    accentLabel.appendChild(createElement("span", "", "Experimental accent color"));
+    const accentSelect = createElement("select", "beta-channel-select");
+    [["blue","Electric blue"],["violet","Violet"],["mint","Mint"],["rose","Rose"]].forEach(([value,label]) => {
+      const option = createElement("option", "", label); option.value = value; accentSelect.appendChild(option);
+    });
+    accentSelect.value = ["blue","violet","mint","rose"].includes(settings.accent) ? settings.accent : "blue";
+    accentSelect.addEventListener("change", () => {
+      const next = readBetaSettings(); next.accent = accentSelect.value; saveBetaSettings(next);
+      showToast("Experimental accent updated.");
+    });
+    accentLabel.appendChild(accentSelect);
+    controls.appendChild(accentLabel);
     const actions = createElement("div", "beta-actions");
     const diagnostics = createElement("button", "secondary-button", "Run diagnostics");
     diagnostics.type = "button";
@@ -2036,6 +2056,10 @@
         "Storage: " + (function(){ try { localStorage.setItem("__vf_beta_test","1"); localStorage.removeItem("__vf_beta_test"); return "available"; } catch { return "blocked"; } })(),
         "Service worker: " + ("serviceWorker" in navigator ? "supported" : "unsupported"),
         "Cache API: " + ("caches" in window ? "supported" : "unsupported"),
+        "Viewport: " + window.innerWidth + " × " + window.innerHeight,
+        "Device pixel ratio: " + (window.devicePixelRatio || 1),
+        "Hardware concurrency: " + (navigator.hardwareConcurrency || "unknown"),
+        "Memory estimate: " + (navigator.deviceMemory ? navigator.deviceMemory + " GB" : "not exposed"),
         "Channel: " + readBetaSettings().channel,
         "Experiments: " + experiments.map(x => x.key + "=" + (!!readBetaSettings()[x.key])).join(", "),
         "Note: diagnostics are local and do not upload data."
@@ -2044,7 +2068,7 @@
     });
     reset.addEventListener("click", () => {
       try { localStorage.removeItem(BETA_STORAGE_KEY); } catch {}
-      saveBetaSettings({ channel: "beta", glow: false, compact: false, debug: false });
+      saveBetaSettings({ channel: "beta", glow: false, compact: false, debug: false, reduceMotion: false, listMode: false, scanlines: false, accent: "blue" });
       showToast("Beta experiments reset.");
       renderBetaView(root);
     });
