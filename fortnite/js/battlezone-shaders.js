@@ -89,7 +89,7 @@ export function createBattleZoneShaders(THREE, renderer, scene, camera, canvas, 
   composer.addPass(cinematicPass);
   composer.addPass(outputPass);
 
-  let width = 1, height = 1, elapsed = 0;
+  let width = 1, height = 1, elapsed = 0, composerRatio = renderer.getPixelRatio();
   const enhancedMaterials = new Set();
   let shaderScanFrame = 0;
   const shaderTools = { types: SHADER_TYPES, glsl: GLSL, enhanceScene: (options = {}) => enhanceScene(THREE, scene, options, enhancedMaterials), createProceduralInstances: (geometry, material, count, configure) => createProceduralInstances(THREE, geometry, material, count, configure), subdivideGeometry: (geometry, levels = 1) => subdivideGeometry(geometry, levels), createWebGPUComputeKernel, createCPUComputeFallback, createComputeKernel };
@@ -99,6 +99,7 @@ export function createBattleZoneShaders(THREE, renderer, scene, camera, canvas, 
     const ratio = Math.min(devicePixelRatio || 1, mobile ? Math.min(1.15, p.pixelRatio) : p.pixelRatio);
     renderer.setPixelRatio(ratio);
     composer.setPixelRatio(ratio);
+    composerRatio = ratio;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = settings.quality === "ultra" ? 1.18 : settings.quality === "low" ? 1.04 : 1.12;
     bloomPass.enabled = settings.bloom && settings.quality !== "low";
@@ -123,13 +124,20 @@ export function createBattleZoneShaders(THREE, renderer, scene, camera, canvas, 
   function setSize(w, h) {
     width = Math.max(1, w); height = Math.max(1, h);
     renderer.setSize(width, height, false);
-    composer.setPixelRatio(renderer.getPixelRatio());
+    composerRatio = renderer.getPixelRatio();
+    composer.setPixelRatio(composerRatio);
     composer.setSize(width, height);
     cinematicPass.uniforms.uResolution.value.set(width * renderer.getPixelRatio(), height * renderer.getPixelRatio());
   }
   function render(delta) {
     elapsed += Math.max(0, delta || 0);
     cinematicPass.uniforms.uTime.value = elapsed;
+    const currentRatio = renderer.getPixelRatio();
+    if (currentRatio !== composerRatio) {
+      composerRatio = currentRatio;
+      composer.setPixelRatio(composerRatio);
+      cinematicPass.uniforms.uResolution.value.set(width * composerRatio, height * composerRatio);
+    }
     // Scan periodically for newly spawned meshes; update only the registered materials every frame.
     if ((shaderScanFrame++ % 30) === 0) enhanceScene(THREE, scene, { fresnel: 0.045, rimPower: 2.6, rimColor: [0.20, 0.42, 0.68] }, enhancedMaterials);
     updateSceneShaderTime(enhancedMaterials, elapsed);
