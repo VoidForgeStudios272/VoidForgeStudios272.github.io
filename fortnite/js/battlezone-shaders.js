@@ -90,7 +90,8 @@ export function createBattleZoneShaders(THREE, renderer, scene, camera, canvas, 
   composer.addPass(outputPass);
 
   let width = 1, height = 1, elapsed = 0;
-  const enhancedMaterials = new WeakSet();
+  const enhancedMaterials = new Set();
+  let shaderScanFrame = 0;
   const shaderTools = { enhanceScene: (options = {}) => enhanceScene(THREE, scene, options, enhancedMaterials), createProceduralInstances: (geometry, material, count, configure) => createProceduralInstances(THREE, geometry, material, count, configure), subdivideGeometry: (geometry, levels = 1) => subdivideGeometry(geometry, levels), createWebGPUComputeKernel, createCPUComputeFallback };
   const mobile = matchMedia("(pointer:coarse), (max-width:800px)").matches;
   function apply() {
@@ -129,8 +130,9 @@ export function createBattleZoneShaders(THREE, renderer, scene, camera, canvas, 
   function render(delta) {
     elapsed += Math.max(0, delta || 0);
     cinematicPass.uniforms.uTime.value = elapsed;
-    enhanceScene(THREE, scene, { fresnel: 0.045, rimPower: 2.6, rimColor: [0.20, 0.42, 0.68] }, enhancedMaterials);
-    updateSceneShaderTime(scene, elapsed);
+    // Scan periodically for newly spawned meshes; update only the registered materials every frame.
+    if ((shaderScanFrame++ % 30) === 0) enhanceScene(THREE, scene, { fresnel: 0.045, rimPower: 2.6, rimColor: [0.20, 0.42, 0.68] }, enhancedMaterials);
+    updateSceneShaderTime(enhancedMaterials, elapsed);
     composer.render();
   }
   document.getElementById("brShaderQuality")?.addEventListener("change", event => {
