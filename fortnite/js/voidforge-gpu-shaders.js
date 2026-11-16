@@ -51,7 +51,12 @@ const DEFAULTS = Object.freeze({
 });
 
 export function enhanceMaterial(THREE, material, options = {}) {
-  if (!material || material.userData?.vfGpuShaderInstalled) return material;
+  const supportsLitNormals = material && (
+    material.isMeshStandardMaterial || material.isMeshPhysicalMaterial ||
+    material.isMeshPhongMaterial || material.isMeshLambertMaterial ||
+    material.isMeshToonMaterial
+  );
+  if (!supportsLitNormals || material.userData?.vfGpuShaderInstalled) return material;
   const opts = { ...DEFAULTS, ...options };
   material.userData ||= {};
   material.userData.vfGpuShaderInstalled = true;
@@ -105,6 +110,9 @@ export function enhanceScene(THREE, scene, options = {}, seen = new WeakSet()) {
     const list = Array.isArray(object.material) ? object.material : [object.material];
     for (const material of list) {
       if (!material || seen.has(material)) continue;
+      const supportsLitNormals = material.isMeshStandardMaterial || material.isMeshPhysicalMaterial ||
+        material.isMeshPhongMaterial || material.isMeshLambertMaterial || material.isMeshToonMaterial;
+      if (!supportsLitNormals || !object.geometry?.attributes?.normal) continue;
       seen.add(material);
       const preset = object.userData?.vfShader || material.userData?.vfShader || options;
       enhanceMaterial(THREE, material, preset);
