@@ -14,7 +14,6 @@ export const GLSL = Object.freeze({
   vertex: `
     varying vec3 vVfWorldPosition;
     varying vec3 vVfWorldNormal;
-    varying vec2 vVfUv;
     uniform float uVfTime;
     uniform float uVfWind;
     uniform float uVfDisplacement;
@@ -33,7 +32,6 @@ export const GLSL = Object.freeze({
     uniform float uVfTime;
     varying vec3 vVfWorldPosition;
     varying vec3 vVfWorldNormal;
-    varying vec2 vVfUv;
     vec3 vfShade(vec3 baseColor, vec3 viewDir, vec3 normal) {
       float rim = pow(1.0 - max(dot(normalize(normal), normalize(viewDir)), 0.0), uVfRimPower);
       float pulse = 0.94 + 0.06 * sin(uVfTime * 1.8 + vVfWorldPosition.y * 2.0);
@@ -69,7 +67,7 @@ export function enhanceMaterial(THREE, material, options = {}) {
     shader.uniforms.uVfRimColor = { value: new THREE.Color(...opts.rimColor) };
     shader.vertexShader = shader.vertexShader
       .replace("#include <common>", `#include <common>
-        varying vec3 vVfWorldPosition; varying vec3 vVfWorldNormal; varying vec2 vVfUv;
+        varying vec3 vVfWorldPosition; varying vec3 vVfWorldNormal;
         uniform float uVfTime; uniform float uVfWind; uniform float uVfDisplacement;`)
       .replace("#include <begin_vertex>", `#include <begin_vertex>
         float vfWave = sin(transformed.x * 1.7 + uVfTime * 1.4) * cos(transformed.z * 1.3 + uVfTime);
@@ -77,26 +75,20 @@ export function enhanceMaterial(THREE, material, options = {}) {
         transformed += objectNormal * sin(uVfTime + transformed.x * 2.0) * uVfDisplacement;`)
       .replace("#include <worldpos_vertex>", `#include <worldpos_vertex>
         vVfWorldPosition = (modelMatrix * vec4(transformed, 1.0)).xyz;
-        vVfWorldNormal = normalize(mat3(modelMatrix) * objectNormal);
-        vVfUv = uv;`);
+        vVfWorldNormal = normalize(mat3(modelMatrix) * objectNormal);`);
     shader.fragmentShader = shader.fragmentShader
       .replace("#include <common>", `#include <common>
-        varying vec3 vVfWorldPosition; varying vec3 vVfWorldNormal; varying vec2 vVfUv;
+        varying vec3 vVfWorldPosition; varying vec3 vVfWorldNormal;
         uniform float uVfTime; uniform float uVfFresnel; uniform float uVfRimPower;
         uniform float uVfEmissive; uniform vec3 uVfRimColor;`)
       .replace("#include <output_fragment>", `#include <output_fragment>
         float vfRim = pow(1.0 - max(dot(normalize(vVfWorldNormal), normalize(cameraPosition - vVfWorldPosition)), 0.0), uVfRimPower);
         float vfPulse = 0.94 + 0.06 * sin(uVfTime * 1.8 + vVfWorldPosition.y * 2.0);
-        gl_FragColor.rgb += uVfRimColor * vfRim * uVfFresnel + gl_FragColor.rgb * uVfEmissive * vfPulse;`);
-    if (opts.hologram) shader.fragmentShader = shader.fragmentShader.replace(
-      "#include <output_fragment>",
-      `#include <output_fragment>
-       float vfScan = 0.82 + 0.18 * sin(gl_FragCoord.y * 0.65 + uVfTime * 5.0);
-       gl_FragColor.rgb *= vfScan;`
-    );
+        gl_FragColor.rgb += uVfRimColor * vfRim * uVfFresnel + gl_FragColor.rgb * uVfEmissive * vfPulse;
+        ${opts.hologram ? "float vfScan = 0.82 + 0.18 * sin(gl_FragCoord.y * 0.65 + uVfTime * 5.0); gl_FragColor.rgb *= vfScan;" : ""}`);
     material.userData.vfShaderUniforms = shader.uniforms;
   };
-  material.customProgramCacheKey = () => `voidforge-gpu-v1-${opts.wind}-${opts.displacement}-${opts.fresnel}-${opts.hologram}`;
+  material.customProgramCacheKey = () => `voidforge-gpu-v2-${opts.wind}-${opts.displacement}-${opts.fresnel}-${opts.rimPower}-${opts.emissive}-${opts.rimColor.join(",")}-${opts.hologram}`;
   material.needsUpdate = true;
   return material;
 }
@@ -192,14 +184,15 @@ export async function createWebGPUComputeKernel({ code, entryPoint = "main", wor
   if (!adapter) return null;
   const device = await adapter.requestDevice();
   const module = device.createShaderModule({ code });
+  const computeVisibility = globalThis.GPUShaderStage?.COMPUTE ?? 4;
   const layoutEntries = bindings.map((binding, index) => ({
-    binding: index, visibility: GPUShaderStage.COMPUTE,
+    binding: index, visibility: computeVisibility,
     buffer: { type: binding.type || "storage" }
   }));
   const bindGroupLayout = device.createBindGroupLayout({ entries: layoutEntries });
   const pipeline = device.createComputePipeline({
     layout: device.createPipelineLayout({ bindGroupLayouts: [bindGroupLayout] }),
-    compute: { module, entryPoint, constants: { WORKGROUP_SIZE: workgroupSize } }
+    compute: { module, entryPoint }
   });
   return {
     device, pipeline, bindGroupLayout,
