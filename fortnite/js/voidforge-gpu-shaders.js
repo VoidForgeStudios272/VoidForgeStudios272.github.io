@@ -224,3 +224,10 @@ export function createCPUComputeFallback(count, step) {
   const data = new Float32Array(size);
   return { backend: "cpu", data, dispatch(delta = 1 / 60) { for (let i=0;i<size;i++) data[i]=step(data[i],i,delta); } };
 }
+
+/** Prefer native WebGPU compute and transparently fall back to the supplied CPU step. */
+export async function createComputeKernel(options = {}) {
+  const gpu = await createWebGPUComputeKernel(options);
+  if (gpu) return gpu;
+  return createCPUComputeFallback(options.count || 0, options.step || ((value) => value));
+}
