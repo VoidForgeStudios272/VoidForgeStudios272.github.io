@@ -84,7 +84,7 @@ import { createBattleZoneShaders } from "./battlezone-shaders.js";
     geo.computeVertexNormals();
     const ground=new THREE.Mesh(geo,mats.grass);ground.receiveShadow=true;scene.add(ground);groundTargets.push(ground);
     const beach=new THREE.Mesh(new THREE.CircleGeometry(204,96),mats.sand);beach.rotation.x=-Math.PI/2;beach.position.y=-.45;scene.add(beach);
-    const waterMat=new THREE.MeshStandardMaterial({color:0xffffff,map:textures.water,roughness:.3,metalness:.12});const water=new THREE.Mesh(new THREE.PlaneGeometry(900,900),waterMat);
+    const waterMat=new THREE.MeshStandardMaterial({color:0xffffff,map:textures.water,roughness:.3,metalness:.12});waterMat.userData.vfShader={wind:.18,displacement:.018,fresnel:.22,rimPower:2.0,rimColor:[.12,.62,1.0],emissive:.035};const water=new THREE.Mesh(new THREE.PlaneGeometry(900,900),waterMat);
     water.rotation.x=-Math.PI/2;water.position.y=-1.1;scene.add(water);
     const patchGeo=new THREE.CircleGeometry(1,10);
     for(let i=0;i<230;i++){const x=THREE.MathUtils.randFloatSpread(385),z=THREE.MathUtils.randFloatSpread(385);if(Math.hypot(x,z)>198)continue;const patch=new THREE.Mesh(patchGeo, i%3?mats.darkGrass:mats.grass);patch.rotation.x=-Math.PI/2;patch.scale.set(THREE.MathUtils.randFloat(1,4),THREE.MathUtils.randFloat(1,3),1);patch.position.set(x,terrainHeight(x,z)+.04,z);scene.add(patch);}
