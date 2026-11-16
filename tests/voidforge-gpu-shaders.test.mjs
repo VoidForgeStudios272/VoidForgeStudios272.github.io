@@ -88,7 +88,7 @@ test("procedural instances write every configured transform", () => {
 test("one tessellation level splits one triangle into four", () => {
   const geometry = new FakeGeometry();
   geometry.setAttribute("position", new FakeAttribute([0,0,0, 1,0,0, 0,1,0], 3));
-  const result = api.subdivideGeometry(geometry, 1);
+  const result = api.subdivideGeometry(THREE, geometry, 1);
   assert.equal(result.getAttribute("position").count, 12);
   assert.equal(result.getAttribute("normal").count, 12);
 });
