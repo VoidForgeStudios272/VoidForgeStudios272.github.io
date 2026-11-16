@@ -121,6 +121,10 @@ export function enhanceScene(THREE, scene, options = {}, seen = new WeakSet()) {
 }
 
 export function updateSceneShaderTime(scene, time) {
+  if (scene && typeof scene[Symbol.iterator] === "function") {
+    for (const material of scene) setMaterialShaderTime(material, time);
+    return;
+  }
   scene.traverse(object => {
     if (!object.isMesh) return;
     const list = Array.isArray(object.material) ? object.material : [object.material];
