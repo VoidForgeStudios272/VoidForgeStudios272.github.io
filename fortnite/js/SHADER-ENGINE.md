@@ -1,8 +1,10 @@
 # VoidForge GPU Shader Engine
 
 The shared renderer is loaded by the 3D games through `battlezone-shaders.js`.
-It now applies a real Three.js material shader hook to scene materials and exposes
-the extended shader tools as `postFX.shaderTools`.
+It applies real Three.js vertex and fragment shader hooks to supported lit mesh
+materials and exposes the extended shader tools as `postFX.shaderTools`.
+Unlit materials and meshes without normals are deliberately skipped so they do
+not receive shader code that their base material cannot compile.
 
 ## Shader stages
 
@@ -52,8 +54,10 @@ const instances = postFX.shaderTools.createProceduralInstances(
 ```
 
 For native compute, provide WGSL source and a binding layout matching the
-buffers passed to the created bind group. If WebGPU is unavailable, use the
-CPU fallback for the same simulation logic.
+buffers passed to the created bind group. `createComputeKernel()` automatically
+selects WebGPU when available and otherwise returns the CPU step-function
+fallback. The CPU fallback is not a GPU compute shader; it keeps simulations
+usable on devices without WebGPU.
 
 ## Compatibility
 
