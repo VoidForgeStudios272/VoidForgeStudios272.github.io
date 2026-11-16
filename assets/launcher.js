@@ -1804,6 +1804,10 @@
         );
         break;
 
+      case "beta":
+        renderBetaView(viewRoot);
+        break;
+
       case "chat":
         renderChatView(viewRoot);
         break;
@@ -1927,6 +1931,133 @@
     root.replaceChildren(
       section
     );
+  }
+
+  /* =========================================================
+     BETA LAB — opt-in experiments stored on this device
+  ========================================================= */
+  const BETA_STORAGE_KEY = "voidforgeBetaLabV1";
+
+  function readBetaSettings() {
+    const defaults = { channel: "beta", glow: true, compact: false, debug: false };
+    try {
+      return { ...defaults, ...(JSON.parse(localStorage.getItem(BETA_STORAGE_KEY) || "{}")) };
+    } catch {
+      return defaults;
+    }
+  }
+
+  function saveBetaSettings(settings) {
+    try {
+      localStorage.setItem(BETA_STORAGE_KEY, JSON.stringify(settings));
+    } catch (error) {
+      console.warn("[VoidForge Beta] Could not save settings:", error);
+      showToast("Beta settings could not be saved in this browser.");
+    }
+    document.documentElement.classList.toggle("vf-beta-glow", !!settings.glow);
+    document.documentElement.classList.toggle("vf-beta-compact", !!settings.compact);
+    document.documentElement.classList.toggle("vf-beta-debug", !!settings.debug);
+  }
+
+  function renderBetaView(root) {
+    const settings = readBetaSettings();
+    const section = createLauncherView("beta-lab-view");
+    section.appendChild(createViewHeading("Beta Lab", "Try experimental VoidForge features before they reach the stable launcher."));
+
+    const hero = createElement("article", "beta-lab-hero");
+    hero.appendChild(createElement("span", "beta-kicker", "EARLY ACCESS • EXPERIMENTAL"));
+    hero.appendChild(createElement("h2", "", "The next version starts here."));
+    hero.appendChild(createElement("p", "", "These previews are optional and saved only in this browser. Experiments may change or be removed."));
+    const warning = createElement("div", "beta-warning");
+    warning.setAttribute("role", "status");
+    warning.textContent = "Beta features can be unstable. Turn them off here if something looks wrong.";
+    hero.appendChild(warning);
+    section.appendChild(hero);
+
+    const grid = createElement("div", "beta-lab-grid");
+    const experiments = [
+      { key: "glow", title: "Aurora interface", desc: "Adds a subtle animated glow to supported launcher surfaces.", tag: "VISUAL PREVIEW" },
+      { key: "compact", title: "Compact library", desc: "Reduces game-card spacing to fit more titles on screen.", tag: "LAYOUT PREVIEW" },
+      { key: "debug", title: "Developer HUD", desc: "Shows a small live diagnostics panel while the Beta Lab is open.", tag: "DEV TOOL" }
+    ];
+    experiments.forEach(item => {
+      const card = createElement("article", "beta-experiment-card");
+      const top = createElement("div", "beta-card-top");
+      top.append(createElement("span", "beta-experiment-tag", item.tag), createElement("span", "beta-experiment-status", settings[item.key] ? "ENABLED" : "DISABLED"));
+      card.append(top, createElement("h3", "", item.title), createElement("p", "", item.desc));
+      const label = createElement("label", "beta-toggle");
+      const input = createElement("input");
+      input.type = "checkbox";
+      input.checked = !!settings[item.key];
+      input.setAttribute("aria-label", "Enable " + item.title);
+      const track = createElement("span", "beta-toggle-track");
+      const text = createElement("span", "", "Enable experiment");
+      label.append(input, track, text);
+      input.addEventListener("change", () => {
+        const next = readBetaSettings();
+        next[item.key] = input.checked;
+        saveBetaSettings(next);
+        renderBetaView(root);
+      });
+      card.appendChild(label);
+      grid.appendChild(card);
+    });
+    section.appendChild(grid);
+
+    const controls = createElement("article", "beta-control-panel");
+    controls.appendChild(createElement("div", "beta-kicker", "RELEASE CHANNEL"));
+    controls.appendChild(createElement("h2", "", "Choose your update track"));
+    controls.appendChild(createElement("p", "", "This changes the local preference only; it does not install remote builds or change the published site."));
+    const select = createElement("select", "beta-channel-select");
+    [["stable","Stable — recommended"],["beta","Beta — early features"],["nightly","Nightly — latest experiments"]].forEach(([value,label]) => {
+      const option = createElement("option", "", label); option.value = value; select.appendChild(option);
+    });
+    select.value = settings.channel;
+    select.addEventListener("change", () => {
+      const next = readBetaSettings(); next.channel = select.value; saveBetaSettings(next);
+      showToast("Update channel preference saved.");
+    });
+    controls.appendChild(select);
+    const actions = createElement("div", "beta-actions");
+    const diagnostics = createElement("button", "secondary-button", "Run diagnostics");
+    diagnostics.type = "button";
+    const reset = createElement("button", "secondary-button", "Reset experiments");
+    reset.type = "button";
+    actions.append(diagnostics, reset);
+    controls.appendChild(actions);
+    const output = createElement("pre", "beta-diagnostics-output", "Diagnostics have not been run yet.");
+    output.setAttribute("aria-live", "polite");
+    diagnostics.addEventListener("click", () => {
+      const rows = [
+        "VoidForge Beta Diagnostics",
+        "--------------------------",
+        "Browser: " + navigator.userAgent,
+        "Online: " + (navigator.onLine ? "yes" : "no"),
+        "Storage: " + (function(){ try { localStorage.setItem("__vf_beta_test","1"); localStorage.removeItem("__vf_beta_test"); return "available"; } catch { return "blocked"; } })(),
+        "Service worker: " + ("serviceWorker" in navigator ? "supported" : "unsupported"),
+        "Cache API: " + ("caches" in window ? "supported" : "unsupported"),
+        "Channel: " + readBetaSettings().channel,
+        "Experiments: " + experiments.map(x => x.key + "=" + (!!readBetaSettings()[x.key])).join(", "),
+        "Note: diagnostics are local and do not upload data."
+      ];
+      output.textContent = rows.join("\n");
+    });
+    reset.addEventListener("click", () => {
+      try { localStorage.removeItem(BETA_STORAGE_KEY); } catch {}
+      saveBetaSettings({ channel: "beta", glow: false, compact: false, debug: false });
+      showToast("Beta experiments reset.");
+      renderBetaView(root);
+    });
+    controls.append(actions, output);
+    section.appendChild(controls);
+
+    if (settings.debug) {
+      const hud = createElement("aside", "beta-dev-hud");
+      hud.textContent = "BETA HUD  •  " + (navigator.onLine ? "ONLINE" : "OFFLINE") + "  •  " + (window.devicePixelRatio || 1) + "× DPR";
+      section.appendChild(hud);
+    }
+    root.replaceChildren(section);
+    saveBetaSettings(settings);
   }
 
   /* =========================================================
