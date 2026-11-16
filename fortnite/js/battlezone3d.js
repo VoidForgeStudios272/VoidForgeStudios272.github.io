@@ -64,6 +64,9 @@ import { createBattleZoneShaders } from "./battlezone-shaders.js";
   mats.bark=mat(0xffffff);mats.bark.map=textures.wood; mats.leaf=mat(0xffffff);mats.leaf.map=textures.foliage; mats.leaf2=mat(0x4a914e); mats.rock=mat(0xffffff);mats.rock.map=textures.rock;
   mats.roof=mat(0xffffff);mats.roof.map=textures.roof; mats.wall=mat(0xffffff);mats.wall.map=textures.concrete;
   mats.blue=mat(0xffffff,.55);mats.blue.map=textures.metal; mats.red=mat(0xc94f45,.6); mats.yellow=mat(0xf1c84a,.5); mats.wood=mat(0xffffff);mats.wood.map=textures.wood; mats.brick=mat(0xffffff);mats.brick.map=textures.brick; mats.weapon=mat(0xffffff,.45,.55);mats.weapon.map=textures.weapon;
+  mats.leaf.userData.vfShader={wind:1.15,fresnel:.075,rimPower:2.2,rimColor:[.22,.72,.34]};
+  mats.leaf2.userData.vfShader={wind:.82,fresnel:.055,rimPower:2.4,rimColor:[.18,.58,.28]};
+  mats.weapon.userData.vfShader={fresnel:.14,rimPower:3.0,rimColor:[.42,.72,1.0]};
   // Browser Texture Studio exports are stored on this same origin and loaded into BattleZone materials.
   function applySavedCustomTextures(){
     let saved={};
