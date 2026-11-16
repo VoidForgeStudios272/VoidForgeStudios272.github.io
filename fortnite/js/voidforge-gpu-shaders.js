@@ -106,8 +106,7 @@ export function setMaterialShaderTime(material, time) {
   if (uniforms?.uVfTime) uniforms.uVfTime.value = time;
 }
 
-export function enhanceScene(THREE, scene, options = {}) {
-  const seen = new WeakSet();
+export function enhanceScene(THREE, scene, options = {}, seen = new WeakSet()) {
   scene.traverse(object => {
     if (!object.isMesh || object.userData?.vfShaderDisabled) return;
     const list = Array.isArray(object.material) ? object.material : [object.material];
@@ -119,6 +118,14 @@ export function enhanceScene(THREE, scene, options = {}) {
     }
   });
   return seen;
+}
+
+export function updateSceneShaderTime(scene, time) {
+  scene.traverse(object => {
+    if (!object.isMesh) return;
+    const list = Array.isArray(object.material) ? object.material : [object.material];
+    for (const material of list) setMaterialShaderTime(material, time);
+  });
 }
 
 /** WebGL has no geometry-shader stage; this generates equivalent mesh geometry on the CPU. */
