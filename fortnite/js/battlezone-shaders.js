@@ -92,7 +92,7 @@ export function createBattleZoneShaders(THREE, renderer, scene, camera, canvas, 
   let width = 1, height = 1, elapsed = 0, composerRatio = renderer.getPixelRatio();
   const enhancedMaterials = new Set();
   let shaderScanFrame = 0;
-  const shaderTools = { types: SHADER_TYPES, glsl: GLSL, enhanceScene: (options = {}) => enhanceScene(THREE, scene, options, enhancedMaterials), createProceduralInstances: (geometry, material, count, configure) => createProceduralInstances(THREE, geometry, material, count, configure), subdivideGeometry: (geometry, levels = 1) => subdivideGeometry(geometry, levels), createWebGPUComputeKernel, createCPUComputeFallback, createComputeKernel };
+  const shaderTools = { types: SHADER_TYPES, glsl: GLSL, enhanceScene: (options = {}) => enhanceScene(THREE, scene, options, enhancedMaterials), createProceduralInstances: (geometry, material, count, configure) => createProceduralInstances(THREE, geometry, material, count, configure), subdivideGeometry: (geometry, levels = 1) => subdivideGeometry(THREE, geometry, levels), createWebGPUComputeKernel, createCPUComputeFallback, createComputeKernel };
   const mobile = matchMedia("(pointer:coarse), (max-width:800px)").matches;
   function apply() {
     const p = PRESETS[settings.quality];
