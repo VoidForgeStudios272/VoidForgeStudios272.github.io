@@ -1,5 +1,21 @@
 [
   {
+    "id": "fifa-26",
+    "name": "FIFA 26",
+    "subtitle": "Football • Matchday Experience",
+    "entry": "fifa-26",
+    "version": "1.0.0",
+    "platform": "Browser · Keyboard & Touch",
+    "status": "Available",
+    "tags": [
+      "Sports",
+      "Football",
+      "Menu",
+      "Local Play"
+    ],
+    "description": "A FIFA 26-inspired football game menu with quick match setup, team selection, club customization and tournament screens."
+  },
+  {
     "id": "minecraft",
     "name": "Minecraft",
     "subtitle": "Voxel Sandbox",
