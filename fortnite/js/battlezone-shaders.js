@@ -71,6 +71,7 @@ function mountShaderPanel() {
   let button=document.getElementById("inGameShadersButton");
   const buttonAlreadyExists=!!button;
   let panel=document.getElementById("inGameShadersPanel");
+  if (buttonAlreadyExists) button.dataset.shaderExisting="1";
   if (!button) {
     button=document.createElement("button"); button.id="inGameShadersButton"; button.type="button";
     button.textContent="✦ Graphics"; button.setAttribute("aria-controls","inGameShadersPanel"); button.setAttribute("aria-expanded","false");
@@ -148,7 +149,7 @@ function mountShaderPanel() {
       #inGameShadersPanel .shader-section-title{margin:15px 0 7px;padding-top:12px;border-top:1px solid #ffffff18;color:#7fcfff;font-size:10px;font-weight:900;letter-spacing:1.4px}
       #inGameShadersPanel .shader-reset{width:100%;margin-top:10px;padding:11px;border:1px solid #ffffff25;border-radius:10px;background:#20344b;color:#fff;font-weight:800}
       #closeShadersButton{width:32px;height:32px;border:0;border-radius:9px;background:#ffffff18;color:#fff;font-size:22px;cursor:pointer}
-      @media(max-width:600px){#inGameShadersButton{top:9px;right:9px;padding:9px 12px}#inGameShadersPanel{top:54px;right:8px;width:calc(100vw - 16px);max-height:78dvh}}
+      body:not(.in-game-ui) #inGameShadersButton[data-shader-existing="1"]{display:none!important}\n      @media(max-width:600px){#inGameShadersButton{top:9px;right:9px;padding:9px 12px}#inGameShadersPanel{top:54px;right:8px;width:calc(100vw - 16px);max-height:78dvh}}
     `;
     document.head.append(style);
   }
