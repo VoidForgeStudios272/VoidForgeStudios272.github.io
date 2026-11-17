@@ -3491,7 +3491,18 @@
             font-weight: 800;
         }
     </style>
-</head>
+<style>
+#inGameShadersButton{position:fixed;z-index:80;top:14px;right:14px;border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:10px 15px;background:rgba(17,25,35,.88);color:#fff;font:700 13px system-ui;box-shadow:0 8px 28px #0005;backdrop-filter:blur(12px);cursor:pointer;display:none}
+body.in-game-ui #inGameShadersButton{display:block}
+#inGameShadersPanel{position:fixed;z-index:120;top:62px;right:14px;width:min(340px,calc(100vw - 28px));max-height:min(70vh,560px);overflow:auto;padding:18px;border:1px solid rgba(255,255,255,.16);border-radius:18px;background:rgba(15,22,31,.96);color:#f7fafc;box-shadow:0 22px 70px #0009;backdrop-filter:blur(18px);font:14px system-ui}
+#inGameShadersPanel.hidden{display:none}.shader-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.shader-panel-head h2{font-size:18px;margin:0;font-weight:800}
+#closeShadersButton{width:32px;height:32px;border:0;border-radius:9px;background:#ffffff18;color:#fff;font-size:23px;cursor:pointer}
+.shader-panel-subtitle,.shader-panel-note{color:#aab7c7;font-size:12px;line-height:1.5}#inGameShadersPanel .option{margin:16px 0}
+#inGameShadersPanel .option label{display:flex;align-items:center;gap:9px;color:#eef4fb;font-size:13px}
+#inGameShadersPanel select{width:100%;margin-top:8px;padding:10px;border-radius:9px;border:1px solid #ffffff25;background:#263342;color:#fff}
+.shader-panel-note{padding-top:10px;border-top:1px solid #ffffff18}
+@media(max-width:600px){#inGameShadersButton{top:10px;right:10px;padding:9px 12px}#inGameShadersPanel{top:54px;right:10px;width:min(320px,calc(100vw - 20px));}}
+</style></head>
 
 <body>
     <div id="ultra-bg">
@@ -3675,10 +3686,6 @@
                     <option value="medium" selected>Medium</option>
                     <option value="high">High</option>
                 </select></div>
-            <div class="option"><label for="brShaderQuality">Realistic Shader Quality</label><select id="brShaderQuality"><option value="low">Performance</option><option value="medium">Balanced</option><option value="high" selected>Realistic</option><option value="ultra">Ultra Realistic</option></select></div>
-            <div class="option"><label><input id="brShaderBloom" type="checkbox" checked> Natural light glow / bloom</label></div>
-            <div class="option"><label><input id="brShaderVignette" type="checkbox" checked> Cinematic lens shading</label></div>
-            <p style="margin:8px 0 18px;color:#94a3b8;font-size:12px;line-height:1.5">Higher shader quality improves lighting and image detail but may reduce FPS, especially on mobile.</p>
             <div class="option"><label for="brightness">Brightness <span id="brightnessValue"
                         class="range-value">100%</span></label><input id="brightness" type="range" min="70" max="130"
                     value="100" style="width:100%"></div>
@@ -3821,6 +3828,15 @@
                 <span><kbd>Esc</kbd> Pause / Unlock Mouse</span>
             </div>
         </div>
+    </div>
+    <button id="inGameShadersButton" type="button" aria-label="Open shader settings">✦ Shaders</button>
+    <div id="inGameShadersPanel" class="hidden" role="dialog" aria-modal="false" aria-labelledby="inGameShadersTitle">
+      <div class="shader-panel-head"><h2 id="inGameShadersTitle">Graphics &amp; Shaders</h2><button id="closeShadersButton" type="button" aria-label="Close shader settings">×</button></div>
+      <p class="shader-panel-subtitle">Adjust the look and performance of your world.</p>
+      <div class="option"><label for="brShaderQuality">Shader Quality</label><select id="brShaderQuality"><option value="low">Performance</option><option value="medium">Balanced</option><option value="high">Realistic</option><option value="ultra">Ultra Realistic</option></select></div>
+      <div class="option"><label><input id="brShaderBloom" type="checkbox" checked> Bloom &amp; natural light glow</label></div>
+      <div class="option"><label><input id="brShaderVignette" type="checkbox" checked> Cinematic lens shading</label></div>
+      <div class="shader-panel-note">Ultra Realistic uses more GPU power. Performance mode is recommended for phones and tablets.</div>
     </div>
     <div id="pauseOverlay" class="screen hidden">
         <div class="pause-card">
@@ -4191,7 +4207,10 @@
         function showWorldMenu() { setNonGameUI(); loadingScreen.classList.add("hidden"); hideAllMenus(); worldMenu.classList.remove("hidden"); $("#newWorldForm").classList.add("hidden"); $("#newWorldFormButton").classList.remove("hidden"); refreshWorldList() }
         function showSettings(returnTo = "main") { setNonGameUI(); settingsReturn = returnTo; loadingScreen.classList.add("hidden"); hideAllMenus(); settingsMenu.classList.remove("hidden") }
         function showTerrainGenerator() { setNonGameUI(); loadingScreen.classList.add("hidden"); hideAllMenus(); terrainGenerator.classList.add("active"); updateTerrainPreview() }
-        function showGame() { loadingScreen.classList.add("hidden"); hideAllMenus(); closePanels(); gameActive = true; document.body.classList.add("in-game-ui"); saveShortcut.style.display = "block"; document.getElementById("mobileExtraButtons").style.display = "flex"; camera.position.set(player.position.x, player.position.y + player.eyeHeight, player.position.z) }
+        const shaderPanel = $("#inGameShadersPanel");
+        $("#inGameShadersButton").addEventListener("click", () => shaderPanel.classList.toggle("hidden"));
+        $("#closeShadersButton").addEventListener("click", () => shaderPanel.classList.add("hidden"));
+        function showGame() { shaderPanel.classList.add("hidden"); loadingScreen.classList.add("hidden"); hideAllMenus(); closePanels(); gameActive = true; document.body.classList.add("in-game-ui"); saveShortcut.style.display = "block"; document.getElementById("mobileExtraButtons").style.display = "flex"; camera.position.set(player.position.x, player.position.y + player.eyeHeight, player.position.z) }
         function updateDayNight(dt) { if (!gameActive) return; dayNight.time = (dayNight.time + dt * (1440 / dayNight.duration)) % 1440; const t = dayNight.time / 1440, angle = t * Math.PI * 2 - Math.PI / 2, s = Math.sin(angle), day = THREE.MathUtils.clamp(s * .5 + .5, 0, 1), night = 1 - day; sun.position.set(Math.cos(angle) * 40, Math.max(6, s * 40), Math.sin(angle) * 40); moon.position.set(-sun.position.x, Math.max(6, -sun.position.y), -sun.position.z); sun.intensity = .15 + 2.1 * day; moon.intensity = .03 + .15 * night; hemi.intensity = .35 + 1.8 * day; scene.background.copy(dayNight.skyNight).lerp(dayNight.skyDay, day); scene.fog.color.copy(dayNight.fogNight).lerp(dayNight.fogDay, day); scene.fog.near = Number(renderDistanceInput.value) * .36 * (.72 + .28 * day); scene.fog.far = Number(renderDistanceInput.value) * (.7 + .3 * day); worldTimeLabel.textContent = (day >= .35 ? "☀ Day " : "🌙 Night ") + formatTime(dayNight.time); worldTimeLabel.classList.toggle("night", day < .35) } function formatTime(m) { const h = Math.floor(m / 60) % 24, mm = Math.floor(m % 60).toString().padStart(2, "0"); return `${h.toString().padStart(2, "0")}:${mm}` }
         /* MOBS */
         const mobs = []; const mobGroups = new Set(); const mobMaterials = { cow: new THREE.MeshLambertMaterial({ color: 0x6f5a49 }), white: new THREE.MeshLambertMaterial({ color: 0xf0f0eb }), black: new THREE.MeshLambertMaterial({ color: 0x292929 }), pig: new THREE.MeshLambertMaterial({ color: 0xe89aa7 }), zombie: new THREE.MeshLambertMaterial({ color: 0x4d8f62 }), eye: new THREE.MeshBasicMaterial({ color: 0xffefef }) }; const mobBodyGeo = new THREE.BoxGeometry(1, 1, 1), mobHeadGeo = new THREE.BoxGeometry(.62, .62, .62), mobLegGeo = new THREE.BoxGeometry(.22, .62, .22), mobEyeGeo = new THREE.BoxGeometry(.08, .08, .05); const MAX_MOBS = LOW_DEVICE ? 6 : 10; const mobClock = { spawn: 0 };
