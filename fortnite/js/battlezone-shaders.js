@@ -69,6 +69,7 @@ function readSettings(storageKey) {
 function mountShaderPanel() {
   if (!document.body) return;
   let button=document.getElementById("inGameShadersButton");
+  const buttonAlreadyExists=!!button;
   let panel=document.getElementById("inGameShadersPanel");
   if (!button) {
     button=document.createElement("button"); button.id="inGameShadersButton"; button.type="button";
@@ -153,7 +154,7 @@ function mountShaderPanel() {
   }
   const open=()=>{panel.classList.remove("hidden");button.setAttribute("aria-expanded","true");};
   const close=()=>{panel.classList.add("hidden");button.setAttribute("aria-expanded","false");};
-  if (!button.dataset.shaderBound) { button.addEventListener("click",()=>panel.classList.contains("hidden")?open():close());button.dataset.shaderBound="1"; }
+  if (!buttonAlreadyExists && !button.dataset.shaderBound) { button.addEventListener("click",()=>panel.classList.contains("hidden")?open():close());button.dataset.shaderBound="1"; }
   if (!panel.dataset.shaderBound) { panel.querySelector("#closeShadersButton")?.addEventListener("click",close);panel.dataset.shaderBound="1"; }
   return {panel,button};
 }
