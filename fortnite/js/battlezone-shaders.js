@@ -70,10 +70,17 @@ function readSettings(storageKey = STORAGE_KEY) {
     return {
       quality: PRESETS[saved.quality] ? saved.quality : "high",
       bloom: saved.bloom !== false,
-      vignette: saved.vignette !== false
+      vignette: saved.vignette !== false,
+      exposure: Number.isFinite(saved.exposure) ? saved.exposure : 1.12,
+      bloomStrength: Number.isFinite(saved.bloomStrength) ? saved.bloomStrength : 0.48,
+      saturation: Number.isFinite(saved.saturation) ? saved.saturation : null,
+      contrast: Number.isFinite(saved.contrast) ? saved.contrast : null,
+      sharpen: Number.isFinite(saved.sharpen) ? saved.sharpen : null,
+      grain: Number.isFinite(saved.grain) ? saved.grain : null,
+      colorGrade: saved.colorGrade !== false
     };
   } catch {
-    return { quality: "high", bloom: true, vignette: true };
+    return { quality: "high", bloom: true, vignette: true, exposure: 1.12, bloomStrength: 0.48, saturation: null, contrast: null, sharpen: null, grain: null, colorGrade: true };
   }
 }
 
@@ -101,16 +108,16 @@ export function createBattleZoneShaders(THREE, renderer, scene, camera, canvas, 
     composer.setPixelRatio(ratio);
     composerRatio = ratio;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = settings.quality === "ultra" ? 1.18 : settings.quality === "low" ? 1.04 : 1.12;
+    renderer.toneMappingExposure = settings.exposure;
     bloomPass.enabled = settings.bloom && settings.quality !== "low";
-    bloomPass.strength = p.strength;
+    bloomPass.strength = settings.bloomStrength;
     bloomPass.radius = p.radius;
     bloomPass.threshold = p.threshold;
-    cinematicPass.uniforms.uSaturation.value = p.saturation;
-    cinematicPass.uniforms.uContrast.value = p.contrast;
-    cinematicPass.uniforms.uSharpen.value = p.sharpen;
+    cinematicPass.uniforms.uSaturation.value = settings.colorGrade ? (settings.saturation ?? p.saturation) : 1;
+    cinematicPass.uniforms.uContrast.value = settings.colorGrade ? (settings.contrast ?? p.contrast) : 1;
+    cinematicPass.uniforms.uSharpen.value = settings.colorGrade ? (settings.sharpen ?? p.sharpen) : 0;
     cinematicPass.uniforms.uVignette.value = settings.vignette ? p.vignette : 0;
-    cinematicPass.uniforms.uGrain.value = p.grain;
+    cinematicPass.uniforms.uGrain.value = settings.colorGrade ? (settings.grain ?? p.grain) : 0;
     cinematicPass.uniforms.uResolution.value.set(width * ratio, height * ratio);
     try { localStorage.setItem(storageKey, JSON.stringify(settings)); } catch {}
     const quality = document.getElementById("brShaderQuality");
@@ -119,6 +126,22 @@ export function createBattleZoneShaders(THREE, renderer, scene, camera, canvas, 
     if (quality) quality.value = settings.quality;
     if (bloom) bloom.checked = settings.bloom;
     if (vignette) vignette.checked = settings.vignette;
+    const values = {
+      brShaderExposure: settings.exposure,
+      brShaderBloomStrength: settings.bloomStrength,
+      brShaderSaturation: settings.saturation ?? p.saturation,
+      brShaderContrast: settings.contrast ?? p.contrast,
+      brShaderSharpness: settings.sharpen ?? p.sharpen,
+      brShaderGrain: settings.grain ?? p.grain
+    };
+    for (const [id, value] of Object.entries(values)) {
+      const input = document.getElementById(id);
+      if (input) input.value = String(value);
+      const output = document.getElementById(id + "Value");
+      if (output) output.value = Number(value).toFixed(2);
+    }
+    const colorGrade = document.getElementById("brShaderColorGrade");
+    if (colorGrade) colorGrade.checked = settings.colorGrade;
     canvas.dataset.shaderQuality = settings.quality;
   }
   function setSize(w, h) {
@@ -154,7 +177,28 @@ export function createBattleZoneShaders(THREE, renderer, scene, camera, canvas, 
   });
   document.getElementById("brShaderVignette")?.addEventListener("change", event => {
     settings.vignette = event.target.checked;
+  
+  document.getElementById("brShaderColorGrade")?.addEventListener("change", event => {
+    settings.colorGrade = event.target.checked;
     apply();
+  });
+  const numericControls = {
+    brShaderExposure: "exposure",
+    brShaderBloomStrength: "bloomStrength",
+    brShaderSaturation: "saturation",
+    brShaderContrast: "contrast",
+    brShaderSharpness: "sharpen",
+    brShaderGrain: "grain"
+  };
+  for (const [id, key] of Object.entries(numericControls)) {
+    document.getElementById(id)?.addEventListener("input", event => {
+      settings[key] = Number(event.target.value);
+      const output = document.getElementById(id + "Value");
+      if (output) output.value = Number(event.target.value).toFixed(2);
+      apply();
+    });
+  }
+  apply();
   });
   apply();
   return { render, setSize, shaderTools, dispose() { composer.dispose(); bloomPass.dispose(); cinematicPass.dispose(); } };
