@@ -3500,6 +3500,12 @@ body.in-game-ui #inGameShadersButton{display:block}
 .shader-panel-subtitle,.shader-panel-note{color:#aab7c7;font-size:12px;line-height:1.5}#inGameShadersPanel .option{margin:16px 0}
 #inGameShadersPanel .option label{display:flex;align-items:center;gap:9px;color:#eef4fb;font-size:13px}
 #inGameShadersPanel select{width:100%;margin-top:8px;padding:10px;border-radius:9px;border:1px solid #ffffff25;background:#263342;color:#fff}
+#inGameShadersPanel input[type=range]{width:100%;accent-color:#75c7ff;cursor:pointer}
+#inGameShadersPanel .shader-range label{justify-content:space-between}
+#inGameShadersPanel output{color:#8bd5ff;font-variant-numeric:tabular-nums;font-weight:800}
+#inGameShadersPanel .shader-section-title{margin:20px 0 6px;padding-top:14px;border-top:1px solid #ffffff18;color:#8bd5ff;font-size:10px;font-weight:900;letter-spacing:1.5px}
+#inGameShadersPanel input[type=checkbox]{accent-color:#75c7ff}
+
 .shader-panel-note{padding-top:10px;border-top:1px solid #ffffff18}
 @media(max-width:600px){#inGameShadersButton{top:10px;right:10px;padding:9px 12px}#inGameShadersPanel{top:54px;right:10px;width:min(320px,calc(100vw - 20px));}}
 </style></head>
@@ -3836,6 +3842,15 @@ body.in-game-ui #inGameShadersButton{display:block}
       <div class="option"><label for="brShaderQuality">Shader Quality</label><select id="brShaderQuality"><option value="low">Performance</option><option value="medium">Balanced</option><option value="high">Realistic</option><option value="ultra">Ultra Realistic</option></select></div>
       <div class="option"><label><input id="brShaderBloom" type="checkbox" checked> Bloom &amp; natural light glow</label></div>
       <div class="option"><label><input id="brShaderVignette" type="checkbox" checked> Cinematic lens shading</label></div>
+      <div class="shader-section-title">LIGHTING &amp; COLOR</div>
+      <div class="option shader-range"><label for="brShaderExposure">Exposure <output id="brShaderExposureValue">1.12</output></label><input id="brShaderExposure" type="range" min="0.6" max="1.6" step="0.01" value="1.12"></div>
+      <div class="option shader-range"><label for="brShaderBloomStrength">Bloom intensity <output id="brShaderBloomStrengthValue">0.48</output></label><input id="brShaderBloomStrength" type="range" min="0" max="1.2" step="0.01" value="0.48"></div>
+      <div class="option shader-range"><label for="brShaderSaturation">Color saturation <output id="brShaderSaturationValue">1.15</output></label><input id="brShaderSaturation" type="range" min="0" max="2" step="0.01" value="1.15"></div>
+      <div class="option shader-range"><label for="brShaderContrast">Contrast <output id="brShaderContrastValue">1.09</output></label><input id="brShaderContrast" type="range" min="0.7" max="1.5" step="0.01" value="1.09"></div>
+      <div class="option shader-range"><label for="brShaderSharpness">Image sharpness <output id="brShaderSharpnessValue">0.26</output></label><input id="brShaderSharpness" type="range" min="0" max="0.8" step="0.01" value="0.26"></div>
+      <div class="option shader-range"><label for="brShaderGrain">Film grain <output id="brShaderGrainValue">0.02</output></label><input id="brShaderGrain" type="range" min="0" max="0.08" step="0.001" value="0.02"></div>
+      <div class="option"><label><input id="brShaderColorGrade" type="checkbox" checked> Cinematic color grading</label></div>
+
       <div class="shader-panel-note">Ultra Realistic uses more GPU power. Performance mode is recommended for phones and tablets.</div>
     </div>
     <div id="pauseOverlay" class="screen hidden">
