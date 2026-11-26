@@ -1808,6 +1808,10 @@
         renderBetaView(viewRoot);
         break;
 
+      case "hxcks":
+        renderHxcksView(viewRoot);
+        break;
+
       case "chat":
         renderChatView(viewRoot);
         break;
@@ -2082,6 +2086,114 @@
     }
     root.replaceChildren(section);
     saveBetaSettings(settings);
+  }
+
+
+  /* =========================================================
+     HXCKS — KaHoax companion hub
+     The live overlay runs on kahoot.it through the userscript.
+  ========================================================= */
+  function renderHxcksView(root) {
+    const section = createLauncherView("hxcks-view");
+    section.appendChild(createViewHeading(
+      "Hxcks",
+      "KaHoax tools, rebuilt with a cleaner VoidForge interface."
+    ));
+
+    const hero = createElement("section", "hxcks-hero");
+    const heroCopy = createElement("div", "hxcks-hero-copy");
+    heroCopy.append(
+      createElement("span", "hxcks-kicker", "VOIDFORGE • HXCKS"),
+      createElement("h2", "", "Your quiz companion, upgraded."),
+      createElement("p", "", "A redesigned KaHoax experience with the original quiz lookup, question browser, answer highlighting, timing controls and compact floating panel.")
+    );
+    const heroSide = createElement("div", "hxcks-hero-side");
+    heroSide.append(
+      createElement("span", "hxcks-orb", "HX"),
+      createElement("span", "hxcks-version", "KA HOAX • 1.1.5.1")
+    );
+    hero.append(heroCopy, heroSide);
+    section.appendChild(hero);
+
+    const launchRow = createElement("div", "hxcks-launch-row");
+    const install = createElement("a", "hxcks-primary", "Install Hxcks userscript");
+    install.href = "./apps/hxcks/KaHoax.user.js";
+    install.target = "_blank";
+    install.rel = "noopener noreferrer";
+    const openKahoot = createElement("a", "hxcks-secondary", "Open Kahoot ↗");
+    openKahoot.href = "https://kahoot.it/";
+    openKahoot.target = "_blank";
+    openKahoot.rel = "noopener noreferrer";
+    const source = createElement("a", "hxcks-text-link", "Source & credits");
+    source.href = "https://github.com/KRWCLASSIC/KaHoax";
+    source.target = "_blank";
+    source.rel = "noopener noreferrer";
+    launchRow.append(install, openKahoot, source);
+    section.appendChild(launchRow);
+
+    const status = createElement("div", "hxcks-notice");
+    const statusCopy = createElement("div", "hxcks-notice-copy");
+    statusCopy.append(
+      createElement("strong", "", "Browser companion required"),
+      createElement("small", "", "Install the userscript manager and Hxcks script first. The live controller appears on the Kahoot tab, because browsers do not let VoidForge control another website's page directly.")
+    );
+    status.append(createElement("span", "hxcks-status-dot", ""), statusCopy);
+    section.appendChild(status);
+
+    const featureGrid = createElement("div", "hxcks-feature-grid");
+    const features = [
+      ["⌕", "Quiz lookup", "Enter a quiz ID or search public quiz sets and select a result."],
+      ["☷", "Question browser", "Browse loaded questions, expand each question and inspect its choices."],
+      ["◉", "Answer highlighting", "Highlight answer choices in the live quiz overlay."],
+      ["↯", "Timing controls", "Configure the points target and input-lag compensation."],
+      ["▣", "Multi-select support", "Recognizes standard quiz, true/false and multi-select questions."],
+      ["↔", "Floating panel", "Drag, minimize or close the controller panel; responsive on smaller screens."]
+    ];
+    features.forEach(([icon, title, description]) => {
+      const card = createElement("article", "hxcks-feature");
+      card.append(
+        createElement("span", "hxcks-feature-icon", icon),
+        createElement("strong", "", title),
+        createElement("p", "", description)
+      );
+      featureGrid.appendChild(card);
+    });
+    section.appendChild(featureGrid);
+
+    const setup = createElement("section", "hxcks-setup");
+    setup.append(
+      createElement("span", "hxcks-kicker", "QUICK SETUP"),
+      createElement("h2", "", "Get Hxcks running"),
+      createElement("p", "hxcks-muted", "The controller is delivered as a userscript so it can run on the Kahoot page itself.")
+    );
+    const steps = createElement("ol", "hxcks-steps");
+    [
+      "Install Tampermonkey (or another compatible userscript manager) in your browser.",
+      "Select “Install Hxcks userscript” above and confirm the installation.",
+      "Open Kahoot in a new tab. The redesigned KaHoax panel will appear on the game page.",
+      "Enter a quiz ID in the panel to load a supported public quiz set."
+    ].forEach((step, index) => {
+      const item = createElement("li", "hxcks-step");
+      item.append(
+        createElement("span", "hxcks-step-number", String(index + 1).padStart(2, "0")),
+        createElement("span", "", step)
+      );
+      steps.appendChild(item);
+    });
+    setup.appendChild(steps);
+    section.appendChild(setup);
+
+    const footer = createElement("p", "hxcks-attribution");
+    footer.append(
+      document.createTextNode("Based on KaHoax by KRWCLASSIC, with upstream MIT license and contributor credits preserved. "),
+      Object.assign(createElement("a", "", "View original project"), {
+        href: "https://github.com/KRWCLASSIC/KaHoax",
+        target: "_blank",
+        rel: "noopener noreferrer"
+      })
+    );
+    section.appendChild(footer);
+    root.replaceChildren(section);
   }
 
   /* =========================================================
