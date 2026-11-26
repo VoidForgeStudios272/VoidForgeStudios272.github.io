@@ -2132,13 +2132,12 @@
     section.appendChild(launchRow);
 
     const status = createElement("div", "hxcks-notice");
-    status.append(
-      createElement("span", "hxcks-status-dot", ""),
-      createElement("div", "hxcks-notice-copy",
-        "Browser companion required",
-        "Install the userscript manager and Hxcks script first. The live controller appears on the Kahoot tab, because browsers do not let VoidForge control another website's page directly."
-      )
+    const statusCopy = createElement("div", "hxcks-notice-copy");
+    statusCopy.append(
+      createElement("strong", "", "Browser companion required"),
+      createElement("small", "", "Install the userscript manager and Hxcks script first. The live controller appears on the Kahoot tab, because browsers do not let VoidForge control another website's page directly.")
     );
+    status.append(createElement("span", "hxcks-status-dot", ""), statusCopy);
     section.appendChild(status);
 
     const featureGrid = createElement("div", "hxcks-feature-grid");
